@@ -16,6 +16,8 @@ services:
     command: npm run dev
     ports:
       - '3000:3000'
+    env_file: 
+      - .env
     environment:
       DB_HOST: db
       DB_USER: admin_h_24

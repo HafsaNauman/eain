@@ -1,35 +1,67 @@
 import express from 'express';
-// import sequelize from './config/db.js';
+import cors from 'cors';
 import { User, UserVerification, sequelize } from './models/index.js';
 
-// import authRoutes from './routes/auth.js';
+// Import routes
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
-app.use(express.json());
 
-// try {
-//   await sequelize.authenticate();
-//   await sequelize.sync();
-//   console.log('Database connected and synced');
-// } catch (err) {
-//   console.error('Connection error:', err);
-// }
+// Middleware
+app.use(cors()); // Enable CORS
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
-// DB connection and sync
+// Database connection and sync
 async function connectDB() {
   try {
     await sequelize.authenticate();
-    console.log('Database connection established successfully.');
-
-    await sequelize.sync(); // or sync({ alter: true }) during development
-    console.log('Models synced with database.');
+    console.log('✅ Database connection established successfully.');
+    
+    await sequelize.sync({alter : true}); // or sync({ alter: true }) during development
+    console.log('✅ Models synced with database.');
   } catch (err) {
-    console.error('Database connection error:', err);
+    console.error('❌ Database connection error:', err);
+    process.exit(1);
   }
 }
 
 connectDB();
 
-// app.use('/api/auth', authRoutes);
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Health check route
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running' });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ 
+    success: false, 
+    message: 'Route not found' 
+  });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ 
+    success: false, 
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📍 API Base: http://localhost:${PORT}/api`);
+});
+
+export default app;
