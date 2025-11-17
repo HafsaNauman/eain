@@ -95,3 +95,48 @@ export const isModerator = async (req, res, next) => {
     return errorResponse(res, 500, 'Error checking moderator role', error.message);
   }
 };
+
+/**
+ * Optional JWT verification
+ * Verifies token if present, but doesn't fail if missing
+ */
+export const verifyJWTOptional = async (req, res, next) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    
+    if (!authHeader) {
+      // No token provided - that's okay for public endpoints
+      req.userId = null;
+      req.userRole = null;
+      return next();
+    }
+    
+    const token = authHeader.split(' ')[1];
+    
+    if (!token) {
+      req.userId = null;
+      req.userRole = null;
+      return next();
+    }
+
+    // Token provided - try to verify it
+    try {
+      const decoded = verifyToken(token);
+      req.userId = decoded.user_id;
+      req.userRole = decoded.role;
+      console.log('✅ Authenticated user:', req.userId);
+    } catch (err) {
+      // Token invalid - continue anyway for public endpoints
+      console.log('⚠️  Invalid token, continuing as anonymous');
+      req.userId = null;
+      req.userRole = null;
+    }
+
+    next();
+  } catch (error) {
+    // Don't fail - just continue without authentication
+    req.userId = null;
+    req.userRole = null;
+    next();
+  }
+};

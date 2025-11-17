@@ -3,4 +3,6 @@ client/.env
 backend/.env
 backend/node_modules/
 .vscode/
-
+stt-service/.env
+stt-service/app/credentials.json
+stt-service/app/__pycache__/

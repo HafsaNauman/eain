@@ -1,0 +1,45 @@
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: eain_db
+      POSTGRES_USER: admin_h_24
+      POSTGRES_PASSWORD: hhh_e_ain25
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  app:  
+    build: ./backend  
+    command: npm run dev
+    ports:
+      - '3000:3000'
+    env_file:
+      - ./backend/.env  
+    environment:
+      DB_HOST: db
+      FASTAPI_URL: http://stt-service:8000
+    depends_on:
+      db:
+        condition: service_started
+      stt-service:
+        condition: service_started
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+
+  stt-service: 
+    build: ./stt-service
+    ports:
+      - "8000:8000"
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /app/credentials.json
+      PORT: 8000
+    volumes:
+      - ./stt-service:/app
+      - ./credentials.json:/app/credentials.json:ro
+
+volumes:
+  db_data:

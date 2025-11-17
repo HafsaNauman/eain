@@ -6,13 +6,14 @@ import { User, UserVerification, sequelize } from './models/index.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import sttRoutes from './routes/stt.routes.js'; 
 
 const app = express();
 
 // Middleware
 app.use(cors()); // Enable CORS
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(express.json({ limit: '50mb' })); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-encoded bodies
 
 // Database connection and sync
 async function connectDB() {
@@ -34,6 +35,7 @@ connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/stt', sttRoutes);  // ← NEW
 
 // Health check route
 app.get('/health', (req, res) => {
