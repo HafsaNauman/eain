@@ -5,9 +5,9 @@ import { verifyJWTOptional } from '../middlewares/authJwt.js';  // ← Changed
 
 const router = express.Router();
 
-/**
- * STT Routes
- */
+
+// STT Routes
+
 
 // Health check (public)
 router.get('/health', checkSTTHealth);

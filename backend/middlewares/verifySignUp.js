@@ -1,9 +1,9 @@
 import { User } from '../models/index.js';
 import { errorResponse } from '../utils/responseBuilder.js';
 
-/**
- * Check if phone number or email already exists
- */
+
+// Check if phone number or email already exists
+
 export const checkDuplicatePhoneOrEmail = async (req, res, next) => {
   try {
     const { phone_number, email } = req.body;
@@ -30,9 +30,9 @@ export const checkDuplicatePhoneOrEmail = async (req, res, next) => {
   }
 };
 
-/**
- * Validate signup fields
- */
+
+// Validate signup fields
+
 export const validateSignupFields = (req, res, next) => {
   const { full_name, phone_number, password } = req.body;
 

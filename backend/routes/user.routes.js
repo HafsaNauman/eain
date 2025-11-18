@@ -5,9 +5,9 @@ import { User } from '../models/index.js';
 
 const router = express.Router();
 
-/**
- * Protected user routes - require JWT token
- */
+
+// Protected user routes - require JWT token
+
 
 // Get current user profile
 router.get('/profile', verifyJWT, async (req, res) => {
