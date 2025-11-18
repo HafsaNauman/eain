@@ -1,5 +1,16 @@
+// loginscreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  StyleSheet,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../config/apiConfig'; // adjust path if needed
 
 const LoginScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -7,73 +18,133 @@ const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!phoneNumber || !password) {
+      Alert.alert('Missing Fields', 'Please enter phone number and password');
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phonenumber: phoneNumber, password }),
+        // Backend expects phone_number
+        body: JSON.stringify({ phone_number: phoneNumber, password }),
       });
+
       const result = await response.json();
+
       if (result.success) {
-        // Store tokens, navigate to app
-        // AsyncStorage.setItem("accessToken", result.data.accessToken);
-        // navigation.replace('Home');
+        const accessToken = result.data?.accessToken;
+        const refreshToken = result.data?.refreshToken;
+        const userId = result.data?.user?.user_id;
+
+        if (accessToken) {
+          await AsyncStorage.setItem('accessToken', accessToken);
+        }
+        if (refreshToken) {
+          await AsyncStorage.setItem('refreshToken', refreshToken);
+        }
+        if (userId) {
+          await AsyncStorage.setItem('userId', String(userId));
+        }
+
         Alert.alert('Success', 'Logged in!');
+        navigation.replace('Home');
       } else {
         Alert.alert('Login Failed', result.message || 'Try again');
       }
     } catch (err) {
       Alert.alert('Network Error', err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#E8F0F2' }}>
-      <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#008080', marginBottom: 24 }}>
-        EAIN Login
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Login</Text>
+
       <TextInput
+        style={styles.input}
         placeholder="Phone Number"
+        keyboardType="phone-pad"
         value={phoneNumber}
         onChangeText={setPhoneNumber}
-        keyboardType="phone-pad"
-        style={{
-          borderWidth: 1, borderColor: '#008080', padding: 12,
-          borderRadius: 20, marginBottom: 16, backgroundColor: '#fff'
-        }}
       />
+
       <TextInput
+        style={styles.input}
         placeholder="Password"
+        secureTextEntry
         value={password}
         onChangeText={setPassword}
-        secureTextEntry
-        style={{
-          borderWidth: 1, borderColor: '#FFDAB9', padding: 12,
-          borderRadius: 20, marginBottom: 24, backgroundColor: '#fff'
-        }}
       />
+
       <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handleLogin}
-        style={{
-          backgroundColor: '#008080',
-          padding: 14, borderRadius: 24,
-          alignItems: 'center', marginBottom: 12
-        }}
         disabled={loading}
       >
-        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18 }}>
-          {loading ? 'Logging in...' : 'Login'}
-        </Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-        <Text style={{ color: '#FFAB91', fontWeight: 'bold', textAlign: 'center' }}>
-          Don't have an account? Sign up
-        </Text>
+
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Signup')}
+        style={styles.linkContainer}
+      >
+        <Text style={styles.linkText}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 export default LoginScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 28,
+    marginBottom: 24,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#cccccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 12,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 16,
+  },
+  linkContainer: {
+    marginTop: 18,
+    alignItems: 'center',
+  },
+  linkText: {
+    color: '#007bff',
+  },
+});
