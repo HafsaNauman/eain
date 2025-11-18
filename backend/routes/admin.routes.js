@@ -5,9 +5,9 @@ import { User } from '../models/index.js';
 
 const router = express.Router();
 
-/**
- * Admin routes - require JWT token + admin role
- */
+
+// Admin routes - require JWT token + admin role
+
 
 // Get all users (admin only)
 router.get('/users', [verifyJWT, isAdmin], async (req, res) => {

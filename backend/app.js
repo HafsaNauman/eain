@@ -19,12 +19,12 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-enc
 async function connectDB() {
   try {
     await sequelize.authenticate();
-    console.log('✅ Database connection established successfully.');
+    console.log(' Database connection established successfully.');
     
     await sequelize.sync({alter : true}); // or sync({ alter: true }) during development
-    console.log('✅ Models synced with database.');
+    console.log('Models synced with database.');
   } catch (err) {
-    console.error('❌ Database connection error:', err);
+    console.error(' Database connection error:', err);
     process.exit(1);
   }
 }
@@ -62,8 +62,8 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 API Base: http://localhost:${PORT}/api`);
+  console.log(` Server running on port ${PORT}`);
+  console.log(` API Base: http://localhost:${PORT}/api`);
 });
 
 export default app;

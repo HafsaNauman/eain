@@ -12,9 +12,9 @@ import {
 
 const router = express.Router();
 
-/**
- * Auth Routes
- */
+
+  // Auth Routes
+ 
 
 // STEP 1: Send OTP to phone number
 router.post('/send-otp', sendOTP);

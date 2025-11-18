@@ -4,11 +4,11 @@ import fs from 'fs';
 import sttConfig from '../config/stt.config.js';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 
-/**
- * Speech-to-Text endpoint
- * POST /api/stt/transcribe
- * Accepts audio file and forwards to FastAPI
- */
+
+//  Speech-to-Text endpoint
+//  POST /api/stt/transcribe
+//  Accepts audio file and forwards to FastAPI
+
 export const transcribeAudio = async (req, res) => {
   let audioFilePath = null;
 
@@ -58,12 +58,12 @@ export const transcribeAudio = async (req, res) => {
 
     if (!fastApiResponse.ok) {
       const errorText = await fastApiResponse.text();
-      console.error('❌ FastAPI error:', errorText);
+      console.error(' FastAPI error:', errorText);
       throw new Error(`FastAPI returned ${fastApiResponse.status}: ${errorText}`);
     }
 
     const result = await fastApiResponse.json();
-    console.log('✅ Transcription result:', result);
+    console.log(' Transcription result:', result);
 
     // Clean up uploaded file
     fs.unlinkSync(audioFilePath);
@@ -82,7 +82,7 @@ export const transcribeAudio = async (req, res) => {
     );
 
   } catch (error) {
-    console.error('❌ Transcription error:', error.message);
+    console.error('Transcription error:', error.message);
 
     // Clean up file if exists
     if (audioFilePath && fs.existsSync(audioFilePath)) {
@@ -98,10 +98,10 @@ export const transcribeAudio = async (req, res) => {
   }
 };
 
-/**
- * Health check for STT service
- * GET /api/stt/health
- */
+
+// Health check for STT service
+// GET /api/stt/health
+
 export const checkSTTHealth = async (req, res) => {
   try {
     const response = await fetch(`${sttConfig.fastApiUrl}/health`);

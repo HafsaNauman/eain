@@ -56,11 +56,11 @@ export const sendOTP = async (req, res) => {
   }
 };
 
-/**
- * STEP 2: Verify OTP
- * POST /api/auth/verify-otp
- * Body: { phone_number, otp_code }
- */
+
+  // STEP 2: Verify OTP
+  // POST /api/auth/verify-otp
+  // Body: { phone_number, otp_code }
+ 
 export const verifyOTP = async (req, res) => {
   const transaction = await sequelize.transaction();
   
@@ -116,11 +116,11 @@ export const verifyOTP = async (req, res) => {
   }
 };
 
-/**
- * STEP 3: Complete Signup (after OTP verification)
- * POST /api/auth/signup
- * Body: { full_name, phone_number, email, password, gender, preferred_language, literacy_level }
- */
+
+//  STEP 3: Complete Signup (after OTP verification)
+//  POST /api/auth/signup
+//  Body: { full_name, phone_number, email, password, gender, preferred_language, literacy_level }
+
 export const signup = async (req, res) => {
   const transaction = await sequelize.transaction();
   
@@ -224,11 +224,11 @@ export const signup = async (req, res) => {
   }
 };
 
-/**
- * Login
- * POST /api/auth/login
- * Body: { phone_number, password }
- */
+
+// Login
+// POST /api/auth/login
+// Body: { phone_number, password }
+// 
 export const login = async (req, res) => {
   try {
     const { phone_number, password } = req.body;
