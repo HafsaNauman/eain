@@ -1,5 +1,6 @@
-import {Sequelize} from 'sequelize';
+import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 const sequelize = new Sequelize(
@@ -9,7 +10,15 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: 'postgres'
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false  // Required for Neon
+      }
+    },
+    logging: false  // Set to console.log to see SQL queries
   }
 );
+
 export default sequelize;

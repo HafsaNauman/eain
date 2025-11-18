@@ -41,7 +41,8 @@ export const sendOTP = async (req, res) => {
     await transaction.commit();
 
     // TODO: Send SMS with OTP code (integrate with Twilio/AWS SNS later)
-    console.log(`📱 OTP Code for ${phone_number}: ${code}`);
+    // for now just printing a dummy otp code on console
+    console.log(` OTP Code for ${phone_number}: ${code}`);
 
     return successResponse(
       res,

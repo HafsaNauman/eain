@@ -5,7 +5,12 @@ export default {
   fastApiUrl: process.env.FASTAPI_URL || 'http://localhost:8000',
   uploadDir: './uploads/audio',
   maxFileSize: 50 * 1024 * 1024, // 50MB
-  allowedFormats: ['audio/wav', 'audio/mpeg', 'audio/webm', 'audio/ogg'] ,
+  allowedFormats: ['audio/wav',
+     'audio/mpeg',
+      'audio/webm', 
+      'audio/ogg', 
+      'audio/wav',        // Standard
+  'audio/x-wav'],    // Common from Windows and Postman] ,
   defaultConfig: {
     encoding: 'LINEAR16',
     sampleRateHertz: 44100,
