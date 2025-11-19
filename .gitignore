@@ -1,8 +1,10 @@
 .env
 client/.env
+client/node_modules/
 backend/.env
 backend/node_modules/
 .vscode/
 stt-service/.env
 stt-service/credentials.json
 stt-service/app/__pycache__/
+client/.expo/
