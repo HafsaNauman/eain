@@ -14,22 +14,22 @@ export const sendOTP = async (req, res) => {
   
   try {
     const { phone_number } = req.body;
-
+    
     if (!phone_number) {
       await transaction.rollback();
       return errorResponse(res, 400, 'Phone number is required');
     }
-
+    
     // Check if phone number already registered
     const existingUser = await User.findOne({ where: { phone_number } });
     if (existingUser) {
       await transaction.rollback();
       return errorResponse(res, 400, 'Phone number already registered');
     }
-
+    
     // Generate OTP
     const { code, expiresAt } = generateOTP();
-
+    
     // Save OTP to UserVerification table
     await UserVerification.create({
       phone_number,
@@ -37,45 +37,45 @@ export const sendOTP = async (req, res) => {
       expires_at: expiresAt,
       verification_status: 'pending'
     }, { transaction });
-
+    
     await transaction.commit();
-
-    // TODO: Send SMS with OTP code (integrate with Twilio/AWS SNS later)
-    // for now just printing a dummy otp code on console
-    console.log(` OTP Code for ${phone_number}: ${code}`);
-
+    
+    // Print OTP to console
+    console.log(`🎯 OTP Code for ${phone_number}: ${code}`);
+    
     return successResponse(
       res,
       200,
       'OTP sent successfully (check console for now)',
       { phone_number }
     );
+    
   } catch (error) {
     await transaction.rollback();
-    console.error('Send OTP Error:', error);
+    console.error('❌ Send OTP Error:', error);
     return errorResponse(res, 500, 'Failed to send OTP', error.message);
   }
 };
 
-
-  // STEP 2: Verify OTP
-  // POST /api/auth/verify-otp
-  // Body: { phone_number, otp_code }
- 
+/**
+ * STEP 2: Verify OTP
+ * POST /api/auth/verify-otp
+ * Body: { phone_number, otp_code }
+ */
 export const verifyOTP = async (req, res) => {
   const transaction = await sequelize.transaction();
   
   try {
     const { phone_number, otp_code } = req.body;
-
+    
     if (!phone_number || !otp_code) {
       await transaction.rollback();
       return errorResponse(res, 400, 'Phone number and OTP code are required');
     }
-
-    // Find the latest verification record for this phone number
+    
+    // Find verification record
     const verification = await UserVerification.findOne({
-      where: { 
+      where: {
         phone_number,
         verification_code: otp_code,
         verification_status: 'pending'
@@ -83,96 +83,91 @@ export const verifyOTP = async (req, res) => {
       order: [['created_at', 'DESC']],
       transaction
     });
-
+    
     if (!verification) {
       await transaction.rollback();
       return errorResponse(res, 400, 'Invalid OTP code');
     }
-
+    
     // Check if OTP expired
     if (isOTPExpired(verification.expires_at)) {
       await transaction.rollback();
       return errorResponse(res, 400, 'OTP has expired');
     }
-
+    
     // Mark as verified
     verification.verification_status = 'verified';
     await verification.save({ transaction });
-
     await transaction.commit();
-
+    
     return successResponse(
       res,
       200,
       'Phone number verified successfully',
-      { 
-        phone_number,
-        verified: true 
-      }
+      { phone_number, verified: true }
     );
+    
   } catch (error) {
     await transaction.rollback();
-    console.error('Verify OTP Error:', error);
+    console.error('❌ Verify OTP Error:', error);
     return errorResponse(res, 500, 'Failed to verify OTP', error.message);
   }
 };
 
-
-//  STEP 3: Complete Signup (after OTP verification)
-//  POST /api/auth/signup
-//  Body: { full_name, phone_number, email, password, gender, preferred_language, literacy_level }
-
+/**
+ * STEP 3: Complete Signup
+ * POST /api/auth/signup
+ */
 export const signup = async (req, res) => {
   const transaction = await sequelize.transaction();
   
   try {
-    const { 
-      full_name, 
-      phone_number, 
-      email, 
+    const {
+      full_name,
+      phone_number,
+      email,
       password,
       gender,
       preferred_language,
       literacy_level
     } = req.body;
-
+    
     // Validate required fields
     if (!full_name || !phone_number || !password) {
       await transaction.rollback();
       return errorResponse(res, 400, 'Full name, phone number, and password are required');
     }
-
-    // Check if phone number was verified
+    
+    // Check if phone verified
     const verification = await UserVerification.findOne({
-      where: { 
+      where: {
         phone_number,
         verification_status: 'verified'
       },
       order: [['created_at', 'DESC']],
       transaction
     });
-
+    
     if (!verification) {
       await transaction.rollback();
-      return errorResponse(res, 400, 'Phone number not verified. Please verify your phone first.');
+      return errorResponse(res, 400, 'Phone number not verified');
     }
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ 
+    
+    // Check if user exists
+    const existingUser = await User.findOne({
       where: { phone_number },
-      transaction 
+      transaction
     });
-
+    
     if (existingUser) {
       await transaction.rollback();
       return errorResponse(res, 400, 'User already exists');
     }
-
+    
     // Hash password
-    const saltRounds = 10;
-    const password_hash = await bcrypt.hash(password, saltRounds);
-
-    // Create new user
+    const password_hash = await bcrypt.hash(password, 10);
+    
+    // Create user
     const newUser = await User.create({
       full_name,
       phone_number,
@@ -182,109 +177,102 @@ export const signup = async (req, res) => {
       preferred_language: preferred_language || 'en',
       literacy_level: literacy_level || 'medium',
       role: 'user',
-      is_verified: true // Already verified via OTP
+      is_verified: true
     }, { transaction });
-
+    
     await transaction.commit();
-
-    // Generate JWT tokens
+    
+    // Generate tokens
     const accessToken = generateAccessToken({
       user_id: newUser.user_id,
       phone_number: newUser.phone_number,
       role: newUser.role
     });
-
+    
     const refreshToken = generateRefreshToken({
       user_id: newUser.user_id
     });
-
-    // Remove password from response
-    const userResponse = {
-      user_id: newUser.user_id,
-      full_name: newUser.full_name,
-      phone_number: newUser.phone_number,
-      email: newUser.email,
-      role: newUser.role,
-      is_verified: newUser.is_verified
-    };
-
+    
     return successResponse(
       res,
       201,
       'User registered successfully',
       {
-        user: userResponse,
+        user: {
+          user_id: newUser.user_id,
+          full_name: newUser.full_name,
+          phone_number: newUser.phone_number,
+          email: newUser.email,
+          role: newUser.role
+        },
         accessToken,
         refreshToken
       }
     );
+    
   } catch (error) {
     await transaction.rollback();
-    console.error('Signup Error:', error);
+    console.error('❌ Signup Error:', error);
     return errorResponse(res, 500, 'Failed to register user', error.message);
   }
 };
 
-
-// Login
-// POST /api/auth/login
-// Body: { phone_number, password }
-// 
+/**
+ * Login
+ * POST /api/auth/login
+ */
 export const login = async (req, res) => {
   try {
     const { phone_number, password } = req.body;
-
+    
     if (!phone_number || !password) {
       return errorResponse(res, 400, 'Phone number and password are required');
     }
-
-    // Find user by phone number
+    
+    // Find user
     const user = await User.findOne({ where: { phone_number } });
-
+    
     if (!user) {
       return errorResponse(res, 401, 'Invalid credentials');
     }
-
-    // Compare password
+    
+    // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-
+    
     if (!isPasswordValid) {
       return errorResponse(res, 401, 'Invalid credentials');
     }
-
-    // Generate JWT tokens
+    
+    // Generate tokens
     const accessToken = generateAccessToken({
       user_id: user.user_id,
       phone_number: user.phone_number,
       role: user.role
     });
-
+    
     const refreshToken = generateRefreshToken({
       user_id: user.user_id
     });
-
-    // User response without password
-    const userResponse = {
-      user_id: user.user_id,
-      full_name: user.full_name,
-      phone_number: user.phone_number,
-      email: user.email,
-      role: user.role,
-      is_verified: user.is_verified
-    };
-
+    
     return successResponse(
       res,
       200,
       'Login successful',
       {
-        user: userResponse,
+        user: {
+          user_id: user.user_id,
+          full_name: user.full_name,
+          phone_number: user.phone_number,
+          email: user.email,
+          role: user.role
+        },
         accessToken,
         refreshToken
       }
     );
+    
   } catch (error) {
-    console.error('Login Error:', error);
+    console.error('❌ Login Error:', error);
     return errorResponse(res, 500, 'Failed to login', error.message);
   }
 };
