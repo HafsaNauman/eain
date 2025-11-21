@@ -1,29 +1,41 @@
 /**
- * Color Theme
+ * EAIN Color Theme
  * 
- * Centralized color definitions for consistent theming
+ * Beautiful gradient colors matching splash screen
  */
 
 export const COLORS = {
-  // Primary colors
-  primary: '#007AFF',
-  primaryLight: '#E5F1FF',
-  primaryDark: '#0051D5',
-
-  // Secondary colors
-  secondary: '#F5F5F5',
+  // Primary EAIN colors
+  primary: '#7AB8A6',
+  primaryLight: '#A8DCD1',
+  primaryDark: '#2C5F5D',
+  
+  // Accent colors (from gradient)
+  accent: '#F0B8A8',
+  accentLight: '#F5D4CC',
+  
+  // Gradient colors
+  gradientStart: '#7AB8A6',
+  gradientMiddle: '#8DC4B4',
+  gradientEnd: '#A5CFC3',
+  
+  // Wave gradient
+  waveStart: '#7DD3C0',
+  waveMiddle: '#A8DCD1',
+  waveEnd: '#F0B8A8',
   
   // Background colors
   background: '#FFFFFF',
-  inputBackground: '#F9F9F9',
+  inputBackground: '#F9FAFB',
   
   // Text colors
-  text: '#000000',
-  textSecondary: '#6B7280',
-  placeholder: '#9CA3AF',
+  text: '#2C5F5D',
+  textSecondary: '#6B8E8A',
+  textLight: '#FFFFFF',
+  placeholder: '#9CB5B1',
   
   // UI element colors
-  border: '#E5E7EB',
+  border: '#D1E3DF',
   disabled: '#D1D5DB',
   
   // Status colors
@@ -33,8 +45,8 @@ export const COLORS = {
   errorBackground: '#FEE2E2',
   warning: '#F59E0B',
   warningBackground: '#FEF3C7',
-  info: '#3B82F6',
-  infoBackground: '#DBEAFE',
+  info: '#7AB8A6',
+  infoBackground: '#E8F5F2',
   
   // Neutral colors
   white: '#FFFFFF',
