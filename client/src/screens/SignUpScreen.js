@@ -1,38 +1,31 @@
 /**
- * Sign Up Screen
+ * Sign Up Screen - EAIN Design
  * 
- * Third step in authentication flow:
- * - User fills registration form
- * - Fields: First Name, Last Name, Email (optional), Password, Gender, Role
- * - Phone number pre-filled (non-editable) from OTP verification
- * - Validates all inputs
- * - Creates user account
- * - Navigates to home on success
- * 
- * Supports voice input for all text fields
+ * Complete sign up form with all fields
+ * Fields: First Name, Last Name, Email (optional), Password, Gender, Role
+ * Voice input for First Name and Last Name
  */
-
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Picker } from '@react-native-picker/picker';
 import CustomInput from '../components/common/CustomInput';
 import CustomButton from '../components/common/CustomButton';
 import VoiceInputButton from '../components/voice/VoiceInputButton';
 import ErrorAlert from '../components/common/ErrorAlert';
-import PhoneNumberInput from '../components/phone/PhoneNumberInput';
 import { COLORS } from '../constants/colors';
 import { validateEmail, validatePassword, validateName } from '../utils/validation';
 import { signUp } from '../api/authService';
 import { saveTokens, saveUserData } from '../utils/storage';
-import { Picker } from '@react-native-picker/picker';
 
 const SignUpScreen = ({ route, navigation }) => {
   const { phoneNumber } = route.params;
@@ -49,53 +42,47 @@ const SignUpScreen = ({ route, navigation }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
-  const [activeVoiceField, setActiveVoiceField] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const updateField = (field, value) => {
     setFormData({ ...formData, [field]: value });
-    // Clear error for this field
     if (errors[field]) {
       setErrors({ ...errors, [field]: '' });
     }
+    setGeneralError('');
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    // First Name
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
     } else if (!validateName(formData.firstName)) {
-      newErrors.firstName = 'First name should only contain letters';
+      newErrors.firstName = 'Please enter a valid name';
     }
 
-    // Last Name
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'Last name is required';
     } else if (!validateName(formData.lastName)) {
-      newErrors.lastName = 'Last name should only contain letters';
+      newErrors.lastName = 'Please enter a valid name';
     }
 
-    // Email (optional but must be valid if provided)
     if (formData.email && !validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = 'Please enter a valid email';
     }
 
-    // Password
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (!validatePassword(formData.password)) {
-      newErrors.password = 'Password must be at least 6 characters and include a number';
+      newErrors.password = 'Min 6 characters with a number';
     }
 
-    // Gender
     if (!formData.gender) {
-      newErrors.gender = 'Please select your gender';
+      newErrors.gender = 'Please select gender';
     }
 
-    // Role
     if (!formData.role) {
-      newErrors.role = 'Please select your role';
+      newErrors.role = 'Please select role';
     }
 
     setErrors(newErrors);
@@ -105,7 +92,6 @@ const SignUpScreen = ({ route, navigation }) => {
   const handleSignUp = async () => {
     setGeneralError('');
 
-    // Validate form
     if (!validateForm()) {
       return;
     }
@@ -113,7 +99,6 @@ const SignUpScreen = ({ route, navigation }) => {
     setLoading(true);
 
     try {
-      // Sign up with backend
       const result = await signUp({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
@@ -125,12 +110,10 @@ const SignUpScreen = ({ route, navigation }) => {
       });
 
       if (result.success) {
-        // Save tokens and user data
         const { accessToken, refreshToken, user } = result.data.data;
         await saveTokens(accessToken, refreshToken);
         await saveUserData(user);
 
-        // Navigate to home
         navigation.reset({
           index: 0,
           routes: [{ name: 'Home' }],
@@ -147,13 +130,11 @@ const SignUpScreen = ({ route, navigation }) => {
   };
 
   const handleVoiceTranscription = (transcribedText, field) => {
-    // Update the field with transcribed text
-    updateField(field, transcribedText);
-    setActiveVoiceField(null);
+    updateField(field, transcribedText.trim());
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoid}
@@ -165,29 +146,19 @@ const SignUpScreen = ({ route, navigation }) => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Create Account 📝</Text>
-            <Text style={styles.subtitle}>
-              Fill in your details to complete registration
-            </Text>
+            <Text style={styles.appName}>EAIN</Text>
+            <Text style={styles.title}>Create an{'\n'}account</Text>
           </View>
 
           {/* Error Alert */}
-          <ErrorAlert message={generalError} />
+          {generalError ? <ErrorAlert message={generalError} /> : null}
 
-          {/* Phone Number (Non-editable) */}
-          <PhoneNumberInput
-            value={phoneNumber.replace('+92', '').replace(/(\d{3})(\d{7})/, '$1 $2')}
-            onChangeText={() => {}}
-            editable={false}
-          />
-
-          {/* First Name */}
-          <View>
+          {/* First Name with Voice Input */}
+          <View style={styles.fieldContainer}>
             <CustomInput
-              label="First Name *"
               value={formData.firstName}
               onChangeText={(text) => updateField('firstName', text)}
-              placeholder="Enter your first name"
+              placeholder="First Name"
               error={errors.firstName}
               autoCapitalize="words"
             />
@@ -197,13 +168,12 @@ const SignUpScreen = ({ route, navigation }) => {
             />
           </View>
 
-          {/* Last Name */}
-          <View>
+          {/* Last Name with Voice Input */}
+          <View style={styles.fieldContainer}>
             <CustomInput
-              label="Last Name *"
               value={formData.lastName}
               onChangeText={(text) => updateField('lastName', text)}
-              placeholder="Enter your last name"
+              placeholder="Last Name"
               error={errors.lastName}
               autoCapitalize="words"
             />
@@ -213,48 +183,43 @@ const SignUpScreen = ({ route, navigation }) => {
             />
           </View>
 
-          {/* Email (Optional) */}
-          <View>
-            <CustomInput
-              label="Email (Optional)"
-              value={formData.email}
-              onChangeText={(text) => updateField('email', text)}
-              placeholder="your.email@example.com"
-              error={errors.email}
-              keyboardType="email-address"
-            />
-            <VoiceInputButton
-              onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'email')}
-              disabled={loading}
-            />
-          </View>
+          {/* Email */}
+          <CustomInput
+            value={formData.email}
+            onChangeText={(text) => updateField('email', text)}
+            placeholder="Email (Optional)"
+            error={errors.email}
+            keyboardType="email-address"
+          />
 
           {/* Password */}
-          <View>
-            <CustomInput
-              label="Password *"
-              value={formData.password}
-              onChangeText={(text) => updateField('password', text)}
-              placeholder="Minimum 6 characters, include a number"
-              error={errors.password}
-              secureTextEntry
-            />
-            <VoiceInputButton
-              onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'password')}
-              disabled={loading}
-            />
-          </View>
+          <CustomInput
+            value={formData.password}
+            onChangeText={(text) => updateField('password', text)}
+            placeholder="Password"
+            error={errors.password}
+            secureTextEntry={!showPassword}
+            rightIcon={
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <AntDesign 
+                  name={showPassword ? 'eye' : 'eyeo'} 
+                  size={20} 
+                  color={COLORS.textSecondary} 
+                />
+              </TouchableOpacity>
+            }
+
+          />
 
           {/* Gender Dropdown */}
           <View style={styles.pickerContainer}>
-            <Text style={styles.label}>Gender *</Text>
             <View style={[styles.pickerWrapper, errors.gender && styles.pickerError]}>
               <Picker
                 selectedValue={formData.gender}
                 onValueChange={(value) => updateField('gender', value)}
                 style={styles.picker}
               >
-                <Picker.Item label="Select Gender" value="" />
+                <Picker.Item label="Select Gender" value="" color={COLORS.placeholder} />
                 <Picker.Item label="Male" value="male" />
                 <Picker.Item label="Female" value="female" />
               </Picker>
@@ -264,14 +229,13 @@ const SignUpScreen = ({ route, navigation }) => {
 
           {/* Role Dropdown */}
           <View style={styles.pickerContainer}>
-            <Text style={styles.label}>Role *</Text>
             <View style={[styles.pickerWrapper, errors.role && styles.pickerError]}>
               <Picker
                 selectedValue={formData.role}
                 onValueChange={(value) => updateField('role', value)}
                 style={styles.picker}
               >
-                <Picker.Item label="Select Role" value="" />
+                <Picker.Item label="Select Role" value="" color={COLORS.placeholder} />
                 <Picker.Item label="Customer" value="customer" />
                 <Picker.Item label="Service Provider" value="service_provider" />
                 <Picker.Item label="Vendor" value="vendor" />
@@ -280,14 +244,47 @@ const SignUpScreen = ({ route, navigation }) => {
             {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
           </View>
 
-          {/* Sign Up Button */}
+          {/* Terms Text */}
+          <Text style={styles.termsText}>
+            By clicking the <Text style={styles.termsHighlight}>Register</Text> button, you agree{'\n'}
+            to the public offer
+          </Text>
+
+          {/* Create Account Button */}
           <CustomButton
             title="Create Account"
             onPress={handleSignUp}
             loading={loading}
             disabled={loading}
-            style={styles.button}
+            style={styles.createButton}
           />
+
+          {/* Social Login Divider */}
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>- OR Continue with -</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* Social Login Buttons */}
+          {/* Social Login Buttons */}
+        <View style={styles.socialContainer}>
+          {/* Google */}
+          <TouchableOpacity style={styles.socialButton}>
+            <AntDesign name="google" size={24} color="#DB4437" />
+          </TouchableOpacity>
+          
+          {/* Apple */}
+          <TouchableOpacity style={styles.socialButton}>
+            <AntDesign name="apple1" size={26} color="#000000" />
+          </TouchableOpacity>
+          
+          {/* Facebook */}
+          <TouchableOpacity style={styles.socialButton}>
+            <FontAwesome name="facebook" size={26} color="#1877F2" />
+          </TouchableOpacity>
+        </View>
+
 
           {/* Login Link */}
           <TouchableOpacity
@@ -295,7 +292,7 @@ const SignUpScreen = ({ route, navigation }) => {
             style={styles.loginLink}
           >
             <Text style={styles.loginText}>
-              Already have an account? <Text style={styles.loginTextBold}>Login</Text>
+              I Already Have an Account <Text style={styles.loginTextBold}>Login</Text>
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -307,7 +304,7 @@ const SignUpScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.white,
   },
   keyboardAvoid: {
     flex: 1,
@@ -315,31 +312,34 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 40,
+    paddingTop: 16,
+    paddingBottom: 24,
   },
   header: {
-    marginBottom: 32,
+    marginBottom: 24,
+  },
+  appName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.primary,
+    textAlign: 'center',
+    marginBottom: 16,
+    letterSpacing: 2,
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: 'bold',
     color: COLORS.text,
-    marginBottom: 8,
+    marginBottom: 4,
   },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    lineHeight: 24,
+  fieldContainer: {
+    marginBottom: 4,
+  },
+  eyeIcon: {
+    fontSize: 20,
   },
   pickerContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: 8,
+    marginBottom: 16,
   },
   pickerWrapper: {
     backgroundColor: COLORS.inputBackground,
@@ -347,32 +347,89 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     borderRadius: 12,
     overflow: 'hidden',
+    height: 56,
+    justifyContent: 'center',
   },
   pickerError: {
     borderColor: COLORS.error,
   },
   picker: {
     height: 56,
+    color: COLORS.text,
   },
   errorText: {
-    marginTop: 6,
+    marginTop: 4,
     fontSize: 12,
     color: COLORS.error,
+    marginLeft: 4,
   },
-  button: {
-    marginTop: 24,
+  termsText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    textAlign: 'left',
+    marginTop: 12,
+    marginBottom: 20,
+    lineHeight: 18,
+  },
+  termsHighlight: {
+    color: COLORS.error,
+    fontWeight: '600',
+  },
+  createButton: {
+    marginBottom: 20,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: COLORS.border,
+  },
+  dividerText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginHorizontal: 10,
+  },
+  socialContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 14,
+    marginBottom: 24,
+  },
+  socialButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  socialIcon: {
+    fontSize: 22,
+    fontWeight: '600',
   },
   loginLink: {
     alignItems: 'center',
-    marginTop: 24,
+    marginBottom: 16,
   },
   loginText: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.textSecondary,
   },
   loginTextBold: {
-    fontWeight: '600',
-    color: COLORS.primary,
+    fontWeight: '700',
+    color: COLORS.text,
+    textDecorationLine: 'underline',
   },
 });
 

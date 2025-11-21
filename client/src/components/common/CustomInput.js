@@ -16,6 +16,12 @@
  * - rightIcon: Component to display on right side
  */
 
+/**
+ * Custom Input Component
+ * 
+ * Compact version for better screen fit
+ */
+
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { COLORS } from '../../constants/colors';
@@ -67,13 +73,13 @@ const CustomInput = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   label: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: COLORS.text,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -82,18 +88,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
+    height: 56,
   },
   input: {
     flex: 1,
-    paddingVertical: 16,
-    fontSize: 16,
+    fontSize: 15,
     color: COLORS.text,
+    paddingVertical: 0,
   },
   inputMultiline: {
     minHeight: 100,
     textAlignVertical: 'top',
-    paddingTop: 16,
+    paddingTop: 14,
   },
   inputDisabled: {
     backgroundColor: COLORS.disabled,
@@ -106,9 +113,10 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   errorText: {
-    marginTop: 6,
-    fontSize: 12,
+    marginTop: 4,
+    fontSize: 11,
     color: COLORS.error,
+    marginLeft: 4,
   },
 });
 

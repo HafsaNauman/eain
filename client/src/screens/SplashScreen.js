@@ -1,8 +1,6 @@
 /**
  * Splash Screen - EAIN Design
- * 
- * Beautiful splash screen with image-based wave shape
- * Matches the EAIN branding exactly
+ * Exact color matching with proper opacity
  */
 
 import React, { useEffect, useRef } from 'react';
@@ -10,7 +8,7 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  ImageBackground, 
+  Image,
   Animated, 
   Dimensions 
 } from 'react-native';
@@ -28,7 +26,7 @@ const SplashScreen = ({ navigation }) => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1000,
+        duration: 1200,
         useNativeDriver: true,
       }),
       Animated.spring(scaleAnim, {
@@ -39,7 +37,7 @@ const SplashScreen = ({ navigation }) => {
       }),
     ]).start();
 
-    // Check auth status after animation
+    // Check auth status after 2.5 seconds
     setTimeout(() => {
       checkAuthStatus();
     }, 2500);
@@ -62,95 +60,110 @@ const SplashScreen = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#7AB8A6', '#8DC4B4', '#A5CFC3']}
-      style={styles.container}
-    >
-      {/* Wave Shape Background Image */}
-      <ImageBackground
+    <View style={styles.container}>
+      {/* Gradient Background - Muted teal tones */}
+      <LinearGradient
+        colors={['#89B5A8', '#99BFB3', '#A8C8BC']}
+        locations={[0, 0.5, 1]}
+        style={styles.gradientBackground}
+      />
+
+      {/* Wave Shape Overlay with Transparency */}
+      <Image
         source={require('../../assets/wave-shape.png')}
         style={styles.waveImage}
-        resizeMode="contain"
-        imageStyle={styles.waveImageStyle}
+        resizeMode="cover"
+      />
+
+      {/* Main Content */}
+      <Animated.View
+        style={[
+          styles.contentContainer,
+          {
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
       >
-        {/* Main Content Container with Animation */}
-        <Animated.View
-          style={[
-            styles.contentContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ scale: scaleAnim }],
-            },
-          ]}
-        >
-          {/* EAIN Logo Text */}
-          <Text style={styles.appName}>EAIN</Text>
+        {/* EAIN Logo */}
+        <Text style={styles.appName}>EAIN</Text>
 
-          {/* Urdu Tagline */}
-          <Text style={styles.taglineUrdu}>عورت کی پہچان ، بے سے آغاز</Text>
-        </Animated.View>
+        {/* Urdu Tagline */}
+        <Text style={styles.taglineUrdu}>عورت کی پہچان ، بے سے آغاز</Text>
+      </Animated.View>
 
-        {/* Bottom Language Selector */}
-        <Animated.View
-          style={[
-            styles.bottomContainer,
-            { opacity: fadeAnim }
-          ]}
-        >
-          <Text style={styles.languageText}>English | اردو</Text>
-        </Animated.View>
-      </ImageBackground>
-    </LinearGradient>
+      {/* Language Selector at Bottom */}
+      <Animated.View
+        style={[
+          styles.bottomContainer,
+          { opacity: fadeAnim }
+        ]}
+      >
+        <Text style={styles.languageText}>English | اردو</Text>
+      </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#89B5A8', // Fallback color
+  },
+  gradientBackground: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   waveImage: {
-    flex: 1,
+    position: 'absolute',
     width: width,
     height: height,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  waveImageStyle: {
-    opacity: 0.85,
+    opacity: 0.65, // Reduced opacity to let gradient show through
   },
   contentContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 40,
+    zIndex: 10,
   },
   appName: {
-    fontSize: 72,
-    fontWeight: '300',
-    color: '#2C5F5D',
-    letterSpacing: 8,
-    marginBottom: 20,
+    fontSize: 68,
+    fontWeight: '400',
+    color: '#2F5D5D',
+    letterSpacing: 10,
+    marginBottom: 16,
     textAlign: 'center',
-    // If you add custom font, use it here:
-    // fontFamily: 'PlayfairDisplay-Regular',
+    textShadowColor: 'rgba(255, 255, 255, 0.4)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   taglineUrdu: {
-    fontSize: 18,
-    color: '#2C5F5D',
+    fontSize: 16,
+    color: '#2F5D5D',
     textAlign: 'center',
     fontWeight: '400',
-    letterSpacing: 1,
-    lineHeight: 28,
+    letterSpacing: 0.5,
+    lineHeight: 26,
+    opacity: 0.9,
   },
   bottomContainer: {
     position: 'absolute',
-    bottom: 60,
+    bottom: 50,
     alignSelf: 'center',
+    zIndex: 10,
   },
   languageText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#FFFFFF',
     fontWeight: '500',
-    letterSpacing: 2,
+    letterSpacing: 3,
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });
 
