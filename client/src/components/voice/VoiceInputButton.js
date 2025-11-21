@@ -16,6 +16,10 @@
  * - disabled: Disable button
  */
 
+/**
+ * Voice Input Button Component - Compact Version
+ */
+
 import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import { COLORS } from '../../constants/colors';
@@ -29,10 +33,8 @@ const VoiceInputButton = ({ onTranscriptionComplete, disabled = false }) => {
 
   const handleMicPress = async () => {
     if (isRecording) {
-      // Stop recording
       await handleStopRecording();
     } else {
-      // Start recording
       await handleStartRecording();
     }
   };
@@ -43,10 +45,7 @@ const VoiceInputButton = ({ onTranscriptionComplete, disabled = false }) => {
       setRecording(newRecording);
       setIsRecording(true);
     } catch (error) {
-      Alert.alert(
-        'Recording Error',
-        error.message || 'Failed to start recording. Please check microphone permissions.'
-      );
+      Alert.alert('Recording Error', error.message || 'Failed to start recording');
     }
   };
 
@@ -55,10 +54,8 @@ const VoiceInputButton = ({ onTranscriptionComplete, disabled = false }) => {
       setIsRecording(false);
       setIsProcessing(true);
 
-      // Stop recording and get file URI
       const audioUri = await stopRecording(recording);
       
-      // Send to backend for transcription
       const result = await transcribeAudio(audioUri, {
         encoding: 'linear16',
         sampleRateHertz: 44100,
@@ -68,34 +65,32 @@ const VoiceInputButton = ({ onTranscriptionComplete, disabled = false }) => {
       setIsProcessing(false);
 
       if (result.success) {
-        // Extract transcribed text from response
         const transcribedText = result.data?.data?.transcription || '';
         
         if (transcribedText) {
           onTranscriptionComplete(transcribedText);
         } else {
-          Alert.alert('No Speech Detected', 'Could not transcribe audio. Please try again.');
+          Alert.alert('No Speech Detected', 'Could not transcribe audio');
         }
       } else {
-        Alert.alert('Transcription Error', result.error || 'Failed to transcribe audio');
+        Alert.alert('Transcription Error', result.error || 'Failed to transcribe');
       }
     } catch (error) {
       setIsProcessing(false);
       Alert.alert('Error', 'Failed to process recording');
-      console.error('Recording error:', error);
     }
   };
 
   const getButtonText = () => {
-    if (isProcessing) return '🔄 Processing...';
-    if (isRecording) return '⏹️ Stop';
-    return '🎤 Voice Input';
+    if (isProcessing) return '🔄';
+    if (isRecording) return '⏹️';
+    return '🎤';
   };
 
   const getButtonStyle = () => {
     if (disabled || isProcessing) return [styles.button, styles.buttonDisabled];
     if (isRecording) return [styles.button, styles.buttonRecording];
-    return [styles.button, styles.buttonDefault];
+    return styles.button;
   };
 
   return (
@@ -112,30 +107,28 @@ const VoiceInputButton = ({ onTranscriptionComplete, disabled = false }) => {
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 48,
-    marginTop: 8,
-  },
-  buttonDefault: {
+    minHeight: 42,
+    marginTop: 4,
+    marginBottom: 8,
     backgroundColor: COLORS.secondary,
     borderWidth: 1,
     borderColor: COLORS.border,
   },
   buttonRecording: {
-    backgroundColor: COLORS.error,
+    backgroundColor: COLORS.errorBackground,
+    borderColor: COLORS.error,
   },
   buttonDisabled: {
     backgroundColor: COLORS.disabled,
     opacity: 0.6,
   },
   buttonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.text,
+    fontSize: 18,
   },
 });
 

@@ -1,14 +1,8 @@
 /**
  * Phone Number Screen
  * 
- * First step in authentication flow:
- * - User enters phone number
- * - Format: +92 XXX XXXXXXX
- * - Validates format
- * - Sends OTP to phone number
- * - Navigates to OTP verification
- * 
- * Supports voice input for phone number
+ * OTP verification BYPASSED for testing
+ * Goes directly to SignUp screen
  */
 
 import React, { useState } from 'react';
@@ -16,19 +10,18 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import PhoneNumberInput from '../components/phone/PhoneNumberInput';
 import CustomButton from '../components/common/CustomButton';
 import VoiceInputButton from '../components/voice/VoiceInputButton';
 import ErrorAlert from '../components/common/ErrorAlert';
 import { COLORS } from '../constants/colors';
 import { validatePhoneNumber } from '../utils/validation';
-import { parsePhoneNumber } from '../utils/formatters';
-import { sendOTP } from '../api/authService';
+// import { sendOTP } from '../api/authService'; // COMMENTED OUT FOR TESTING
 
 const PhoneNumberScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -49,12 +42,14 @@ const PhoneNumberScreen = ({ navigation }) => {
 
     setLoading(true);
 
+    // ============================================
+    // OTP API CALL COMMENTED OUT FOR TESTING
+    // ============================================
+    /*
     try {
-      // Send OTP request to backend
       const result = await sendOTP(fullPhoneNumber);
 
       if (result.success) {
-        // Navigate to OTP verification screen
         navigation.navigate('OTP', {
           phoneNumber: fullPhoneNumber,
         });
@@ -67,13 +62,23 @@ const PhoneNumberScreen = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
+    */
+
+    // ============================================
+    // TESTING MODE: Skip OTP, go directly to SignUp
+    // ============================================
+    setTimeout(() => {
+      setLoading(false);
+      navigation.navigate('SignUp', {
+        phoneNumber: fullPhoneNumber,
+      });
+    }, 500);
   };
 
   const handleVoiceTranscription = (transcribedText) => {
     // Extract digits from transcribed text
     const digits = transcribedText.replace(/\D/g, '');
     
-    // Format as phone number
     if (digits.length >= 10) {
       const phoneDigits = digits.slice(0, 10);
       const formatted = `${phoneDigits.slice(0, 3)} ${phoneDigits.slice(3)}`;
@@ -84,7 +89,7 @@ const PhoneNumberScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoid}
@@ -92,12 +97,17 @@ const PhoneNumberScreen = ({ navigation }) => {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>Welcome! 👋</Text>
             <Text style={styles.subtitle}>
               Enter your phone number to get started
+            </Text>
+            {/* Testing Mode Indicator */}
+            <Text style={styles.testingMode}>
+              🧪 Testing Mode: OTP Skipped
             </Text>
           </View>
 
@@ -117,9 +127,9 @@ const PhoneNumberScreen = ({ navigation }) => {
             disabled={loading}
           />
 
-          {/* Send OTP Button */}
+          {/* Continue Button (Skips OTP) */}
           <CustomButton
-            title="Send OTP"
+            title="Continue to Sign Up"
             onPress={handleSendOTP}
             loading={loading}
             disabled={!phoneNumber || loading}
@@ -128,7 +138,7 @@ const PhoneNumberScreen = ({ navigation }) => {
 
           {/* Info Text */}
           <Text style={styles.infoText}>
-            You will receive a 6-digit verification code
+            Testing Mode: Skipping OTP verification
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -164,6 +174,12 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     lineHeight: 24,
   },
+  testingMode: {
+    fontSize: 14,
+    color: COLORS.warning,
+    marginTop: 12,
+    fontWeight: '600',
+  },
   button: {
     marginTop: 24,
   },
@@ -172,6 +188,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textSecondary,
     marginTop: 24,
+    fontStyle: 'italic',
   },
 });
 
