@@ -1,15 +1,28 @@
-import React from "react";
-import AppNavigator from "./AppNavigator";
+/**
+ * App.js - Main Entry Point
+ * 
+ * Root component that wraps the entire app
+ * - Sets up navigation
+ * - Provides auth context
+ * - Handles gesture handler setup
+ */
 
-import CartProvider from "./context/CartContext";
-import WishlistProvider from "./context/WishlistContext";
+import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AppNavigator from './src/navigation/AppNavigator';
+import { AuthProvider } from './src/context/AuthContext';
 
 export default function App() {
   return (
-    <CartProvider>
-      <WishlistProvider>
-        <AppNavigator />
-      </WishlistProvider>
-    </CartProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <AppNavigator />
+          <StatusBar style="dark" />
+        </AuthProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
