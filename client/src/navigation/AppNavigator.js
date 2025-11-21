@@ -13,9 +13,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from '../screens/SplashScreen';
 import PhoneNumberScreen from '../screens/PhoneNumberScreen';
 import OTPScreen from '../screens/OTPScreen';
-import SignUpScreen from './screens/SignUpScreen';
-import LoginScreen from './screens/LoginScreen';
-import HomeScreen from './screens/HomeScreen';
+import SignUpScreen from '../screens/SignUpScreen';
+import LoginScreen from '../screens/LoginScreen';
+import HomeScreen from '../screens/HomeScreen';
 
 const Stack = createStackNavigator();
 

@@ -15,8 +15,8 @@
 
 const API_CONFIG = {
   // Base URL for your Node.js backend
-  BASE_URL: 'http://YOUR_MACHINE_IP:3000',
-  
+//   BASE_URL: 'http://YOUR_MACHINE_IP:3000',
+  BASE_URL:"https://unfiercely-javon-holistically.ngrok-free.dev",
   // Timeout for API requests (milliseconds)
   TIMEOUT: 30000,
   
