@@ -13,7 +13,7 @@ import {
   StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
-  Platform,
+  Platform,Image,
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,6 +26,7 @@ import { COLORS } from '../constants/colors';
 import { validateEmail, validatePassword, validateName } from '../utils/validation';
 import { signUp } from '../api/authService';
 import { saveTokens, saveUserData } from '../utils/storage';
+
 
 const SignUpScreen = ({ route, navigation }) => {
   const { phoneNumber } = route.params;
@@ -153,35 +154,46 @@ const SignUpScreen = ({ route, navigation }) => {
           {/* Error Alert */}
           {generalError ? <ErrorAlert message={generalError} /> : null}
 
-          {/* First Name with Voice Input */}
-          <View style={styles.fieldContainer}>
-            <CustomInput
-              value={formData.firstName}
-              onChangeText={(text) => updateField('firstName', text)}
-              placeholder="First Name"
-              error={errors.firstName}
-              autoCapitalize="words"
-            />
-            <VoiceInputButton
-              onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'firstName')}
-              disabled={loading}
-            />
-          </View>
+          // Replace inside your SignUpScreen component
 
-          {/* Last Name with Voice Input */}
-          <View style={styles.fieldContainer}>
-            <CustomInput
-              value={formData.lastName}
-              onChangeText={(text) => updateField('lastName', text)}
-              placeholder="Last Name"
-              error={errors.lastName}
-              autoCapitalize="words"
-            />
-            <VoiceInputButton
-              onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'lastName')}
-              disabled={loading}
-            />
-          </View>
+        {/* First Name with Voice Input */}
+            <View style={styles.fieldContainer}>
+            <View style={styles.inputWithButton}>
+              <CustomInput
+                value={formData.firstName}
+                    onChangeText={(text) => updateField('firstName', text)}
+                    placeholder="First Name"
+                    error={errors.firstName}
+                    autoCapitalize="words"
+                    style={{ flex: 1 }}
+                        />
+                  <VoiceInputButton
+                  onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'firstName')}
+                  disabled={loading}
+                  style={{ marginLeft: 8 }}
+                  />
+                 </View>
+                </View>
+
+              {/* Last Name with Voice Input */}
+                <View style={styles.fieldContainer}>
+                <View style={styles.inputWithButton}>
+                <CustomInput
+                 value={formData.lastName}
+                     onChangeText={(text) => updateField('lastName', text)}
+                     placeholder="Last Name"
+                     error={errors.lastName}
+                    autoCapitalize="words"
+                    style={{ flex: 1 }}
+                     />
+                    <VoiceInputButton
+                     onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'lastName')}
+                     disabled={loading}
+                     style={{ marginLeft: 8 }}
+                       />
+                     </View>
+              </View>
+
 
           {/* Email */}
           <CustomInput
@@ -268,22 +280,22 @@ const SignUpScreen = ({ route, navigation }) => {
 
           {/* Social Login Buttons */}
           {/* Social Login Buttons */}
-        <View style={styles.socialContainer}>
-          {/* Google */}
-          <TouchableOpacity style={styles.socialButton}>
-            <AntDesign name="google" size={24} color="#DB4437" />
-          </TouchableOpacity>
-          
-          {/* Apple */}
-          <TouchableOpacity style={styles.socialButton}>
-            <AntDesign name="apple1" size={26} color="#000000" />
-          </TouchableOpacity>
-          
-          {/* Facebook */}
-          <TouchableOpacity style={styles.socialButton}>
-            <FontAwesome name="facebook" size={26} color="#1877F2" />
-          </TouchableOpacity>
-        </View>
+<View style={styles.socialContainer}>
+  {/* Google */}
+  <TouchableOpacity style={[styles.socialButton, { borderColor: '#DB4437' }]}>
+    <Image source={require('../../assets/google.png')} style={styles.socialIconImage} />
+  </TouchableOpacity>
+
+  {/* Apple */}
+  <TouchableOpacity style={[styles.socialButton, { backgroundColor: '#000', borderColor: '#000' }]}>
+    <Image source={require('../../assets/apple.png')} style={styles.socialIconImage} />
+  </TouchableOpacity>
+
+  {/* Facebook
+  <TouchableOpacity style={[styles.socialButton, { backgroundColor: '#1877F2', borderColor: '#1877F2' }]}>
+    <Image source={require('../assets/facebook.png')} style={styles.socialIconImage} />
+  </TouchableOpacity> */}
+</View>
 
 
           {/* Login Link */}
@@ -426,6 +438,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
   },
+  inputWithButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+socialIconImage: {
+  width: 24,
+  height: 24,
+  resizeMode: 'contain',
+},
+
   loginTextBold: {
     fontWeight: '700',
     color: COLORS.text,
