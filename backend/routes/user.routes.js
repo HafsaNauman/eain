@@ -29,7 +29,7 @@ router.get('/profile', verifyJWT, async (req, res) => {
 // Update user profile
 router.put('/profile', verifyJWT, async (req, res) => {
   try {
-    const { full_name, email, gender, preferred_language, literacy_level } = req.body;
+    const { full_name, email, gender, preferred_language } = req.body;
 
     const user = await User.findByPk(req.userId);
     if (!user) {
@@ -41,7 +41,6 @@ router.put('/profile', verifyJWT, async (req, res) => {
     if (email) user.email = email;
     if (gender) user.gender = gender;
     if (preferred_language) user.preferred_language = preferred_language;
-    if (literacy_level) user.literacy_level = literacy_level;
 
     await user.save();
 
@@ -51,8 +50,7 @@ router.put('/profile', verifyJWT, async (req, res) => {
       phone_number: user.phone_number,
       email: user.email,
       gender: user.gender,
-      preferred_language: user.preferred_language,
-      literacy_level: user.literacy_level
+      preferred_language: user.preferred_language
     };
 
     return successResponse(res, 200, 'Profile updated successfully', { user: userResponse });

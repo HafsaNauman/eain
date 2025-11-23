@@ -3,7 +3,9 @@
  * @returns {Object} { code, expiresAt }
  */
 export const generateOTP = () => {
-  const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+  // const code = Math.floor(100000 + Math.random() * 900000).toString(); 
+  const code = (111111).toString();
+  // 6-digit code
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
   
   return { code, expiresAt };

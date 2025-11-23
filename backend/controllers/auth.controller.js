@@ -133,7 +133,7 @@ export const signup = async (req, res) => {
       password,
       gender,
       preferred_language,
-      literacy_level
+      // literacy_level
     } = req.body;
 
     // Validate required fields
@@ -180,7 +180,7 @@ export const signup = async (req, res) => {
       password_hash,
       gender: gender || null,
       preferred_language: preferred_language || 'en',
-      literacy_level: literacy_level || 'medium',
+      // literacy_level: literacy_level || 'medium',
       role: 'user',
       is_verified: true // Already verified via OTP
     }, { transaction });

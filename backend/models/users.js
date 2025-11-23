@@ -10,7 +10,6 @@ const User = sequelize.define('User', {
   gender: { type: DataTypes.STRING },
   is_verified: { type: DataTypes.BOOLEAN, defaultValue: false },
   preferred_language: { type: DataTypes.STRING },
-  literacy_level: { type: DataTypes.STRING },
   role: { type: DataTypes.STRING },
   created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 }, {

@@ -77,7 +77,7 @@ const storage = multer.diskStorage({
 
 // Enhanced file filter - check both mimetype AND file extension
 const fileFilter = (req, file, cb) => {
-  console.log('📁 Received file:');
+  console.log(' Received file:');
   console.log('   - Mimetype:', file.mimetype);
   console.log('   - Filename:', file.originalname);
   console.log('   - Extension:', path.extname(file.originalname));
