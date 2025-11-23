@@ -134,3 +134,43 @@ export const login = async (phoneNumber, password) => {
     };
   }
 };
+//NEW CODE FOR VENDOR REGISTRATION
+export const registerBusiness = async (businessData) => {
+  try {
+    // Create FormData for file upload
+    const formData = new FormData();
+    
+    formData.append('userId', businessData.userId);
+    formData.append('businessName', businessData.businessName);
+    formData.append('cnic', businessData.cnic);
+    formData.append('businessType', businessData.businessType);
+    formData.append('businessEmail', businessData.businessEmail);
+    formData.append('businessPhone', businessData.businessPhone);
+    formData.append('businessCategory', businessData.businessCategory);
+    formData.append('businessDescription', businessData.businessDescription);
+    formData.append('officeAddress', businessData.officeAddress);
+    
+    // Append logo file
+    if (businessData.logo) {
+      formData.append('logo', {
+        uri: businessData.logo.uri,
+        type: 'image/jpeg',
+        name: 'business-logo.jpg',
+      });
+    }
+
+    const response = await fetch(`${API_BASE_URL}/business/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+    return { success: response.ok, ...result };
+  } catch (error) {
+    console.error('Business registration error:', error);
+    return { success: false, error: 'Network error' };
+  }
+};
