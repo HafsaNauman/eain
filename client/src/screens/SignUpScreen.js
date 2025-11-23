@@ -90,45 +90,54 @@ const SignUpScreen = ({ route, navigation }) => {
   };
 
   const handleSignUp = async () => {
-    setGeneralError('');
+  setGeneralError('');
 
-    if (!validateForm()) {
-      return;
-    }
+  if (!validateForm()) {
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const result = await signUp({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        phoneNumber: phoneNumber,
-        email: formData.email.trim() || null,
-        password: formData.password,
-        gender: formData.gender,
-        role: formData.role,
-      });
+  try {
+    const result = await signUp({
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      phoneNumber: phoneNumber,
+      email: formData.email.trim() || null,
+      password: formData.password,
+      gender: formData.gender,
+      role: formData.role,
+    });
 
-      if (result.success) {
-        const { accessToken, refreshToken, user } = result.data.data;
-        await saveTokens(accessToken, refreshToken);
-        await saveUserData(user);
+    if (result.success) {
+      const { accessToken, refreshToken, user } = result.data.data;
+      await saveTokens(accessToken, refreshToken);
+      await saveUserData(user);
 
+      // Check if user is vendor or service provider
+      if (formData.role === 'vendor' || formData.role === 'service_provider') {
+        // Navigate to business registration
+        navigation.navigate('BusinessRegistration', {
+          userId: user.id,
+          userRole: formData.role,
+        });
+      } else {
+        // Regular customer - go to home
         navigation.reset({
           index: 0,
           routes: [{ name: 'Home' }],
         });
-      } else {
-        setGeneralError(result.error);
       }
-    } catch (err) {
-      setGeneralError(t('errors.signupFailed'));
-      console.error('Sign up error:', err);
-    } finally {
-      setLoading(false);
+    } else {
+      setGeneralError(result.error);
     }
-  };
-
+  } catch (err) {
+    setGeneralError(t('errors.signupFailed'));
+    console.error('Sign up error:', err);
+  } finally {
+    setLoading(false);
+  }
+};
   const handleVoiceTranscription = (transcribedText, field) => {
     updateField(field, transcribedText.trim());
   };
@@ -161,35 +170,41 @@ const SignUpScreen = ({ route, navigation }) => {
           {/* Error Alert */}
           {generalError ? <ErrorAlert message={generalError} /> : null}
 
-          {/* First Name with Voice Input */}
-          <View style={styles.fieldContainer}>
-            <CustomInput
-              value={formData.firstName}
-              onChangeText={(text) => updateField('firstName', text)}
-              placeholder={t('signUp.firstName')}
-              error={errors.firstName}
-              autoCapitalize="words"
-            />
-            <VoiceInputButton
-              onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'firstName')}
-              disabled={loading}
-            />
-          </View>
+          {/* First Name with Voice Input - inline with mic */}
+<View style={styles.nameInputContainer}>
+  <CustomInput
+    value={formData.firstName}
+    onChangeText={(text) => updateField('firstName', text)}
+    placeholder={t('signUp.firstName')}
+    error={errors.firstName}
+    autoCapitalize="words"
+    style={{ flex: 1 }}
+  />
+  <VoiceInputButton
+    onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'firstName')}
+    disabled={loading}
+    iconStyle={styles.voiceButton}
+  />
+</View>
 
-          {/* Last Name with Voice Input */}
-          <View style={styles.fieldContainer}>
-            <CustomInput
-              value={formData.lastName}
-              onChangeText={(text) => updateField('lastName', text)}
-              placeholder={t('signUp.lastName')}
-              error={errors.lastName}
-              autoCapitalize="words"
-            />
-            <VoiceInputButton
-              onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'lastName')}
-              disabled={loading}
-            />
-          </View>
+
+{/* Last Name with Voice Input */}
+<View style={styles.nameInputContainer}>
+  <CustomInput
+    value={formData.lastName}
+    onChangeText={(text) => updateField('lastName', text)}
+    placeholder={t('signUp.lastName')}
+    error={errors.lastName}
+    autoCapitalize="words"
+    style={{ flex: 1 }} // allows mic to sit inline
+  />
+  <VoiceInputButton
+    onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'lastName')}
+    disabled={loading}
+    iconStyle={styles.voiceButton}
+  />
+</View>
+
 
           {/* Email */}
           <CustomInput
@@ -438,6 +453,23 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     textDecorationLine: 'underline',
   },
+  nameInputContainer: {
+  flexDirection: 'row',       // <-- horizontal layout
+  alignItems: 'center',       // <-- vertically centered
+  backgroundColor: '#F5F5F5',
+  borderRadius: 12,
+  borderWidth: 1,
+  borderColor: '#E0E0E0',
+  paddingHorizontal: 16,
+  height: 56,
+  marginBottom: 12,
+},
+voiceButton: {
+  padding: 8,
+  marginLeft: 8,
+},
+
+
 });
 
 export default SignUpScreen;
