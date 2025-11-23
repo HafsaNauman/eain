@@ -29,7 +29,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-speech-recognition",
+      {
+        "microphonePermission": "Allow EAIN to access your microphone for speech input."
+      }
+    ]
     ]
   }
 }
