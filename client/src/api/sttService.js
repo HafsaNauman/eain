@@ -33,7 +33,7 @@ export const transcribeAudio = async (audioUri, config = {}) => {
     const formData = new FormData();
     
     // Append audio file
-    formData.append('file', {
+    formData.append('audio', {
       uri: audioUri,
       type: 'audio/wav',
       name: 'recording.wav',
