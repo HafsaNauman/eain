@@ -128,7 +128,7 @@ export const signup = async (req, res) => {
       phone_number, 
       email, 
       password,
-      role,  // NEW FIELD
+      role,  // customer or vendor
       gender,
       preferred_language,
     } = req.body;
@@ -140,7 +140,7 @@ export const signup = async (req, res) => {
     }
 
     // Validate role value
-    const validRoles = ['customer', 'vendor', 'service_provider'];
+    const validRoles = ['customer', 'vendor'];
     if (!validRoles.includes(role)) {
       await transaction.rollback();
       return errorResponse(
@@ -188,7 +188,8 @@ export const signup = async (req, res) => {
       password_hash,
       gender: gender || null,
       preferred_language: preferred_language || 'en',
-      role: role,  // Use the role provided by user
+      // role: role,  // Use the role provided by user
+      role,
       is_verified: true // Already verified via OTP
     }, { transaction });
 
