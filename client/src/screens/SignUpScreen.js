@@ -1,5 +1,6 @@
 /**
  * Sign Up Screen - EAIN Design with i18n
+ * Inline voice input icons
  */
 
 import React, { useState } from 'react';
@@ -15,20 +16,21 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
 import { AntDesign, FontAwesome, Ionicons } from '@expo/vector-icons';
-import { useTranslation } from 'react-i18next'; // ← ADD THIS
+import { useTranslation } from 'react-i18next';
 import CustomInput from '../components/common/CustomInput';
 import CustomButton from '../components/common/CustomButton';
-import VoiceInputButton from '../components/voice/VoiceInputButton';
 import ErrorAlert from '../components/common/ErrorAlert';
-import LanguageSwitcher from '../components/common/LanguageSwitcher'; // ← ADD THIS
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { COLORS } from '../constants/colors';
 import { validateEmail, validatePassword, validateName } from '../utils/validation';
 import { signUp } from '../api/authService';
 import { saveTokens, saveUserData } from '../utils/storage';
+import { startRecording, stopRecording } from '../utils/audioRecorder';
+import { transcribeAudio } from '../api/sttService';
 
 const SignUpScreen = ({ route, navigation }) => {
   const { phoneNumber } = route.params;
-  const { t } = useTranslation(); // ← ADD THIS LINE (Inside component, at top)
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -43,6 +45,8 @@ const SignUpScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [recordingField, setRecordingField] = useState(null);
+  const [recording, setRecording] = useState(null);
 
   const updateField = (field, value) => {
     setFormData({ ...formData, [field]: value });
@@ -90,61 +94,99 @@ const SignUpScreen = ({ route, navigation }) => {
   };
 
   const handleSignUp = async () => {
-  setGeneralError('');
+    setGeneralError('');
 
-  if (!validateForm()) {
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const result = await signUp({
-      firstName: formData.firstName.trim(),
-      lastName: formData.lastName.trim(),
-      phoneNumber: phoneNumber,
-      email: formData.email.trim() || null,
-      password: formData.password,
-      gender: formData.gender,
-      role: formData.role,
-    });
-
-    if (result.success) {
-      const { accessToken, refreshToken, user } = result.data.data;
-      await saveTokens(accessToken, refreshToken);
-      await saveUserData(user);
-
-      // Check if user is vendor or service provider
-      if (formData.role === 'vendor' || formData.role === 'service_provider') {
-        // Navigate to business registration
-        navigation.navigate('BusinessRegistration', {
-          userId: user.id,
-          userRole: formData.role,
-        });
-      } else {
-        // Regular customer - go to home
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
-      }
-    } else {
-      setGeneralError(result.error);
+    if (!validateForm()) {
+      return;
     }
-  } catch (err) {
-    setGeneralError(t('errors.signupFailed'));
-    console.error('Sign up error:', err);
-  } finally {
-    setLoading(false);
-  }
-};
-  const handleVoiceTranscription = (transcribedText, field) => {
-    updateField(field, transcribedText.trim());
+
+    setLoading(true);
+
+    try {
+      const result = await signUp({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        phoneNumber: phoneNumber,
+        email: formData.email.trim() || null,
+        password: formData.password,
+        gender: formData.gender,
+        role: formData.role,
+      });
+
+      if (result.success) {
+        const { accessToken, refreshToken, user } = result.data.data;
+        await saveTokens(accessToken, refreshToken);
+        await saveUserData(user);
+
+        if (formData.role === 'vendor' || formData.role === 'service_provider') {
+          navigation.navigate('BusinessRegistration', {
+            userId: user.id,
+            userRole: formData.role,
+          });
+        } else {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          });
+        }
+      } else {
+        setGeneralError(result.error);
+      }
+    } catch (err) {
+      setGeneralError(t('errors.signupFailed'));
+      console.error('Sign up error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVoiceInput = async (field) => {
+    if (recordingField === field) {
+      await stopVoiceRecording(field);
+    } else {
+      await startVoiceRecording(field);
+    }
+  };
+
+  const startVoiceRecording = async (field) => {
+    try {
+      const newRecording = await startRecording();
+      setRecording(newRecording);
+      setRecordingField(field);
+    } catch (error) {
+      console.error('Recording error:', error);
+    }
+  };
+
+  const stopVoiceRecording = async (field) => {
+    try {
+      setRecordingField(null);
+      const audioUri = await stopRecording(recording);
+      
+      const result = await transcribeAudio(audioUri, {
+        encoding: 'LINEAR16',
+        sampleRateHertz: 44100,
+        languageCode: 'en-US',
+      });
+
+      if (result.success) {
+        const transcribedText = 
+          result.data?.data?.transcription ||
+          result.data?.transcription ||
+          result.data?.text ||
+          '';
+        
+        if (transcribedText && transcribedText.trim()) {
+          updateField(field, transcribedText.trim());
+        }
+      }
+    } catch (error) {
+      console.error('Transcription error:', error);
+    }
   };
 
   const handleSocialLogin = (provider) => {
     console.log(`${provider} login clicked`);
-    // TODO: Implement social login
   };
 
   return (
@@ -158,7 +200,6 @@ const SignUpScreen = ({ route, navigation }) => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header with Language Switcher */}
           <View style={styles.header}>
             <View style={styles.headerRow}>
               <Text style={styles.appName}>{t('signUp.appName')}</Text>
@@ -167,44 +208,43 @@ const SignUpScreen = ({ route, navigation }) => {
             <Text style={styles.title}>{t('signUp.title')}</Text>
           </View>
 
-          {/* Error Alert */}
           {generalError ? <ErrorAlert message={generalError} /> : null}
 
-          {/* First Name with Voice Input - inline with mic */}
-<View style={styles.nameInputContainer}>
-  <CustomInput
-    value={formData.firstName}
-    onChangeText={(text) => updateField('firstName', text)}
-    placeholder={t('signUp.firstName')}
-    error={errors.firstName}
-    autoCapitalize="words"
-    style={{ flex: 1 }}
-  />
-  <VoiceInputButton
-    onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'firstName')}
-    disabled={loading}
-    iconStyle={styles.voiceButton}
-  />
-</View>
+          {/* First Name with Inline Mic */}
+          <CustomInput
+            value={formData.firstName}
+            onChangeText={(text) => updateField('firstName', text)}
+            placeholder={t('signUp.firstName')}
+            error={errors.firstName}
+            autoCapitalize="words"
+            rightIcon={
+              <TouchableOpacity onPress={() => handleVoiceInput('firstName')}>
+                <Ionicons 
+                  name={recordingField === 'firstName' ? 'mic' : 'mic-outline'} 
+                  size={20} 
+                  color={recordingField === 'firstName' ? COLORS.error : COLORS.textSecondary} 
+                />
+              </TouchableOpacity>
+            }
+          />
 
-
-{/* Last Name with Voice Input */}
-<View style={styles.nameInputContainer}>
-  <CustomInput
-    value={formData.lastName}
-    onChangeText={(text) => updateField('lastName', text)}
-    placeholder={t('signUp.lastName')}
-    error={errors.lastName}
-    autoCapitalize="words"
-    style={{ flex: 1 }} // allows mic to sit inline
-  />
-  <VoiceInputButton
-    onTranscriptionComplete={(text) => handleVoiceTranscription(text, 'lastName')}
-    disabled={loading}
-    iconStyle={styles.voiceButton}
-  />
-</View>
-
+          {/* Last Name with Inline Mic */}
+          <CustomInput
+            value={formData.lastName}
+            onChangeText={(text) => updateField('lastName', text)}
+            placeholder={t('signUp.lastName')}
+            error={errors.lastName}
+            autoCapitalize="words"
+            rightIcon={
+              <TouchableOpacity onPress={() => handleVoiceInput('lastName')}>
+                <Ionicons 
+                  name={recordingField === 'lastName' ? 'mic' : 'mic-outline'} 
+                  size={20} 
+                  color={recordingField === 'lastName' ? COLORS.error : COLORS.textSecondary} 
+                />
+              </TouchableOpacity>
+            }
+          />
 
           {/* Email */}
           <CustomInput
@@ -266,12 +306,10 @@ const SignUpScreen = ({ route, navigation }) => {
             {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
           </View>
 
-          {/* Terms Text */}
           <Text style={styles.termsText}>
             {t('signUp.terms', { action: t('signUp.register') })}
           </Text>
 
-          {/* Create Account Button */}
           <CustomButton
             title={t('signUp.createAccount')}
             onPress={handleSignUp}
@@ -280,14 +318,12 @@ const SignUpScreen = ({ route, navigation }) => {
             style={styles.createButton}
           />
 
-          {/* Social Login Divider */}
           <View style={styles.dividerContainer}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>{t('signUp.orContinue')}</Text>
             <View style={styles.dividerLine} />
           </View>
 
-          {/* Social Login Buttons */}
           <View style={styles.socialContainer}>
             <TouchableOpacity 
               style={styles.socialButton}
@@ -311,7 +347,6 @@ const SignUpScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
 
-          {/* Login Link */}
           <TouchableOpacity
             onPress={() => navigation.navigate('Login')}
             style={styles.loginLink}
@@ -361,9 +396,6 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: 4,
   },
-  fieldContainer: {
-    marginBottom: 4,
-  },
   pickerContainer: {
     marginBottom: 16,
   },
@@ -396,10 +428,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 20,
     lineHeight: 18,
-  },
-  termsHighlight: {
-    color: COLORS.error,
-    fontWeight: '600',
   },
   createButton: {
     marginBottom: 20,
@@ -453,23 +481,6 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     textDecorationLine: 'underline',
   },
-  nameInputContainer: {
-  flexDirection: 'row',       // <-- horizontal layout
-  alignItems: 'center',       // <-- vertically centered
-  backgroundColor: '#F5F5F5',
-  borderRadius: 12,
-  borderWidth: 1,
-  borderColor: '#E0E0E0',
-  paddingHorizontal: 16,
-  height: 56,
-  marginBottom: 12,
-},
-voiceButton: {
-  padding: 8,
-  marginLeft: 8,
-},
-
-
 });
 
 export default SignUpScreen;
