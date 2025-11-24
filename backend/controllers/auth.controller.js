@@ -118,9 +118,6 @@ export const verifyOTP = async (req, res) => {
 };
 
 
-//  STEP 3: Complete Signup (after OTP verification)
-//  POST /api/auth/signup
-//  Body: { full_name, phone_number, email, password, gender, preferred_language, literacy_level }
 
 export const signup = async (req, res) => {
   const transaction = await sequelize.transaction();
@@ -131,15 +128,26 @@ export const signup = async (req, res) => {
       phone_number, 
       email, 
       password,
+      role,  // NEW FIELD
       gender,
       preferred_language,
-      // literacy_level
     } = req.body;
 
     // Validate required fields
-    if (!full_name || !phone_number || !password) {
+    if (!full_name || !phone_number || !password || !role) {
       await transaction.rollback();
-      return errorResponse(res, 400, 'Full name, phone number, and password are required');
+      return errorResponse(res, 400, 'Full name, phone number, password, and role are required');
+    }
+
+    // Validate role value
+    const validRoles = ['customer', 'vendor', 'service_provider'];
+    if (!validRoles.includes(role)) {
+      await transaction.rollback();
+      return errorResponse(
+        res, 
+        400, 
+        `Invalid role. Must be one of: ${validRoles.join(', ')}`
+      );
     }
 
     // Check if phone number was verified
@@ -180,8 +188,7 @@ export const signup = async (req, res) => {
       password_hash,
       gender: gender || null,
       preferred_language: preferred_language || 'en',
-      // literacy_level: literacy_level || 'medium',
-      role: 'user',
+      role: role,  // Use the role provided by user
       is_verified: true // Already verified via OTP
     }, { transaction });
 
