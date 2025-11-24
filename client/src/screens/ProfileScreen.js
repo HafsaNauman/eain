@@ -8,11 +8,12 @@ const ProfileScreen = ({ navigation }) => {
       <Text style={styles.title}>Welcome!</Text>
 
       <TouchableOpacity
-        style={styles.loginBtn}
-        onPress={() => alert('Login screen goes here')}
-      >
-        <Text style={styles.loginText}>Login</Text>
-      </TouchableOpacity>
+  style={styles.loginBtn}
+  onPress={() => navigation.navigate('Login')}
+>
+  <Text style={styles.loginText}>Login</Text>
+</TouchableOpacity>
+
 
       <TouchableOpacity
         style={styles.createBtn}
