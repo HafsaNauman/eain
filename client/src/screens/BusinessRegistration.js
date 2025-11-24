@@ -288,7 +288,7 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
           />
           {errors.businessName && <Text style={styles.errorText}>{errors.businessName}</Text>}
 
-          {/* CNIC */}
+          {/* CNIC
           <Text style={styles.label}>CNIC Number *</Text>
           <VoiceInput
             field="cnic"
@@ -298,7 +298,7 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
             keyboardType="numeric"
             maxLength={15}
           />
-          {errors.cnic && <Text style={styles.errorText}>{errors.cnic}</Text>}
+          {errors.cnic && <Text style={styles.errorText}>{errors.cnic}</Text>} */}
 
           {/* Business Type */}
           <Text style={styles.label}>Business Type *</Text>
