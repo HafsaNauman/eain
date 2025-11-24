@@ -184,46 +184,55 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    setGeneralError('');
+  // In BusinessRegistrationScreen.js, update the handleSubmit function:
 
-    if (!validateForm()) {
-      return;
+const handleSubmit = async () => {
+  setGeneralError('');
+
+  if (!validateForm()) {
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const businessData = {
+      userId,
+      businessName: formData.businessName.trim(),
+      cnic: formData.cnic.replace(/\D/g, ''),
+      businessType: formData.businessType,
+      businessEmail: formData.businessEmail.trim(),
+      businessPhone: `+92${formData.businessPhone.replace(/\s/g, '')}`,
+      businessCategory: formData.businessCategory,
+      businessDescription: formData.businessDescription.trim(),
+      officeAddress: formData.officeAddress.trim(),
+      logo: formData.logo,
+    };
+
+    const result = await registerBusiness(businessData);
+
+    if (result.success) {
+      // Navigate to Vendor Dashboard instead of Home
+      navigation.reset({
+        index: 0,
+        routes: [{ 
+          name: 'VendorDashboard',
+          params: {
+            businessData: result.data.business,
+            userRole: userRole
+          }
+        }],
+      });
+    } else {
+      setGeneralError(result.error);
     }
-
-    setLoading(true);
-
-    try {
-      const businessData = {
-        userId,
-        businessName: formData.businessName.trim(),
-        cnic: formData.cnic.replace(/\D/g, ''),
-        businessType: formData.businessType,
-        businessEmail: formData.businessEmail.trim(),
-        businessPhone: `+92${formData.businessPhone.replace(/\s/g, '')}`,
-        businessCategory: formData.businessCategory,
-        businessDescription: formData.businessDescription.trim(),
-        officeAddress: formData.officeAddress.trim(),
-        logo: formData.logo,
-      };
-
-      const result = await registerBusiness(businessData);
-
-      if (result.success) {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
-      } else {
-        setGeneralError(result.error);
-      }
-    } catch (err) {
-      setGeneralError('Failed to register business. Please try again.');
-      console.error('Business registration error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    setGeneralError('Failed to register business. Please try again.');
+    console.error('Business registration error:', err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const VoiceInput = ({ field, placeholder, value, onChangeText, multiline, keyboardType, maxLength }) => (
     <View style={styles.inputContainer}>
