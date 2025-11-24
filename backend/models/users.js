@@ -10,7 +10,16 @@ const User = sequelize.define('User', {
   gender: { type: DataTypes.STRING },
   is_verified: { type: DataTypes.BOOLEAN, defaultValue: false },
   preferred_language: { type: DataTypes.STRING },
-  role: { type: DataTypes.STRING },
+  // role: { type: DataTypes.STRING },
+  // models/users.js
+role: {
+  type: DataTypes.STRING(20),
+  allowNull: false,
+  defaultValue: 'customer',  // Default role
+  validate: {
+    isIn: [['customer', 'vendor', 'service_provider', 'admin']]
+  }
+},
   created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 }, {
   tableName: 'users',

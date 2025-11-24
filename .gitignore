@@ -8,3 +8,4 @@ stt-service/.env
 stt-service/credentials.json
 stt-service/app/__pycache__/
 client/.expo/
+backend/uploads/
