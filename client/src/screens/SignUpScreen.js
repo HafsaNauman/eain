@@ -92,53 +92,110 @@ const SignUpScreen = ({ route, navigation }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+const handleSignUp = async () => {
+  setGeneralError('');
+  
+  if (!validateForm()) {
+    return;
+  }
 
-  const handleSignUp = async () => {
-    setGeneralError('');
+  setLoading(true);
 
-    if (!validateForm()) {
-      return;
-    }
+  try {
+    const result = await signUp({
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      phoneNumber: phoneNumber,
+      email: formData.email.trim() || null,
+      password: formData.password,
+      gender: formData.gender,
+      role: formData.role,
+    });
 
-    setLoading(true);
+    if (result.success) {
+      console.log('✅ Signup result:', result.data);
+      
+      // Extract tokens - check the actual response structure
+      const accessToken = result.data.data?.accessToken || result.data.accessToken;
+      const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
+      const user = result.data.data?.user || result.data.user;
+      
+      console.log('🔑 Saving tokens:', { accessToken: accessToken?.substring(0, 20) + '...', user });
+      
+      // Save tokens and user data
+      await saveTokens(accessToken, refreshToken);
+      await saveUserData(user);
 
-    try {
-      const result = await signUp({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        phoneNumber: phoneNumber,
-        email: formData.email.trim() || null,
-        password: formData.password,
-        gender: formData.gender,
-        role: formData.role,
-      });
-
-      if (result.success) {
-        const { accessToken, refreshToken, user } = result.data.data;
-        await saveTokens(accessToken, refreshToken);
-        await saveUserData(user);
-
-        if (formData.role === 'vendor' || formData.role === 'service_provider') {
-          navigation.navigate('BusinessRegistration', {
-            userId: user.id,
-            userRole: formData.role,
-          });
-        } else {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Home' }],
-          });
-        }
+      // Navigate based on role
+      if (formData.role === 'vendor') {
+        navigation.navigate('BusinessRegistration', {
+          userId: user.user_id,
+          userRole: formData.role,
+        });
       } else {
-        setGeneralError(result.error);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
       }
-    } catch (err) {
-      setGeneralError(t('errors.signupFailed'));
-      console.error('Sign up error:', err);
-    } finally {
-      setLoading(false);
+    } else {
+      setGeneralError(result.error);
     }
-  };
+  } catch (err) {
+    setGeneralError('Sign up failed. Please try again.');
+    console.error('Sign up error:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // const handleSignUp = async () => {
+  //   setGeneralError('');
+
+  //   if (!validateForm()) {
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     const result = await signUp({
+  //       firstName: formData.firstName.trim(),
+  //       lastName: formData.lastName.trim(),
+  //       phoneNumber: phoneNumber,
+  //       email: formData.email.trim() || null,
+  //       password: formData.password,
+  //       gender: formData.gender,
+  //       role: formData.role,
+  //     });
+
+  //     if (result.success) {
+  //       const { accessToken, refreshToken, user } = result.data.data;
+  //       await saveTokens(accessToken, refreshToken);
+  //       await saveUserData(user);
+
+  //       if (formData.role === 'vendor' || formData.role === 'service_provider') {
+  //         navigation.navigate('BusinessRegistration', {
+  //           userId: user.id,
+  //           userRole: formData.role,
+  //         });
+  //       } else {
+  //         navigation.reset({
+  //           index: 0,
+  //           routes: [{ name: 'Home' }],
+  //         });
+  //       }
+  //     } else {
+  //       setGeneralError(result.error);
+  //     }
+  //   } catch (err) {
+  //     setGeneralError(t('errors.signupFailed'));
+  //     console.error('Sign up error:', err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleVoiceInput = async (field) => {
     if (recordingField === field) {
@@ -299,7 +356,7 @@ const SignUpScreen = ({ route, navigation }) => {
               >
                 <Picker.Item label={t('signUp.rolePlaceholder')} value="" color={COLORS.placeholder} />
                 <Picker.Item label={t('signUp.customer')} value="customer" />
-                <Picker.Item label={t('signUp.serviceProvider')} value="service_provider" />
+                {/* <Picker.Item label={t('signUp.serviceProvider')} value="service_provider" /> */}
                 <Picker.Item label={t('signUp.vendor')} value="vendor" />
               </Picker>
             </View>
