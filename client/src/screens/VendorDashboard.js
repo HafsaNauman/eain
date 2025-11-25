@@ -171,7 +171,10 @@ const VendorDashboardScreen = ({ route, navigation }) => {
                 // navigation.navigate('AddProduct', { 
                 //   businessId: profile?.vendor_id || businessData?.id 
                 // })
-                alert('Add Product - Coming Soon!');
+                navigation.navigate('AddProduct', { 
+                    businessId: profile?.vendor_id || businessData?.id,
+                    vendorProfile: profile 
+                        })
               }}
             />
             <QuickActionButton
@@ -255,7 +258,10 @@ const VendorDashboardScreen = ({ route, navigation }) => {
                   onPress={() => {
                     // ❌ COMMENTED
                     // navigation.navigate('EditProduct', { product })
-                    alert('Edit Product - Coming Soon!');
+                    navigation.navigate('AddProduct', { 
+                        businessId: profile?.vendor_id || businessData?.id,
+                        vendorProfile: profile 
+                        })
                   }}
                 >
                   <Ionicons name="create-outline" size={20} color={COLORS.primary} />
@@ -273,7 +279,10 @@ const VendorDashboardScreen = ({ route, navigation }) => {
                   // navigation.navigate('AddProduct', { 
                   //   businessId: profile?.vendor_id || businessData?.id 
                   // })
-                  alert('Add Your First Product - Coming Soon!');
+                  navigation.navigate('AddProduct', { 
+                businessId: profile?.vendor_id || businessData?.id,
+                vendorProfile: profile 
+                    })
                 }}
               >
                 <Text style={styles.addFirstProductText}>Add Your First Product</Text>
@@ -291,7 +300,10 @@ const VendorDashboardScreen = ({ route, navigation }) => {
           // navigation.navigate('AddProduct', { 
           //   businessId: profile?.vendor_id || businessData?.id 
           // })
-          alert('Add Product - Coming Soon!');
+          navigation.navigate('AddProduct', { 
+            businessId: profile?.vendor_id || businessData?.id,
+            vendorProfile: profile 
+            })
         }}
       >
         <Ionicons name="add" size={32} color="#FFFFFF" />

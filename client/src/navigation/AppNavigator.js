@@ -19,6 +19,7 @@ import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import BusinessRegistration from '../screens/BusinessRegistration';
 import VendorDashboard from '../screens/VendorDashboard';
+import AddProduct from '../screens/AddProduct';
 
 const Stack = createStackNavigator();
 
@@ -41,6 +42,8 @@ const AppNavigator = () => {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="BusinessRegistration" component={BusinessRegistration} />
         <Stack.Screen name="VendorDashboard" component={VendorDashboard} />
+         <Stack.Screen name="AddProduct" component={AddProduct} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
