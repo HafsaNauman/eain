@@ -92,110 +92,60 @@ const SignUpScreen = ({ route, navigation }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-const handleSignUp = async () => {
-  setGeneralError('');
-  
-  if (!validateForm()) {
-    return;
-  }
 
-  setLoading(true);
-
-  try {
-    const result = await signUp({
-      firstName: formData.firstName.trim(),
-      lastName: formData.lastName.trim(),
-      phoneNumber: phoneNumber,
-      email: formData.email.trim() || null,
-      password: formData.password,
-      gender: formData.gender,
-      role: formData.role,
-    });
-
-    if (result.success) {
-      console.log('✅ Signup result:', result.data);
-      
-      // Extract tokens - check the actual response structure
-      const accessToken = result.data.data?.accessToken || result.data.accessToken;
-      const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
-      const user = result.data.data?.user || result.data.user;
-      
-      console.log('🔑 Saving tokens:', { accessToken: accessToken?.substring(0, 20) + '...', user });
-      
-      // Save tokens and user data
-      await saveTokens(accessToken, refreshToken);
-      await saveUserData(user);
-
-      // Navigate based on role
-      if (formData.role === 'vendor') {
-        navigation.navigate('BusinessRegistration', {
-          userId: user.user_id,
-          userRole: formData.role,
-        });
-      } else {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
-      }
-    } else {
-      setGeneralError(result.error);
+  const handleSignUp = async () => {
+    setGeneralError('');
+    
+    if (!validateForm()) {
+      return;
     }
-  } catch (err) {
-    setGeneralError('Sign up failed. Please try again.');
-    console.error('Sign up error:', err);
-  } finally {
-    setLoading(false);
-  }
-};
 
+    setLoading(true);
 
-  // const handleSignUp = async () => {
-  //   setGeneralError('');
+    try {
+      const result = await signUp({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        phoneNumber: phoneNumber,
+        email: formData.email.trim() || null,
+        password: formData.password,
+        gender: formData.gender,
+        role: formData.role,
+      });
 
-  //   if (!validateForm()) {
-  //     return;
-  //   }
+      if (result.success) {
+        console.log('✅ Signup result:', result.data);
+        
+        const accessToken = result.data.data?.accessToken || result.data.accessToken;
+        const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
+        const user = result.data.data?.user || result.data.user;
+        
+        console.log('🔑 Saving tokens:', { accessToken: accessToken?.substring(0, 20) + '...', user });
+        
+        await saveTokens(accessToken, refreshToken);
+        await saveUserData(user);
 
-  //   setLoading(true);
-
-  //   try {
-  //     const result = await signUp({
-  //       firstName: formData.firstName.trim(),
-  //       lastName: formData.lastName.trim(),
-  //       phoneNumber: phoneNumber,
-  //       email: formData.email.trim() || null,
-  //       password: formData.password,
-  //       gender: formData.gender,
-  //       role: formData.role,
-  //     });
-
-  //     if (result.success) {
-  //       const { accessToken, refreshToken, user } = result.data.data;
-  //       await saveTokens(accessToken, refreshToken);
-  //       await saveUserData(user);
-
-  //       if (formData.role === 'vendor' || formData.role === 'service_provider') {
-  //         navigation.navigate('BusinessRegistration', {
-  //           userId: user.id,
-  //           userRole: formData.role,
-  //         });
-  //       } else {
-  //         navigation.reset({
-  //           index: 0,
-  //           routes: [{ name: 'Home' }],
-  //         });
-  //       }
-  //     } else {
-  //       setGeneralError(result.error);
-  //     }
-  //   } catch (err) {
-  //     setGeneralError(t('errors.signupFailed'));
-  //     console.error('Sign up error:', err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+        if (formData.role === 'vendor') {
+          navigation.navigate('BusinessRegistration', {
+            userId: user.user_id,
+            userRole: formData.role,
+          });
+        } else {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          });
+        }
+      } else {
+        setGeneralError(result.error);
+      }
+    } catch (err) {
+      setGeneralError('Sign up failed. Please try again.');
+      console.error('Sign up error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleVoiceInput = async (field) => {
     if (recordingField === field) {
@@ -247,15 +197,17 @@ const handleSignUp = async () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardAvoid}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
           <View style={styles.header}>
             <View style={styles.headerRow}>
@@ -356,7 +308,6 @@ const handleSignUp = async () => {
               >
                 <Picker.Item label={t('signUp.rolePlaceholder')} value="" color={COLORS.placeholder} />
                 <Picker.Item label={t('signUp.customer')} value="customer" />
-                {/* <Picker.Item label={t('signUp.serviceProvider')} value="service_provider" /> */}
                 <Picker.Item label={t('signUp.vendor')} value="vendor" />
               </Picker>
             </View>
