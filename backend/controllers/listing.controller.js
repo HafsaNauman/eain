@@ -20,7 +20,7 @@ export const createListing = async (req, res) => {
       listing_type,
       title_en,
       title_ur,
-      description_en,
+      description_en,// this has to be taken fromproduction description api 
       description_ur,
       price,
       currency,
