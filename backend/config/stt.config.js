@@ -15,6 +15,8 @@ export default {
     encoding: 'LINEAR16',
     sampleRateHertz: 44100,
     languageCode: 'en-US'
+    // languageCode: 'ur-PK'
+
   },
   supportedLanguages: {
     'en': 'en-US',
