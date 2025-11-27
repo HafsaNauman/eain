@@ -11,7 +11,7 @@ import { generateAccessToken, generateRefreshToken } from '../services/token.ser
  */
 export const sendOTP = async (req, res) => {
   const transaction = await sequelize.transaction();
-  
+
   try {
     const { phone_number } = req.body;
 
@@ -58,13 +58,13 @@ export const sendOTP = async (req, res) => {
 };
 
 
-  // STEP 2: Verify OTP
-  // POST /api/auth/verify-otp
-  // Body: { phone_number, otp_code }
- 
+// STEP 2: Verify OTP
+// POST /api/auth/verify-otp
+// Body: { phone_number, otp_code }
+
 export const verifyOTP = async (req, res) => {
   const transaction = await sequelize.transaction();
-  
+
   try {
     const { phone_number, otp_code } = req.body;
 
@@ -75,7 +75,7 @@ export const verifyOTP = async (req, res) => {
 
     // Find the latest verification record for this phone number
     const verification = await UserVerification.findOne({
-      where: { 
+      where: {
         phone_number,
         verification_code: otp_code,
         verification_status: 'pending'
@@ -105,9 +105,9 @@ export const verifyOTP = async (req, res) => {
       res,
       200,
       'Phone number verified successfully',
-      { 
+      {
         phone_number,
-        verified: true 
+        verified: true
       }
     );
   } catch (error) {
@@ -121,12 +121,12 @@ export const verifyOTP = async (req, res) => {
 
 export const signup = async (req, res) => {
   const transaction = await sequelize.transaction();
-  
+
   try {
-    const { 
-      full_name, 
-      phone_number, 
-      email, 
+    const {
+      full_name,
+      phone_number,
+      email,
       password,
       role,  // customer or vendor
       gender,
@@ -144,15 +144,21 @@ export const signup = async (req, res) => {
     if (!validRoles.includes(role)) {
       await transaction.rollback();
       return errorResponse(
-        res, 
-        400, 
+        res,
+        400,
         `Invalid role. Must be one of: ${validRoles.join(', ')}`
       );
     }
 
+    // Restrict male users from signing up as vendors
+    if (role === 'vendor' && gender === 'male') {
+      await transaction.rollback();
+      return errorResponse(res, 400, 'Male users cannot sign up as vendors');
+    }
+
     // Check if phone number was verified
     const verification = await UserVerification.findOne({
-      where: { 
+      where: {
         phone_number,
         verification_status: 'verified'
       },
@@ -166,9 +172,9 @@ export const signup = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ 
+    const existingUser = await User.findOne({
       where: { phone_number },
-      transaction 
+      transaction
     });
 
     if (existingUser) {
