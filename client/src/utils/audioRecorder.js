@@ -1,66 +1,50 @@
-/**
- * Audio Recording Utilities
- * 
- * Uses expo-av to record audio with configuration
- * matching backend expectations
- */
-
 import { Audio } from 'expo-av';
-
-/**
- * Request audio recording permissions
- */
-export const requestAudioPermissions = async () => {
-  try {
-    const { granted } = await Audio.requestPermissionsAsync();
-    if (!granted) {
-      throw new Error('Audio recording permission denied');
-    }
-    return true;
-  } catch (error) {
-    console.error('Permission error:', error);
-    return false;
-  }
-};
+import { Platform } from 'react-native';
+// ✅ Import from legacy path to avoid deprecation warning
+import * as FileSystem from 'expo-file-system/legacy';
 
 /**
  * Start audio recording
- * 
- * Configuration matches backend expectations:
- * - encoding: linear16
- * - sampleRateHertz: 44100
- * - languageCode: en-US
- * 
- * @returns {Promise<Audio.Recording>} Recording instance
  */
 export const startRecording = async () => {
   try {
-    // Request permissions
-    const hasPermission = await requestAudioPermissions();
-    if (!hasPermission) {
-      throw new Error('Audio permission required');
+    console.log('🎤 Requesting permissions...');
+
+    const permission = await Audio.requestPermissionsAsync();
+
+    if (permission.status !== 'granted') {
+      throw new Error('Microphone permission required');
     }
-    
-    // Set audio mode
+
+    console.log('✅ Permission granted');
+
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: true,
       playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
     });
-    
-    // Create recording with configuration
+
+    console.log('🎙️ Creating recording...');
+
     const recording = new Audio.Recording();
-    await recording.prepareToRecordAsync({
+
+    // Recording options with both platform configs
+    const recordingOptions = {
+      isMeteringEnabled: true,
       android: {
         extension: '.wav',
-        outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_DEFAULT,
-        audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_DEFAULT,
+        outputFormat: Audio.AndroidOutputFormat.DEFAULT,
+        audioEncoder: Audio.AndroidAudioEncoder.DEFAULT,
         sampleRate: 44100,
         numberOfChannels: 1,
         bitRate: 128000,
       },
       ios: {
         extension: '.wav',
-        audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+        outputFormat: Audio.IOSOutputFormat.LINEARPCM,
+        audioQuality: Audio.IOSAudioQuality.HIGH,
         sampleRate: 44100,
         numberOfChannels: 1,
         bitRate: 128000,
@@ -72,32 +56,84 @@ export const startRecording = async () => {
         mimeType: 'audio/wav',
         bitsPerSecond: 128000,
       },
-    });
-    
+    };
+
+    console.log('🔧 Recording config for platform:', Platform.OS);
+
+    await recording.prepareToRecordAsync(recordingOptions);
     await recording.startAsync();
-    console.log('🎤 Recording started');
-    
+
+    console.log('✅ Recording STARTED');
     return recording;
+
   } catch (error) {
-    console.error('Failed to start recording:', error);
+    console.error('❌ Start recording error:', error);
     throw error;
   }
 };
 
 /**
- * Stop audio recording and get file URI
- * 
- * @param {Audio.Recording} recording - Recording instance
- * @returns {Promise<string>} File URI of recorded audio
+ * Stop recording and return URI
  */
 export const stopRecording = async (recording) => {
   try {
+    if (!recording) {
+      throw new Error('No active recording');
+    }
+
+    console.log('⏹️ Stopping recording...');
+
     await recording.stopAndUnloadAsync();
+
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+    });
+
     const uri = recording.getURI();
-    console.log('🎤 Recording stopped. File:', uri);
+
+    if (!uri) {
+      throw new Error('No recording URI');
+    }
+
+    console.log('📁 Recording URI:', uri);
+
+    // ✅ FIXED: Use legacy API - getInfoAsync now works
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(uri);
+      console.log('📊 File info:', {
+        exists: fileInfo.exists,
+        size: fileInfo.size,
+      });
+
+      if (!fileInfo.exists) {
+        console.warn('⚠️ Warning: Recording file does not exist');
+      } else if (fileInfo.size < 1000) {
+        console.warn('⚠️ Warning: Recording file very small (<1KB)');
+      }
+    } catch (fileCheckError) {
+      // Don't fail if file check fails - just log warning
+      console.warn('⚠️ Could not verify file:', fileCheckError.message);
+    }
+
+    console.log('✅ Recording stopped successfully');
     return uri;
+
   } catch (error) {
-    console.error('Failed to stop recording:', error);
+    console.error('❌ Stop recording error:', error);
     throw error;
+  }
+};
+
+/**
+ * Get recording duration in milliseconds
+ */
+export const getRecordingDuration = async (recording) => {
+  try {
+    if (!recording) return 0;
+    const status = await recording.getStatusAsync();
+    return status.durationMillis || 0;
+  } catch (error) {
+    console.error('⚠️ Error getting duration:', error);
+    return 0;
   }
 };
