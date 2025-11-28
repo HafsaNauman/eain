@@ -30,10 +30,11 @@ import { saveTokens, saveUserData } from '../utils/storage';
 import { startRecording, stopRecording } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
 
+
 const SignUpScreen = ({ route, navigation }) => {
   const { phoneNumber } = route.params;
   const { t } = useTranslation();
-
+  const { i18n } = useTranslation();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -171,16 +172,11 @@ const SignUpScreen = ({ route, navigation }) => {
     try {
       setRecordingField(null);
 
-      // Check minimum duration
       const recordingDuration = recording ? await getRecordingDuration(recording) : 0;
       console.log('⏱️ Recording duration:', recordingDuration, 'ms');
 
       if (recordingDuration < 1000) {
-        Alert.alert(
-          'Recording Too Short',
-          'Please record for at least 1 second.',
-          [{ text: 'OK' }]
-        );
+        Alert.alert('Recording Too Short', 'Please record for at least 1 second.', [{ text: 'OK' }]);
 
         if (recording) {
           await recording.stopAndUnloadAsync();
@@ -192,20 +188,18 @@ const SignUpScreen = ({ route, navigation }) => {
       const audioUri = await stopRecording(recording);
       console.log('📁 Audio URI:', audioUri);
 
+      // ✅ GET DYNAMIC LANGUAGE CODE
+      const languageCode = i18n.language === 'en' ? 'en-US' : 'ur-PK';
+      console.log(`📤 SignUpScreen sending language: ${languageCode}`);
+
       const result = await transcribeAudio(audioUri, {
         encoding: 'LINEAR16',
         sampleRateHertz: 44100,
-        languageCode: 'en-US',
+        languageCode: languageCode,  // ✅ NOW DYNAMIC
       });
 
       if (result.success) {
-        const transcribedText =
-          result.data?.transcript ||
-          result.data?.data?.transcription ||
-          result.data?.transcription ||
-          result.data?.text ||
-          '';
-
+        const transcribedText = result.data?.transcript || '';
         if (transcribedText && transcribedText.trim()) {
           updateField(field, transcribedText.trim());
           console.log('✅ Field updated with:', transcribedText.trim());

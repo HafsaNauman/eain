@@ -446,6 +446,7 @@ async def transcribe_audio(file: UploadFile = File(...), config: str = Form(...)
         f"🎤 Final Config → encoding={encoding_str}, "
         f"sample_rate={sample_rate}, channels={channels}, lang={recognition_config.language_code}"
     )
+    print(f"🔍 Extracted Language Code: {recognition_config.language_code}") # DEBUG LOG
 
     client = speech.SpeechClient()
 
