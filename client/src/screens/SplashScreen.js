@@ -1,28 +1,23 @@
 /**
- * Splash Screen - EAIN Design
- * Exact color matching with proper opacity
+ * Splash Screen - EAIN Design with i18n
  */
 
 import React, { useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image,
-  Animated, 
-  Dimensions 
-} from 'react-native';
+import { View, Text, StyleSheet, Image, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { getAccessToken, getUserData } from '../utils/storage';
+import { COLORS } from '../constants/colors';
 
 const { width, height } = Dimensions.get('window');
 
 const SplashScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
   useEffect(() => {
-    // Fade in and scale animation
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -37,7 +32,6 @@ const SplashScreen = ({ navigation }) => {
       }),
     ]).start();
 
-    // Check auth status after 2.5 seconds
     setTimeout(() => {
       checkAuthStatus();
     }, 2500);
@@ -61,21 +55,18 @@ const SplashScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Gradient Background - Muted teal tones */}
       <LinearGradient
-        colors={['#89B5A8', '#99BFB3', '#A8C8BC']}
+        colors={[COLORS.gradientStart, COLORS.gradientMiddle, COLORS.gradientEnd]}
         locations={[0, 0.5, 1]}
         style={styles.gradientBackground}
       />
 
-      {/* Wave Shape Overlay with Transparency */}
       <Image
         source={require('../../assets/wave-shape.png')}
         style={styles.waveImage}
         resizeMode="cover"
       />
 
-      {/* Main Content */}
       <Animated.View
         style={[
           styles.contentContainer,
@@ -85,21 +76,17 @@ const SplashScreen = ({ navigation }) => {
           },
         ]}
       >
-        {/* EAIN Logo */}
-        <Text style={styles.appName}>EAIN</Text>
-
-        {/* Urdu Tagline */}
-        <Text style={styles.taglineUrdu}>عورت کی پہچان ، بے سے آغاز</Text>
+        <Text style={styles.appName}>{t('splash.appName')}</Text>
+        <Text style={styles.taglineUrdu}>{t('splash.tagline')}</Text>
       </Animated.View>
 
-      {/* Language Selector at Bottom */}
       <Animated.View
         style={[
           styles.bottomContainer,
           { opacity: fadeAnim }
         ]}
       >
-        <Text style={styles.languageText}>English | اردو</Text>
+        <LanguageSwitcher />
       </Animated.View>
     </View>
   );
@@ -108,7 +95,7 @@ const SplashScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#89B5A8', // Fallback color
+    backgroundColor: COLORS.gradientStart,
   },
   gradientBackground: {
     position: 'absolute',
@@ -121,7 +108,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: width,
     height: height,
-    opacity: 0.65, // Reduced opacity to let gradient show through
+    opacity: 0.65,
   },
   contentContainer: {
     flex: 1,
@@ -133,7 +120,7 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 68,
     fontWeight: '400',
-    color: '#2F5D5D',
+    color: COLORS.primaryDark,
     letterSpacing: 10,
     marginBottom: 16,
     textAlign: 'center',
@@ -143,7 +130,7 @@ const styles = StyleSheet.create({
   },
   taglineUrdu: {
     fontSize: 16,
-    color: '#2F5D5D',
+    color: COLORS.primaryDark,
     textAlign: 'center',
     fontWeight: '400',
     letterSpacing: 0.5,
@@ -155,15 +142,6 @@ const styles = StyleSheet.create({
     bottom: 50,
     alignSelf: 'center',
     zIndex: 10,
-  },
-  languageText: {
-    fontSize: 15,
-    color: '#FFFFFF',
-    fontWeight: '500',
-    letterSpacing: 3,
-    textShadowColor: 'rgba(0, 0, 0, 0.25)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
 });
 

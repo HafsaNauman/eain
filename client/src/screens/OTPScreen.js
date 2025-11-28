@@ -147,7 +147,7 @@ const OTPScreen = ({ route, navigation }) => {
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Verification Code 🔐</Text>
+          <Text style={styles.title}>Verification Code </Text>
           <Text style={styles.subtitle}>
             Enter the 6-digit code sent to{'\n'}
             <Text style={styles.phoneNumber}>{phoneNumber}</Text>
@@ -179,10 +179,10 @@ const OTPScreen = ({ route, navigation }) => {
         </View>
 
         {/* Voice Input */}
-        <VoiceInputButton
+        {/* <VoiceInputButton
           onTranscriptionComplete={handleVoiceTranscription}
           disabled={loading}
-        />
+        />  */}
 
         {/* Verify Button */}
         <CustomButton
