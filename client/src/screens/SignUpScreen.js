@@ -168,6 +168,55 @@ const SignUpScreen = ({ route, navigation }) => {
     }
   };
 
+  // const stopVoiceRecording = async (field) => {
+  //   try {
+  //     setRecordingField(null);
+
+  //     const recordingDuration = recording ? await getRecordingDuration(recording) : 0;
+  //     console.log('⏱️ Recording duration:', recordingDuration, 'ms');
+
+  //     if (recordingDuration < 1000) {
+  //       Alert.alert('Recording Too Short', 'Please record for at least 1 second.', [{ text: 'OK' }]);
+
+  //       if (recording) {
+  //         await recording.stopAndUnloadAsync();
+  //       }
+  //       setRecording(null);
+  //       return;
+  //     }
+
+  //     const audioUri = await stopRecording(recording);
+  //     console.log('📁 Audio URI:', audioUri);
+
+  //     // ✅ GET DYNAMIC LANGUAGE CODE
+  //     const languageCode = i18n.language === 'en' ? 'en-US' : 'ur-PK';
+  //     console.log(`📤 SignUpScreen sending language: ${languageCode}`);
+
+  //     const result = await transcribeAudio(audioUri, {
+  //       encoding: 'LINEAR16',
+  //       sampleRateHertz: 44100,
+  //       languageCode: languageCode,  // ✅ NOW DYNAMIC
+  //     });
+
+  //     if (result.success) {
+  //       const transcribedText = result.data?.transcript || '';
+  //       if (transcribedText && transcribedText.trim()) {
+  //         updateField(field, transcribedText.trim());
+  //         console.log('✅ Field updated with:', transcribedText.trim());
+  //       } else {
+  //         Alert.alert('No Speech', 'Could not detect speech. Please try again.');
+  //       }
+  //     } else {
+  //       Alert.alert('Error', result.error || 'Transcription failed');
+  //     }
+
+  //     setRecording(null);
+  //   } catch (error) {
+  //     console.error('❌ Transcription error:', error);
+  //     Alert.alert('Error', 'Failed to transcribe audio');
+  //     setRecording(null);
+  //   }
+  // };
   const stopVoiceRecording = async (field) => {
     try {
       setRecordingField(null);
@@ -188,14 +237,16 @@ const SignUpScreen = ({ route, navigation }) => {
       const audioUri = await stopRecording(recording);
       console.log('📁 Audio URI:', audioUri);
 
-      // ✅ GET DYNAMIC LANGUAGE CODE
       const languageCode = i18n.language === 'en' ? 'en-US' : 'ur-PK';
-      console.log(`📤 SignUpScreen sending language: ${languageCode}`);
+      console.log(`📤 SignUpScreen language: ${i18n.language}`);
+      console.log(`📤 SignUpScreen languageCode: ${languageCode}`);
 
+      // ✅ ADD fieldType to config
       const result = await transcribeAudio(audioUri, {
         encoding: 'LINEAR16',
         sampleRateHertz: 44100,
-        languageCode: languageCode,  // ✅ NOW DYNAMIC
+        languageCode: languageCode,
+        fieldType: 'name', // ✅ Specify field type for proper formatting
       });
 
       if (result.success) {
