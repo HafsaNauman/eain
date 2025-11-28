@@ -11,6 +11,7 @@ import sttRoutes from './routes/stt.routes.js';
 import vendorRoutes from './routes/vendor.routes.js';
 import listingRoutes from './routes/listing.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
+import aiDescriptionRoutes from './routes/aiDescription.routes.js';
 
 console.log('🔄 Starting application...');
 
@@ -31,14 +32,14 @@ async function connectDB() {
     console.log('🔄 Attempting database connection...');
     console.log('📍 DB Host:', process.env.DB_HOST);
     console.log('📍 DB Name:', process.env.DB_NAME);
-    
+
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
-    
+
     console.log('🔄 Syncing models...');
     await sequelize.sync({ alter: true });
     console.log('✅ Models synced with database.');
-    
+
   } catch (err) {
     console.error('❌ Database connection error:', err);
     console.error('❌ Error details:', err.message);
@@ -63,10 +64,11 @@ app.use('/api/stt', sttRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/vendor/listings', listingRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/ai', aiDescriptionRoutes);
 // Health check route
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'Server is running',
     timestamp: new Date().toISOString()
   });
@@ -79,17 +81,17 @@ app.get('/api', (req, res) => {
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: 'Route not found' 
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
   });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   console.error('Server Error:', err);
-  res.status(500).json({ 
-    success: false, 
+  res.status(500).json({
+    success: false,
     message: 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
