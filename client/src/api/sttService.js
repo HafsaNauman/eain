@@ -16,39 +16,43 @@ export const transcribeAudio = async (audioUri, config = {}) => {
     console.log('📤 Starting transcription...');
     console.log('📁 Audio URI:', audioUri);
 
-    // Validate audio URI
     if (!audioUri) {
       throw new Error('No audio file to transcribe');
     }
 
-    // Create FormData for file upload
     const formData = new FormData();
 
-    // Append audio file with proper configuration
     const audioFile = {
       uri: Platform.OS === 'android' ? audioUri : audioUri.replace('file://', ''),
-      type: 'audio/wav', // FastAPI expects WAV
+      type: 'audio/wav',
       name: 'recording.wav',
     };
 
     console.log('🎵 Audio file config:', audioFile);
     formData.append('audio', audioFile);
 
-    // Append audio configuration (must match FastAPI expectations)
-    formData.append('encoding', config.encoding || 'LINEAR16');
-    formData.append('sampleRateHertz', String(config.sampleRateHertz || 44100));
-    formData.append('languageCode', config.languageCode || 'en-US');
+    // ✅ DEBUG: Log what config we received
+    console.log('🔍 STTSERVICE - Config received:', config);
+    console.log('🔍 STTSERVICE - languageCode:', config.languageCode);
+    console.log('🔍 STTSERVICE - encoding:', config.encoding);
+    console.log('🔍 STTSERVICE - sampleRateHertz:', config.sampleRateHertz);
 
-    console.log('⚙️ Transcription config:', {
-      encoding: config.encoding || 'LINEAR16',
-      sampleRateHertz: config.sampleRateHertz || 44100,
-      languageCode: config.languageCode || 'en-US',
-    });
+    // Append configuration
+    const encodingToSend = config.encoding || 'LINEAR16';
+    const sampleRateToSend = config.sampleRateHertz || 44100;
+    const languageCodeToSend = config.languageCode || 'en-US';
 
-    // Get auth token if available
+    console.log('📨 STTSERVICE - Values to send:');
+    console.log('   encoding:', encodingToSend);
+    console.log('   sampleRate:', sampleRateToSend);
+    console.log('   languageCode:', languageCodeToSend);
+
+    formData.append('encoding', encodingToSend);
+    formData.append('sampleRateHertz', String(sampleRateToSend));
+    formData.append('languageCode', languageCodeToSend);
+
     const token = await getAccessToken();
 
-    // Send request to Node backend (which forwards to FastAPI)
     console.log('🚀 Sending to backend:', `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STT.TRANSCRIBE}`);
 
     const response = await axios.post(
@@ -59,30 +63,18 @@ export const transcribeAudio = async (audioUri, config = {}) => {
           'Content-Type': 'multipart/form-data',
           ...(token && { Authorization: `Bearer ${token}` }),
         },
-        timeout: 30000, // 30 second timeout
+        timeout: 30000,
       }
     );
 
     console.log('✅ Transcription response:', response.data);
 
-    // Extract transcript from response
-    const transcript =
-      response.data?.data?.transcript ||
-      response.data?.transcript ||
-      '';
-
-    const confidence =
-      response.data?.data?.confidence ||
-      response.data?.confidence ||
-      0;
+    const transcript = response.data?.data?.transcript || response.data?.transcript || '';
+    const confidence = response.data?.data?.confidence || response.data?.confidence || 0;
 
     return {
       success: true,
-      data: {
-        transcript,
-        confidence,
-        fullResponse: response.data,
-      },
+      data: { transcript, confidence, fullResponse: response.data },
     };
 
   } catch (error) {

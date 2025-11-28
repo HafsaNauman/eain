@@ -22,6 +22,10 @@ export const transcribeAudio = async (req, res) => {
     console.log('🎤 Audio file received:', req.file.filename);
     console.log('📊 File size:', (req.file.size / 1024).toFixed(2), 'KB');
 
+    console.log('🔍 Request Body:', JSON.stringify(req.body, null, 2)); // DEBUG LOG
+    console.log('🔍 req.body.languageCode:', req.body.languageCode); // DEBUG LOG
+    console.log('🔍 All req.body keys:', Object.keys(req.body)); // DEBUG LOG
+
     // Get audio configuration from request body
     const audioConfig = {
       encoding: req.body.encoding || sttConfig.defaultConfig.encoding,

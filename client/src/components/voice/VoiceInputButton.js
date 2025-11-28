@@ -7,7 +7,10 @@ import { transcribeAudio } from '../../api/sttService';
 
 const MINIMUM_RECORDING_DURATION = 1000; // 1 second minimum
 
+import { useTranslation } from 'react-i18next';
+
 const VoiceInputButton = ({ onTranscriptionComplete, disabled = false }) => {
+  const { i18n } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [recording, setRecording] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -65,11 +68,16 @@ const VoiceInputButton = ({ onTranscriptionComplete, disabled = false }) => {
       const audioUri = await stopRecording(recording);
       console.log('📁 Audio saved at:', audioUri);
 
-      console.log('🔄 Starting transcription...');
+      // Read current language directly from i18n to avoid stale closure
+      const currentLanguage = i18n.language;
+      const languageCode = currentLanguage === 'en' ? 'en-US' : 'ur-PK';
+      console.log(`🔄 Starting transcription in ${currentLanguage === 'en' ? 'English' : 'Urdu'}...`);
+      console.log(`📤 Current i18n.language: ${currentLanguage}`); // DEBUG LOG
+      console.log(`📤 Sending languageCode: ${languageCode}`); // DEBUG LOG
       const result = await transcribeAudio(audioUri, {
         encoding: 'LINEAR16',
         sampleRateHertz: 44100,
-        languageCode: 'en-US',
+        languageCode: languageCode,
       });
 
       setIsProcessing(false);
