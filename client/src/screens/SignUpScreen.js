@@ -2,6 +2,8 @@
  * Sign Up Screen - EAIN Design with i18n
  * Inline voice input icons
  */
+import { Alert } from 'react-native'; // Add Alert
+import { getRecordingDuration } from '../utils/audioRecorder'; // Add this import
 
 import React, { useState } from 'react';
 import {
@@ -31,7 +33,7 @@ import { transcribeAudio } from '../api/sttService';
 const SignUpScreen = ({ route, navigation }) => {
   const { phoneNumber } = route.params;
   const { t } = useTranslation();
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -40,7 +42,7 @@ const SignUpScreen = ({ route, navigation }) => {
     gender: '',
     role: '',
   });
-  
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
@@ -95,7 +97,7 @@ const SignUpScreen = ({ route, navigation }) => {
 
   const handleSignUp = async () => {
     setGeneralError('');
-    
+
     if (!validateForm()) {
       return;
     }
@@ -115,13 +117,13 @@ const SignUpScreen = ({ route, navigation }) => {
 
       if (result.success) {
         console.log('✅ Signup result:', result.data);
-        
+
         const accessToken = result.data.data?.accessToken || result.data.accessToken;
         const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
         const user = result.data.data?.user || result.data.user;
-        
+
         console.log('🔑 Saving tokens:', { accessToken: accessToken?.substring(0, 20) + '...', user });
-        
+
         await saveTokens(accessToken, refreshToken);
         await saveUserData(user);
 
@@ -168,8 +170,28 @@ const SignUpScreen = ({ route, navigation }) => {
   const stopVoiceRecording = async (field) => {
     try {
       setRecordingField(null);
+
+      // Check minimum duration
+      const recordingDuration = recording ? await getRecordingDuration(recording) : 0;
+      console.log('⏱️ Recording duration:', recordingDuration, 'ms');
+
+      if (recordingDuration < 1000) {
+        Alert.alert(
+          'Recording Too Short',
+          'Please record for at least 1 second.',
+          [{ text: 'OK' }]
+        );
+
+        if (recording) {
+          await recording.stopAndUnloadAsync();
+        }
+        setRecording(null);
+        return;
+      }
+
       const audioUri = await stopRecording(recording);
-      
+      console.log('📁 Audio URI:', audioUri);
+
       const result = await transcribeAudio(audioUri, {
         encoding: 'LINEAR16',
         sampleRateHertz: 44100,
@@ -177,18 +199,28 @@ const SignUpScreen = ({ route, navigation }) => {
       });
 
       if (result.success) {
-        const transcribedText = 
+        const transcribedText =
+          result.data?.transcript ||
           result.data?.data?.transcription ||
           result.data?.transcription ||
           result.data?.text ||
           '';
-        
+
         if (transcribedText && transcribedText.trim()) {
           updateField(field, transcribedText.trim());
+          console.log('✅ Field updated with:', transcribedText.trim());
+        } else {
+          Alert.alert('No Speech', 'Could not detect speech. Please try again.');
         }
+      } else {
+        Alert.alert('Error', result.error || 'Transcription failed');
       }
+
+      setRecording(null);
     } catch (error) {
-      console.error('Transcription error:', error);
+      console.error('❌ Transcription error:', error);
+      Alert.alert('Error', 'Failed to transcribe audio');
+      setRecording(null);
     }
   };
 
@@ -228,10 +260,10 @@ const SignUpScreen = ({ route, navigation }) => {
             autoCapitalize="words"
             rightIcon={
               <TouchableOpacity onPress={() => handleVoiceInput('firstName')}>
-                <Ionicons 
-                  name={recordingField === 'firstName' ? 'mic' : 'mic-outline'} 
-                  size={20} 
-                  color={recordingField === 'firstName' ? COLORS.error : COLORS.textSecondary} 
+                <Ionicons
+                  name={recordingField === 'firstName' ? 'mic' : 'mic-outline'}
+                  size={20}
+                  color={recordingField === 'firstName' ? COLORS.error : COLORS.textSecondary}
                 />
               </TouchableOpacity>
             }
@@ -246,10 +278,10 @@ const SignUpScreen = ({ route, navigation }) => {
             autoCapitalize="words"
             rightIcon={
               <TouchableOpacity onPress={() => handleVoiceInput('lastName')}>
-                <Ionicons 
-                  name={recordingField === 'lastName' ? 'mic' : 'mic-outline'} 
-                  size={20} 
-                  color={recordingField === 'lastName' ? COLORS.error : COLORS.textSecondary} 
+                <Ionicons
+                  name={recordingField === 'lastName' ? 'mic' : 'mic-outline'}
+                  size={20}
+                  color={recordingField === 'lastName' ? COLORS.error : COLORS.textSecondary}
                 />
               </TouchableOpacity>
             }
@@ -273,10 +305,10 @@ const SignUpScreen = ({ route, navigation }) => {
             secureTextEntry={!showPassword}
             rightIcon={
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons 
-                  name={showPassword ? 'eye' : 'eye-off'} 
-                  size={20} 
-                  color={COLORS.textSecondary} 
+                <Ionicons
+                  name={showPassword ? 'eye' : 'eye-off'}
+                  size={20}
+                  color={COLORS.textSecondary}
                 />
               </TouchableOpacity>
             }
@@ -333,21 +365,21 @@ const SignUpScreen = ({ route, navigation }) => {
           </View>
 
           <View style={styles.socialContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Google')}
             >
               <AntDesign name="google" size={24} color="#DB4437" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Apple')}
             >
               <AntDesign name="apple1" size={26} color="#000000" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Facebook')}
             >
