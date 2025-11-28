@@ -30,7 +30,7 @@ import { transcribeAudio } from '../api/sttService';
 
 const LoginScreen = ({ navigation }) => {
   const { t } = useTranslation();
-  
+
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +43,7 @@ const LoginScreen = ({ navigation }) => {
     setError('');
 
     const fullPhoneNumber = `+92${phoneNumber.replace(/\s/g, '')}`;
-    
+
     if (!validatePhoneNumber(fullPhoneNumber)) {
       setError(t('errors.invalidPhone'));
       return;
@@ -101,7 +101,7 @@ const LoginScreen = ({ navigation }) => {
     try {
       setRecordingField(null);
       const audioUri = await stopRecording(recording);
-      
+
       const result = await transcribeAudio(audioUri, {
         encoding: 'LINEAR16',
         sampleRateHertz: 44100,
@@ -109,12 +109,12 @@ const LoginScreen = ({ navigation }) => {
       });
 
       if (result.success) {
-        const transcribedText = 
+        const transcribedText =
           result.data?.data?.transcription ||
           result.data?.transcription ||
           result.data?.text ||
           '';
-        
+
         if (transcribedText && transcribedText.trim()) {
           if (field === 'phoneNumber') {
             const digits = transcribedText.replace(/\D/g, '');
@@ -162,7 +162,7 @@ const LoginScreen = ({ navigation }) => {
 
           {/* Phone Number Input Container with Inline Mic */}
           <View style={[
-            styles.phoneInputContainer, 
+            styles.phoneInputContainer,
             error && !phoneNumber && styles.inputError
           ]}>
             <View style={styles.prefixContainer}>
@@ -177,14 +177,14 @@ const LoginScreen = ({ navigation }) => {
               keyboardType="phone-pad"
               maxLength={11}
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.micIcon}
               onPress={() => handleVoiceInput('phoneNumber')}
             >
-              <Ionicons 
-                name={recordingField === 'phoneNumber' ? 'mic' : 'mic-outline'} 
-                size={20} 
-                color={recordingField === 'phoneNumber' ? COLORS.error : COLORS.textSecondary} 
+              <Ionicons
+                name={recordingField === 'phoneNumber' ? 'mic' : 'mic-outline'}
+                size={20}
+                color={recordingField === 'phoneNumber' ? COLORS.error : COLORS.textSecondary}
               />
             </TouchableOpacity>
           </View>
@@ -202,16 +202,16 @@ const LoginScreen = ({ navigation }) => {
             secureTextEntry={!showPassword}
             rightIcon={
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons 
-                  name={showPassword ? 'eye' : 'eye-off'} 
-                  size={20} 
-                  color={COLORS.textSecondary} 
+                <Ionicons
+                  name={showPassword ? 'eye' : 'eye-off'}
+                  size={20}
+                  color={COLORS.textSecondary}
                 />
               </TouchableOpacity>
             }
           />
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.forgotPassword}
             onPress={() => console.log('Forgot password clicked')}
           >
@@ -235,21 +235,21 @@ const LoginScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.socialContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Google')}
             >
               <AntDesign name="google" size={24} color="#DB4437" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Apple')}
             >
               <AntDesign name="apple1" size={26} color="#000000" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Facebook')}
             >
@@ -425,3 +425,432 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
+
+
+/**
+ * Login Screen - EAIN Design with i18n
+ * WITH VOICE INPUT FOR PHONE NUMBER
+ */
+
+// import React, { useState } from 'react';
+// import {
+//   View,
+//   Text,
+//   StyleSheet,
+//   ScrollView,
+//   KeyboardAvoidingView,
+//   Platform,
+//   TouchableOpacity,
+//   Alert,
+// } from 'react-native';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+// import { AntDesign, FontAwesome, Ionicons } from '@expo/vector-icons';
+// import { useTranslation } from 'react-i18next';
+// import CustomInput from '../components/common/CustomInput';
+// import CustomButton from '../components/common/CustomButton';
+// import ErrorAlert from '../components/common/ErrorAlert';
+// import LanguageSwitcher from '../components/common/LanguageSwitcher';
+// import { COLORS } from '../constants/colors';
+// import { login } from '../api/authService';
+// import { saveTokens, saveUserData } from '../utils/storage';
+// // ✅ ADD VOICE INPUT IMPORTS
+// import { startRecording, stopRecording, getRecordingDuration } from '../utils/audioRecorder';
+// import { transcribeAudio } from '../api/sttService';
+
+// const LoginScreen = ({ navigation }) => {
+//   const { t, i18n } = useTranslation(); // ✅ Get i18n
+
+//   const [phoneNumber, setPhoneNumber] = useState('');
+//   const [password, setPassword] = useState('');
+//   const [errors, setErrors] = useState({});
+//   const [loading, setLoading] = useState(false);
+//   const [generalError, setGeneralError] = useState('');
+//   const [showPassword, setShowPassword] = useState(false);
+
+//   // ✅ ADD RECORDING STATE
+//   const [recordingField, setRecordingField] = useState(null);
+//   const [recording, setRecording] = useState(null);
+
+//   const validateForm = () => {
+//     const newErrors = {};
+
+//     if (!phoneNumber.trim()) {
+//       newErrors.phoneNumber = t('errors.phoneRequired');
+//     } else if (!/^[0-9]{10,15}$/.test(phoneNumber.trim())) {
+//       newErrors.phoneNumber = t('errors.invalidPhone');
+//     }
+
+//     if (!password) {
+//       newErrors.password = t('errors.passwordRequired');
+//     }
+
+//     setErrors(newErrors);
+//     return Object.keys(newErrors).length === 0;
+//   };
+
+//   const handleLogin = async () => {
+//     setGeneralError('');
+
+//     if (!validateForm()) {
+//       return;
+//     }
+
+//     setLoading(true);
+
+//     try {
+//       const result = await login({
+//         phoneNumber: phoneNumber.trim(),
+//         password: password,
+//       });
+
+//       if (result.success) {
+//         console.log('✅ Login result:', result.data);
+
+//         const accessToken = result.data.data?.accessToken || result.data.accessToken;
+//         const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
+//         const user = result.data.data?.user || result.data.user;
+
+//         await saveTokens(accessToken, refreshToken);
+//         await saveUserData(user);
+
+//         navigation.reset({
+//           index: 0,
+//           routes: [{ name: 'Home' }],
+//         });
+//       } else {
+//         setGeneralError(result.error);
+//       }
+//     } catch (err) {
+//       setGeneralError('Login failed. Please try again.');
+//       console.error('Login error:', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleSocialLogin = (provider) => {
+//     console.log(`${provider} login clicked`);
+//   };
+
+//   // ✅ VOICE INPUT FUNCTIONS
+//   const handleVoiceInput = async () => {
+//     if (recordingField === 'phoneNumber') {
+//       await stopVoiceRecording();
+//     } else {
+//       await startVoiceRecording();
+//     }
+//   };
+
+//   const startVoiceRecording = async () => {
+//     try {
+//       console.log('🎤 Starting phone number recording');
+//       const newRecording = await startRecording();
+//       setRecording(newRecording);
+//       setRecordingField('phoneNumber');
+//     } catch (error) {
+//       console.error('Recording error:', error);
+//       Alert.alert('Recording Error', error.message || 'Failed to start recording');
+//     }
+//   };
+
+//   const stopVoiceRecording = async () => {
+//     try {
+//       setRecordingField(null);
+
+//       const recordingDuration = recording ? await getRecordingDuration(recording) : 0;
+//       console.log('⏱️ Recording duration:', recordingDuration, 'ms');
+
+//       if (recordingDuration < 1000) {
+//         Alert.alert('Recording Too Short', 'Please record for at least 1 second.', [
+//           { text: 'OK' },
+//         ]);
+
+//         if (recording) {
+//           await recording.stopAndUnloadAsync();
+//         }
+//         setRecording(null);
+//         return;
+//       }
+
+//       const audioUri = await stopRecording(recording);
+//       console.log('📁 Audio URI:', audioUri);
+
+//       const languageCode = i18n.language === 'en' ? 'en-US' : 'ur-PK';
+//       console.log(`📤 LoginScreen language: ${i18n.language} -> ${languageCode}`);
+
+//       const result = await transcribeAudio(audioUri, {
+//         encoding: 'LINEAR16',
+//         sampleRateHertz: 44100,
+//         languageCode: languageCode,
+//         fieldType: 'phone', // ✅ Extract only digits
+//       });
+
+//       if (result.success) {
+//         const transcribedText = result.data?.transcript || '';
+
+//         // Extract only digits from transcribed text
+//         const digitsOnly = transcribedText.replace(/\D/g, '');
+
+//         console.log('📝 Transcribed:', transcribedText);
+//         console.log('🔢 Digits only:', digitsOnly);
+
+//         if (digitsOnly && digitsOnly.length >= 10) {
+//           setPhoneNumber(digitsOnly);
+//           if (errors.phoneNumber) {
+//             setErrors({ ...errors, phoneNumber: '' });
+//           }
+//           console.log('✅ Phone number updated:', digitsOnly);
+//         } else {
+//           Alert.alert(
+//             'Invalid Input',
+//             'Could not detect a valid phone number. Please try again or type manually.'
+//           );
+//         }
+//       } else {
+//         Alert.alert('Error', result.error || 'Transcription failed');
+//       }
+
+//       setRecording(null);
+//     } catch (error) {
+//       console.error('❌ Transcription error:', error);
+//       Alert.alert('Error', 'Failed to transcribe audio');
+//       setRecording(null);
+//     }
+//   };
+
+//   return (
+//     <SafeAreaView style={styles.container} edges={['top']}>
+//       <KeyboardAvoidingView
+//         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+//         style={styles.keyboardAvoid}
+//         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+//       >
+//         <ScrollView
+//           contentContainerStyle={styles.scrollContent}
+//           keyboardShouldPersistTaps="handled"
+//           showsVerticalScrollIndicator={false}
+//           bounces={false}
+//         >
+//           <View style={styles.header}>
+//             <View style={styles.headerRow}>
+//               <Text style={styles.appName}>{t('login.appName')}</Text>
+//               <LanguageSwitcher />
+//             </View>
+//             <Text style={styles.title}>{t('login.title')}</Text>
+//             <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
+//           </View>
+
+//           {generalError ? <ErrorAlert message={generalError} /> : null}
+
+//           {/* Phone Number with Voice Input */}
+//           <CustomInput
+//             value={phoneNumber}
+//             onChangeText={(text) => {
+//               setPhoneNumber(text);
+//               if (errors.phoneNumber) {
+//                 setErrors({ ...errors, phoneNumber: '' });
+//               }
+//               setGeneralError('');
+//             }}
+//             placeholder={t('login.phoneNumber')}
+//             error={errors.phoneNumber}
+//             keyboardType="phone-pad"
+//             rightIcon={
+//               <TouchableOpacity onPress={handleVoiceInput}>
+//                 <Ionicons
+//                   name={recordingField === 'phoneNumber' ? 'mic' : 'mic-outline'}
+//                   size={20}
+//                   color={
+//                     recordingField === 'phoneNumber' ? COLORS.error : COLORS.textSecondary
+//                   }
+//                 />
+//               </TouchableOpacity>
+//             }
+//           />
+
+//           {/* Password (No voice input for security) */}
+//           <CustomInput
+//             value={password}
+//             onChangeText={(text) => {
+//               setPassword(text);
+//               if (errors.password) {
+//                 setErrors({ ...errors, password: '' });
+//               }
+//               setGeneralError('');
+//             }}
+//             placeholder={t('login.password')}
+//             error={errors.password}
+//             secureTextEntry={!showPassword}
+//             rightIcon={
+//               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+//                 <Ionicons
+//                   name={showPassword ? 'eye' : 'eye-off'}
+//                   size={20}
+//                   color={COLORS.textSecondary}
+//                 />
+//               </TouchableOpacity>
+//             }
+//           />
+
+//           <TouchableOpacity
+//             style={styles.forgotPassword}
+//             onPress={() => navigation.navigate('ForgotPassword')}
+//           >
+//             <Text style={styles.forgotPasswordText}>{t('login.forgotPassword')}</Text>
+//           </TouchableOpacity>
+
+//           <CustomButton
+//             title={t('login.loginButton')}
+//             onPress={handleLogin}
+//             loading={loading}
+//             disabled={loading}
+//             style={styles.loginButton}
+//           />
+
+//           <View style={styles.dividerContainer}>
+//             <View style={styles.dividerLine} />
+//             <Text style={styles.dividerText}>{t('login.orContinue')}</Text>
+//             <View style={styles.dividerLine} />
+//           </View>
+
+//           <View style={styles.socialContainer}>
+//             <TouchableOpacity
+//               style={styles.socialButton}
+//               onPress={() => handleSocialLogin('Google')}
+//             >
+//               <AntDesign name="google" size={24} color="#DB4437" />
+//             </TouchableOpacity>
+
+//             <TouchableOpacity
+//               style={styles.socialButton}
+//               onPress={() => handleSocialLogin('Apple')}
+//             >
+//               <AntDesign name="apple1" size={26} color="#000000" />
+//             </TouchableOpacity>
+
+//             <TouchableOpacity
+//               style={styles.socialButton}
+//               onPress={() => handleSocialLogin('Facebook')}
+//             >
+//               <FontAwesome name="facebook" size={26} color="#1877F2" />
+//             </TouchableOpacity>
+//           </View>
+
+//           <TouchableOpacity
+//             onPress={() => navigation.navigate('PhoneAuth')}
+//             style={styles.signupLink}
+//           >
+//             <Text style={styles.signupText}>
+//               {t('login.noAccount')} <Text style={styles.signupTextBold}>{t('login.signUp')}</Text>
+//             </Text>
+//           </TouchableOpacity>
+//         </ScrollView>
+//       </KeyboardAvoidingView>
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: COLORS.white,
+//   },
+//   keyboardAvoid: {
+//     flex: 1,
+//   },
+//   scrollContent: {
+//     flexGrow: 1,
+//     paddingHorizontal: 24,
+//     paddingTop: 16,
+//     paddingBottom: 24,
+//   },
+//   header: {
+//     marginBottom: 32,
+//   },
+//   headerRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     marginBottom: 16,
+//   },
+//   appName: {
+//     fontSize: 16,
+//     fontWeight: '600',
+//     color: COLORS.primary,
+//     letterSpacing: 2,
+//   },
+//   title: {
+//     fontSize: 28,
+//     fontWeight: 'bold',
+//     color: COLORS.text,
+//     marginBottom: 8,
+//   },
+//   subtitle: {
+//     fontSize: 14,
+//     color: COLORS.textSecondary,
+//     lineHeight: 20,
+//   },
+//   forgotPassword: {
+//     alignSelf: 'flex-end',
+//     marginBottom: 24,
+//   },
+//   forgotPasswordText: {
+//     fontSize: 13,
+//     color: COLORS.primary,
+//     fontWeight: '600',
+//   },
+//   loginButton: {
+//     marginBottom: 20,
+//   },
+//   dividerContainer: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     marginBottom: 20,
+//   },
+//   dividerLine: {
+//     flex: 1,
+//     height: 1,
+//     backgroundColor: COLORS.border,
+//   },
+//   dividerText: {
+//     fontSize: 12,
+//     color: COLORS.textSecondary,
+//     marginHorizontal: 10,
+//   },
+//   socialContainer: {
+//     flexDirection: 'row',
+//     justifyContent: 'center',
+//     gap: 14,
+//     marginBottom: 24,
+//   },
+//   socialButton: {
+//     width: 52,
+//     height: 52,
+//     borderRadius: 26,
+//     backgroundColor: COLORS.white,
+//     borderWidth: 1,
+//     borderColor: COLORS.border,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 1 },
+//     shadowOpacity: 0.05,
+//     shadowRadius: 3,
+//     elevation: 2,
+//   },
+//   signupLink: {
+//     alignItems: 'center',
+//     marginBottom: 16,
+//   },
+//   signupText: {
+//     fontSize: 13,
+//     color: COLORS.textSecondary,
+//   },
+//   signupTextBold: {
+//     fontWeight: '700',
+//     color: COLORS.text,
+//     textDecorationLine: 'underline',
+//   },
+// });
+
+// export default LoginScreen;
