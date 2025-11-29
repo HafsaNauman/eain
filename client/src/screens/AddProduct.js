@@ -25,7 +25,8 @@ import CustomButton from '../components/common/CustomButton';
 import ErrorAlert from '../components/common/ErrorAlert';
 import { COLORS } from '../constants/colors';
 import { validateEmail } from '../utils/validation';
-import { createListing } from '../api/listingService';
+//import { createListing } from '../api/listingService';
+import { createListing } from '../api/VendorService';
 
 const AddProductScreen = ({ route, navigation }) => {
   const { businessId, vendorProfile } = route.params || {};
@@ -166,18 +167,20 @@ const AddProductScreen = ({ route, navigation }) => {
       const result = await createListing(listingData);
 
       if (result.success) {
-        console.log('✅ Listing created successfully:', result.data);
-        Alert.alert(
-          'Success',
-          'Product/Service added successfully!',
-          [
-            {
-              text: 'OK',
-              onPress: () => navigation.goBack(),
-            },
-          ]
-        );
-      } else {
+            console.log('✅ Listing created successfully:', result.data);
+        Alert.alert('Success', 'Product/Service added successfully!',[  { text: 'OK',
+        onPress: () => {
+          navigation.navigate('VendorDashboard', {
+            vendorProfile: vendorProfile,
+            userId: route.params?.userId,
+           refreshListings: true,
+          });
+        },
+      },
+     ]
+      );
+}
+ else {
         setGeneralError(result.error || 'Failed to create listing');
       }
     } catch (err) {

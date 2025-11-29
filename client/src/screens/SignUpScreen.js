@@ -29,12 +29,13 @@ import { signUp } from '../api/authService';
 import { saveTokens, saveUserData } from '../utils/storage';
 import { startRecording, stopRecording } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
-
+import { useAuth } from '../context/AuthContext'; 
 
 const SignUpScreen = ({ route, navigation }) => {
   const { phoneNumber } = route.params;
   const { t } = useTranslation();
   const { i18n } = useTranslation();
+  const { login: contextLogin } = useAuth(); 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -96,67 +97,127 @@ const SignUpScreen = ({ route, navigation }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // const handleSignUp = async () => {
+  //   setGeneralError('');
+
+  //   if (!validateForm()) {
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     const result = await signUp({
+  //       firstName: formData.firstName.trim(),
+  //       lastName: formData.lastName.trim(),
+  //       phoneNumber: phoneNumber,
+  //       email: formData.email.trim() || null,
+  //       password: formData.password,
+  //       gender: formData.gender,
+  //       role: formData.role,
+  //     });
+
+  //     if (result.success) {
+  //       console.log('✅ Signup result:', result.data);
+
+  //       const accessToken = result.data.data?.accessToken || result.data.accessToken;
+  //       const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
+  //       const user = result.data.data?.user || result.data.user;
+
+  //       console.log('🔑 Saving tokens:', { accessToken: accessToken?.substring(0, 20) + '...', user });
+
+  //       await saveTokens(accessToken, refreshToken);
+  //       await saveUserData(user);
+
+  //       if (formData.role === 'vendor') {
+  //         navigation.navigate('BusinessRegistration', {
+  //           userId: user.user_id,
+  //           userRole: formData.role,
+  //         });
+  //       } else {
+  //         navigation.reset({
+  //           index: 0,
+  //           routes: [{ name: 'Home' }],
+  //         });
+  //       }
+  //     } else {
+  //       setGeneralError(result.error);
+  //     }
+  //   } catch (err) {
+  //     setGeneralError('Sign up failed. Please try again.');
+  //     console.error('Sign up error:', err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const handleVoiceInput = async (field) => {
+  //   if (recordingField === field) {
+  //     await stopVoiceRecording(field);
+  //   } else {
+  //     await startVoiceRecording(field);
+  //   }
+  // };
   const handleSignUp = async () => {
-    setGeneralError('');
+  setGeneralError('');
 
-    if (!validateForm()) {
-      return;
-    }
+  if (!validateForm()) {
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const result = await signUp({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        phoneNumber: phoneNumber,
-        email: formData.email.trim() || null,
-        password: formData.password,
-        gender: formData.gender,
-        role: formData.role,
-      });
+  try {
+    const result = await signUp({
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      phoneNumber: phoneNumber,
+      email: formData.email.trim() || null,
+      password: formData.password,
+      gender: formData.gender,
+      role: formData.role,
+    });
+
+    if (result.success) {
+      console.log('✅ Signup result:', result.data);
+
+      const accessToken = result.data.data?.accessToken || result.data.accessToken;
+      const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
+      const user = result.data.data?.user || result.data.user;
+
+      await contextLogin(accessToken, refreshToken, user);
 
       if (result.success) {
-        console.log('✅ Signup result:', result.data);
+  const accessToken = result.data.data?.accessToken || result.data.accessToken;
+  const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
+  const user = result.data.data?.user || result.data.user;
 
-        const accessToken = result.data.data?.accessToken || result.data.accessToken;
-        const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
-        const user = result.data.data?.user || result.data.user;
+  await contextLogin(accessToken, refreshToken, user);
 
-        console.log('🔑 Saving tokens:', { accessToken: accessToken?.substring(0, 20) + '...', user });
+  if (formData.role === 'vendor') {
+    navigation.navigate('BusinessRegistration', {
+      userId: user.user_id,
+      userRole: formData.role,
+    });
+  } else {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+    });
+  }
+}
 
-        await saveTokens(accessToken, refreshToken);
-        await saveUserData(user);
-
-        if (formData.role === 'vendor') {
-          navigation.navigate('BusinessRegistration', {
-            userId: user.user_id,
-            userRole: formData.role,
-          });
-        } else {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Home' }],
-          });
-        }
-      } else {
-        setGeneralError(result.error);
-      }
-    } catch (err) {
-      setGeneralError('Sign up failed. Please try again.');
-      console.error('Sign up error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVoiceInput = async (field) => {
-    if (recordingField === field) {
-      await stopVoiceRecording(field);
     } else {
-      await startVoiceRecording(field);
+      setGeneralError(result.error);
     }
-  };
+  } catch (err) {
+    setGeneralError('Sign up failed. Please try again.');
+    console.error('Sign up error:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const startVoiceRecording = async (field) => {
     try {
@@ -417,12 +478,12 @@ const SignUpScreen = ({ route, navigation }) => {
               <AntDesign name="google" size={24} color="#DB4437" />
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Apple')}
             >
               <AntDesign name="apple1" size={26} color="#000000" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
               style={styles.socialButton}

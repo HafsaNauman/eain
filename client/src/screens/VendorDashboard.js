@@ -1,6 +1,6 @@
 /**
  * Vendor Dashboard Screen
- * Main dashboard for vendors to manage their business
+ * Profile-style layout for vendors
  */
 
 import React, { useState, useEffect } from 'react';
@@ -12,87 +12,201 @@ import {
   TouchableOpacity,
   Image,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import * as ImagePicker from 'expo-image-picker';
 import { COLORS } from '../constants/colors';
-// import { getVendorProducts, getVendorStats } from '../api/vendorService'; // ❌ COMMENTED - Causes error if not implemented
+import { getVendorListings, getVendorProfile, updateVendorProfile } from '../api/VendorService';
+import { useAuth } from '../context/AuthContext';
+
+
+
 
 const VendorDashboardScreen = ({ route, navigation }) => {
-  const { vendorProfile, businessData, userId, userRole } = route.params || {};
-  const profile = vendorProfile || businessData || {}; // ✅ FIXED - Safe fallback
+  const { vendorProfile: initialProfile, businessData, userId, userRole } = route.params || {};
+  const [profile, setProfile] = useState(initialProfile || businessData || {});
   const { t } = useTranslation();
 
   const [stats, setStats] = useState({
     totalProducts: 0,
     activeOrders: 0,
     totalRevenue: 0,
-    pendingReviews: 0,
+    pendingOrders: 0,
+    deliveredOrders: 0,
   });
   const [recentProducts, setRecentProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const loadDashboardData = async () => {
+    try {
+      console.log('📊 Loading vendor data...');
+      
+      // Load vendor profile
+      const profileResult = await getVendorProfile();
+      if (profileResult.success) {
+        const profileData = profileResult.data.data?.profile || profileResult.data.profile;
+        setProfile(profileData);
+        console.log('✅ Profile loaded:', profileData);
+      }
+
+      // Load listings
+      const listingsResult = await getVendorListings();
+      if (listingsResult.success) {
+        const listings = listingsResult.data.data?.listings || listingsResult.data.listings || [];
+        console.log('✅ Loaded listings:', listings.length);
+        
+        setRecentProducts(listings.slice(0, 5));
+        setStats(prev => ({
+          ...prev,
+          totalProducts: listings.length,
+        }));
+      }
+    } catch (error) {
+      console.error('❌ Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // loadDashboardData(); // ❌ COMMENTED - Causes error
+    loadDashboardData();
   }, []);
 
-  // ❌ COMMENTED OUT - This function causes errors because getVendorStats/getVendorProducts may not exist
-  // const loadDashboardData = async () => {
-  //   try {
-  //     const businessId = profile?.vendor_id || profile?.id || businessData?.id;
-      
-  //     if (!businessId) {
-  //       console.log('No business ID found');
-  //       return;
-  //     }
-
-  //     const [statsData, productsData] = await Promise.all([
-  //       getVendorStats(businessId),
-  //       getVendorProducts(businessId, 5),
-  //     ]);
-
-  //     if (statsData.success) {
-  //       setStats(statsData.data);
-  //     }
-
-  //     if (productsData.success) {
-  //       setRecentProducts(productsData.data);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error loading dashboard data:', error);
-  //   }
-  // };
+  useEffect(() => {
+    if (route?.params?.refreshListings) {
+      console.log('🔄 Refresh flag detected, reloading...');
+      loadDashboardData();
+      navigation.setParams({ refreshListings: false });
+    }
+  }, [route?.params?.refreshListings]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // await loadDashboardData(); // ❌ COMMENTED
+    await loadDashboardData();
     setRefreshing(false);
   };
+  ////new code for logout and signup 
+  const { logout } = useAuth();
 
-  const StatCard = ({ icon, title, value, color }) => (
-    <View style={[styles.statCard, { borderLeftColor: color }]}>
-      <View style={[styles.statIconContainer, { backgroundColor: color + '20' }]}>
-        <Ionicons name={icon} size={24} color={color} />
-      </View>
-      <View style={styles.statContent}>
-        <Text style={styles.statValue}>{value}</Text>
-        <Text style={styles.statTitle}>{title}</Text>
-      </View>
-    </View>
+// Remove line 348 entirely
+
+// Then in handleLogout:
+const handleLogout = async () => {
+  const { logout } = useAuth();  // ✅ Get it here
+  Alert.alert(
+    'Logout',
+    'Are you sure you want to logout?',
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          await logout();
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          });
+        },
+      },
+    ]
   );
+};
 
-  const QuickActionButton = ({ icon, title, onPress, color }) => (
-    <TouchableOpacity style={styles.quickAction} onPress={onPress}>
-      <View style={[styles.quickActionIcon, { backgroundColor: color + '20' }]}>
-        <Ionicons name={icon} size={28} color={color} />
+
+const handleSwitchAccount = async () => {
+  Alert.alert(
+    'Switch Account',
+    'You will be logged out and redirected to login screen',
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Continue',
+        onPress: async () => {
+          await logout();
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Profile' }],
+          });
+        },
+      },
+    ]
+  );
+};
+
+  const handleEditLogo = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'We need camera roll permissions to upload your logo.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setUploadingLogo(true);
+        
+        // Update profile with new logo
+        const updateResult = await updateVendorProfile({
+          media: {
+            logo_url: result.assets[0].uri,
+          },
+        });
+
+        if (updateResult.success) {
+          setProfile(prev => ({
+            ...prev,
+            media: {
+              ...prev.media,
+              logo_url: result.assets[0].uri,
+            },
+          }));
+          Alert.alert('Success', 'Logo updated successfully!');
+        } else {
+          Alert.alert('Error', updateResult.error || 'Failed to update logo');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating logo:', error);
+      Alert.alert('Error', 'Failed to update logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const MenuItem = ({ icon, title, value, onPress, showArrow = true, color = "#333" }) => (
+    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+      <View style={styles.menuLeft}>
+        <Ionicons name={icon} size={22} color={color} />
+        <Text style={[styles.menuTitle, { color }]}>{title}</Text>
       </View>
-      <Text style={styles.quickActionText}>{title}</Text>
+      <View style={styles.menuRight}>
+        {value && <Text style={styles.menuValue}>{value}</Text>}
+        {showArrow && <Ionicons name="chevron-forward" size={20} color="#999" />}
+      </View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -100,214 +214,228 @@ const VendorDashboardScreen = ({ route, navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* Header with Logo */}
+        {/* Header */}
         <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            {(profile?.media?.logo_url || businessData?.logo) ? (
-              <Image 
-                source={{ uri: profile?.media?.logo_url || businessData?.logo }} 
-                style={styles.businessLogo}  
-              />
-            ) : ( 
-              <View style={styles.businessLogoPlaceholder}>
-                <Ionicons name="business" size={32} color={COLORS.primary} />
-              </View>
-            )}
-            <View style={styles.headerText}>
-              <Text style={styles.businessName}>
-                {profile?.business_name_en || businessData?.businessName || 'Your Business'}
-              </Text>
-              <Text style={styles.businessCategory}>
-                {profile?.category || businessData?.businessCategory || 'Business'} {/* ✅ FIXED */}
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity
-            style={styles.profileButton}
-            onPress={() => navigation.navigate('Profile')}
-          >
-            <Ionicons name="person-circle-outline" size={32} color={COLORS.primary} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color="#333" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => alert('Notifications - Coming Soon!')}>
+            <Ionicons name="notifications-outline" size={24} color="#333" />
           </TouchableOpacity>
         </View>
 
-        {/* Stats Grid */}
-        <View style={styles.statsContainer}>
-          <StatCard
-            icon="cube-outline"
-            title="Products"
-            value={stats.totalProducts}
-            color="#14b8a6"
-          />
-          <StatCard
-            icon="cart-outline"
-            title="Active Orders"
-            value={stats.activeOrders}
-            color="#f59e0b"
-          />
-          <StatCard
-            icon="cash-outline"
-            title="Revenue"
-            value={`Rs ${stats.totalRevenue.toLocaleString()}`}
-            color="#10b981"
-          />
-          <StatCard
-            icon="star-outline"
-            title="Pending Reviews"
-            value={stats.pendingReviews}
-            color="#f97316"
-          />
-        </View>
-
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.quickActionsGrid}>
-            <QuickActionButton
-              icon="add-circle"
-              title="Add Product"
-              color="#14b8a6"
-              onPress={() => {
-                // ❌ COMMENTED - May cause error if AddProduct screen doesn't exist
-                // navigation.navigate('AddProduct', { 
-                //   businessId: profile?.vendor_id || businessData?.id 
-                // })
-                navigation.navigate('AddProduct', { 
-                    businessId: profile?.vendor_id || businessData?.id,
-                    vendorProfile: profile 
-                        })
-              }}
-            />
-            <QuickActionButton
-              icon="storefront"
-              title="My Store"
-              color="#f59e0b"
-              onPress={() => {
-                // ❌ COMMENTED
-                // navigation.navigate('MyStore', { 
-                //   businessData: profile || businessData 
-                // })
-                alert('My Store - Coming Soon!');
-              }}
-            />
-            <QuickActionButton
-              icon="bar-chart"
-              title="Analytics"
-              color="#8b5cf6"
-              onPress={() => {
-                // ❌ COMMENTED
-                // navigation.navigate('Analytics')
-                alert('Analytics - Coming Soon!');
-              }}
-            />
-            <QuickActionButton
-              icon="settings"
-              title="Settings"
-              color="#6b7280"
-              onPress={() => {
-                // ❌ COMMENTED
-                // navigation.navigate('BusinessSettings', { 
-                //   businessData: profile || businessData 
-                // })
-                alert('Settings - Coming Soon!');
-              }}
-            />
-          </View>
-        </View>
-
-        {/* Recent Products */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Products</Text>
-            <TouchableOpacity
-              onPress={() => {
-                // ❌ COMMENTED
-                // navigation.navigate('MyStore', { 
-                //   businessData: profile || businessData 
-                // })
-                alert('See All - Coming Soon!');
-              }}
+        {/* Profile Card */}
+        <View style={styles.profileCard}>
+          <View style={styles.avatarContainer}>
+            {(profile?.media?.logo_url || businessData?.logo) ? (
+              <Image 
+                source={{ uri: profile?.media?.logo_url || businessData?.logo }} 
+                style={styles.avatar}
+              />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="business" size={40} color={COLORS.primary} />
+              </View>
+            )}
+            <TouchableOpacity 
+              style={styles.editBadge}
+              onPress={handleEditLogo}
+              disabled={uploadingLogo}
             >
-              <Text style={styles.seeAllText}>See All</Text>
+              {uploadingLogo ? (
+                <Text style={{ color: '#fff', fontSize: 10 }}>...</Text>
+              ) : (
+                <Ionicons name="pencil" size={16} color="#fff" />
+              )}
             </TouchableOpacity>
           </View>
 
-          {recentProducts.length > 0 ? (
-            recentProducts.map((product) => (
-              <View key={product.id} style={styles.productCard}>
-                <Image
-                  source={{ uri: product.image }}
-                  style={styles.productImage}
-                />
-                <View style={styles.productInfo}>
-                  <Text style={styles.productName}>{product.name}</Text>
-                  <Text style={styles.productPrice}>Rs {product.price}</Text>
-                  <View style={styles.productMeta}>
-                    <Text style={styles.productStock}>
-                      Stock: {product.stock}
-                    </Text>
-                    <View style={[
-                      styles.statusBadge,
-                      product.status === 'active' ? styles.activeStatus : styles.inactiveStatus
-                    ]}>
-                      <Text style={styles.statusText}>{product.status}</Text>
-                    </View>
-                  </View>
-                </View>
-                <TouchableOpacity
-                  style={styles.editButton}
-                  onPress={() => {
-                    // ❌ COMMENTED
-                    // navigation.navigate('EditProduct', { product })
-                    navigation.navigate('AddProduct', { 
-                        businessId: profile?.vendor_id || businessData?.id,
-                        vendorProfile: profile 
-                        })
-                  }}
-                >
-                  <Ionicons name="create-outline" size={20} color={COLORS.primary} />
-                </TouchableOpacity>
-              </View>
-            ))
-          ) : (
-            <View style={styles.emptyState}>
-              <Ionicons name="cube-outline" size={64} color="#ccc" />
-              <Text style={styles.emptyStateText}>No products yet</Text>
-              <TouchableOpacity
-                style={styles.addFirstProductButton}
-                onPress={() => {
-                  // ❌ COMMENTED
-                  // navigation.navigate('AddProduct', { 
-                  //   businessId: profile?.vendor_id || businessData?.id 
-                  // })
-                  navigation.navigate('AddProduct', { 
+          <Text style={styles.businessName}>
+            {profile?.business_name_en || businessData?.businessName || 'Your Business'}
+          </Text>
+          
+          {/* <Text style={styles.businessEmail}>
+            {profile?.business_email || 'youremail@domain.com'}
+          </Text> */}
+
+          {/* Stats Row */}
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{stats.totalProducts}</Text>
+              <Text style={styles.statLabel}>Products</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{stats.activeOrders}</Text>
+              <Text style={styles.statLabel}>Orders</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>Rs {stats.totalRevenue}</Text>
+              <Text style={styles.statLabel}>Revenue</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Products Section */}
+        <View style={styles.menuSection}>
+          <MenuItem
+            icon="cube-outline"
+            title="My Products"
+            value={`${stats.totalProducts} items`}
+            onPress={() => navigation.navigate('MyProducts', {
+              businessId: profile?.vendor_id || businessData?.id,
+              vendorProfile: profile,
+              userId: userId,
+            })}
+          />
+          <MenuItem
+            icon="add-circle-outline"
+            title="Add Product"
+            value="Create new"
+            onPress={() => navigation.navigate('AddProduct', {
+              businessId: profile?.vendor_id || businessData?.id,
+              vendorProfile: profile,
+              userId: userId,
+            })}
+          />
+        </View>
+
+        {/* Vendor Information */}
+        <View style={styles.menuSection}>
+          <MenuItem
+            icon="information-circle-outline"
+            title="Business Information"
+            onPress={() => navigation.navigate('VendorInfo', {
+              profile: profile,
+              businessData: businessData,
+            })}
+          />
+        </View>
+
+        {/* Orders Management */}
+        <View style={styles.menuSection}>
+          <MenuItem
+            icon="cart-outline"
+            title="All Orders"
+            value={stats.activeOrders.toString()}
+            onPress={() => navigation.navigate('Orders', { status: 'all' })}
+          />
+          <MenuItem
+            icon="time-outline"
+            title="Pending Orders"
+            value={stats.pendingOrders.toString()}
+            color="#f59e0b"
+            onPress={() => navigation.navigate('Orders', { status: 'pending' })}
+          />
+          <MenuItem
+            icon="checkmark-circle-outline"
+            title="Delivered Orders"
+            value={stats.deliveredOrders.toString()}
+            color="#10b981"
+            onPress={() => navigation.navigate('Orders', { status: 'delivered' })}
+          />
+        </View>
+
+        <View style={styles.menuSection}>
+  <MenuItem
+    icon="help-circle-outline"
+    title="Help & Support"
+    onPress={() => navigation.navigate('SupportInfo', { initialTab: 'help' })}
+  />
+  <MenuItem
+    icon="mail-outline"
+    title="Contact us"
+    onPress={() => navigation.navigate('SupportInfo', { initialTab: 'contact' })}
+  />
+  <MenuItem
+    icon="document-text-outline"
+    title="Privacy policy"
+    onPress={() => navigation.navigate('SupportInfo', { initialTab: 'privacy' })}
+  />
+</View>
+
+{/* Account Section */}
+<View style={styles.menuSection}>
+  <MenuItem
+    icon="swap-horizontal-outline"
+    title="Switch Account"
+    onPress={handleSwitchAccount}
+  />
+  <MenuItem
+    icon="log-out-outline"
+    title="Logout"
+    color="#EF4444"
+    onPress={handleLogout}
+    showArrow={false}
+  />
+</View>
+
+
+
+        {/* Recent Products Section */}
+        {recentProducts.length > 0 && (
+          <View style={styles.recentSection}>
+            <View style={styles.recentHeader}>
+              <Text style={styles.sectionTitle}>Recent Products</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('MyProducts', {
                 businessId: profile?.vendor_id || businessData?.id,
-                vendorProfile: profile 
-                    })
-                }}
-              >
-                <Text style={styles.addFirstProductText}>Add Your First Product</Text>
+                vendorProfile: profile,
+                userId: userId,
+              })}>
+                <Text style={styles.viewAllText}>View All</Text>
               </TouchableOpacity>
             </View>
-          )}
-        </View>
+            {recentProducts.map((product) => (
+              <View key={product.listing_id} style={styles.productRow}>
+                {product.media && product.media.length > 0 && product.media[0].image_url ? (
+                  <Image
+                    source={{ uri: product.media[0].image_url }}
+                    style={styles.productThumb}
+                  />
+                ) : (
+                  <View style={styles.productThumbPlaceholder}>
+                    <Ionicons name="image-outline" size={20} color="#999" />
+                  </View>
+                )}
+                <View style={styles.productDetails}>
+                  <Text style={styles.productTitle}>{product.title_en}</Text>
+                  <Text style={styles.productPrice}>Rs {product.price?.toLocaleString()}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#999" />
+              </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
 
-      {/* Floating Action Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => {
-          // ❌ COMMENTED
-          // navigation.navigate('AddProduct', { 
-          //   businessId: profile?.vendor_id || businessData?.id 
-          // })
-          navigation.navigate('AddProduct', { 
-            businessId: profile?.vendor_id || businessData?.id,
-            vendorProfile: profile 
-            })
-        }}
-      >
-        <Ionicons name="add" size={32} color="#FFFFFF" />
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={[styles.navItem, styles.navItemActive]}>
+       <Ionicons name="business" size={24} color={COLORS.primary} />
+       <Text style={[styles.navLabel, styles.navLabelActive]}>Dashboard</Text>
       </TouchableOpacity>
+
+        
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('MyProducts', {
+          businessId: profile?.vendor_id || businessData?.id,
+          vendorProfile: profile,
+          userId: userId,
+        })}>
+          <Ionicons name="grid-outline" size={24} color="#999" />
+          <Text style={styles.navLabel}>Products</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Orders', { status: 'all' })}>
+          <Ionicons name="receipt-outline" size={24} color="#999" />
+          <Text style={styles.navLabel}>Orders</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={[styles.navItem, styles.navItemActive]}>
+          <Ionicons name="person" size={24} color={COLORS.primary} />
+          <Text style={[styles.navLabel, styles.navLabelActive]}>Profile</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -315,246 +443,220 @@ const VendorDashboardScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F5F5F5',
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 80,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  profileCard: {
     backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  headerLeft: {
-    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 20,
+    padding: 24,
     alignItems: 'center',
-    flex: 1,
-  },
-  businessLogo: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    marginRight: 12,
-  },
-  businessLogoPlaceholder: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    backgroundColor: '#E0F2FE',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  headerText: {
-    flex: 1,
-  },
-  businessName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  businessCategory: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  profileButton: {
-    padding: 4,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 16,
-    gap: 12,
-  },
-  statCard: {
-    flex: 1,
-    minWidth: '47%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    borderLeftWidth: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  statIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  avatarPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#E0F2FE',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
   },
-  statContent: {
-    gap: 4,
+  editBadge: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    backgroundColor: COLORS.primary,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  businessName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  businessEmail: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 20,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
   },
   statValue: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#333',
+    marginBottom: 4,
   },
-  statTitle: {
+  statLabel: {
+    fontSize: 12,
+    color: '#999',
+  },
+  statDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: '#F0F0F0',
+  },
+  menuSection: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginBottom: 12,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
+  },
+  menuLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  menuTitle: {
+    fontSize: 15,
+    color: '#333',
+    marginLeft: 12,
+  },
+  menuRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuValue: {
     fontSize: 14,
-    color: '#6B7280',
+    color: COLORS.primary,
+    marginRight: 8,
   },
-  section: {
+  recentSection: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginBottom: 12,
+    borderRadius: 16,
     padding: 16,
   },
-  sectionHeader: {
+  recentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#333',
   },
-  seeAllText: {
+  viewAllText: {
     fontSize: 14,
     color: COLORS.primary,
     fontWeight: '600',
   },
-  quickActionsGrid: {
+  productRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  quickAction: {
-    flex: 1,
-    minWidth: '47%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
   },
-  quickActionIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
+  productThumb: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    marginRight: 12,
+  },
+  productThumbPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginRight: 12,
   },
-  quickActionText: {
+  productDetails: {
+    flex: 1,
+  },
+  productTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1F2937',
-    textAlign: 'center',
-  },
-  productCard: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  productImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    backgroundColor: '#F3F4F6',
-  },
-  productInfo: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: 'center',
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
+    color: '#333',
     marginBottom: 4,
   },
   productPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 13,
     color: COLORS.primary,
-    marginBottom: 8,
-  },
-  productMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  productStock: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  activeStatus: {
-    backgroundColor: '#D1FAE5',
-  },
-  inactiveStatus: {
-    backgroundColor: '#FEE2E2',
-  },
-  statusText: {
-    fontSize: 10,
     fontWeight: '600',
-    textTransform: 'uppercase',
   },
-  editButton: {
-    padding: 8,
-    justifyContent: 'center',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: '#9CA3AF',
-    marginTop: 16,
-    marginBottom: 20,
-  },
-  addFirstProductButton: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  addFirstProductText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  fab: {
+  bottomNav: {
     position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+    paddingVertical: 8,
+    paddingBottom: 20,
+  },
+  navItem: {
+    flex: 1,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    justifyContent: 'center',
+  },
+  navItemActive: {
+    // Active state
+  },
+  navLabel: {
+    fontSize: 11,
+    color: '#999',
+    marginTop: 4,
+  },
+  navLabelActive: {
+    color: COLORS.primary,
+    fontWeight: '600',
   },
 });
 
