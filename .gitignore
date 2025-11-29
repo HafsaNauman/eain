@@ -9,3 +9,7 @@ stt-service/credentials.json
 stt-service/app/__pycache__/
 client/.expo/
 backend/uploads/
+ai_descriptions/app/__pycache__/
+ai_descriptions/venv/
+ai_descriptions/.env
+ai_descriptions/uploads/
