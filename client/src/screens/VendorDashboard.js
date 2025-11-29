@@ -97,7 +97,6 @@ const VendorDashboardScreen = ({ route, navigation }) => {
 
 // Then in handleLogout:
 const handleLogout = async () => {
-  const { logout } = useAuth();  // ✅ Get it here
   Alert.alert(
     'Logout',
     'Are you sure you want to logout?',
@@ -113,7 +112,7 @@ const handleLogout = async () => {
           await logout();
           navigation.reset({
             index: 0,
-            routes: [{ name: 'Home' }],
+            routes: [{ name: 'Profile' }],
           });
         },
       },
@@ -121,28 +120,12 @@ const handleLogout = async () => {
   );
 };
 
-
 const handleSwitchAccount = async () => {
-  Alert.alert(
-    'Switch Account',
-    'You will be logged out and redirected to login screen',
-    [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Continue',
-        onPress: async () => {
-          await logout();
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Profile' }],
-          });
-        },
-      },
-    ]
-  );
+  await logout();
+  navigation.reset({
+    index: 0,
+    routes: [{ name: 'Profile' }],
+  });
 };
 
   const handleEditLogo = async () => {
@@ -410,32 +393,29 @@ const handleSwitchAccount = async () => {
       </ScrollView>
 
       {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={[styles.navItem, styles.navItemActive]}>
-       <Ionicons name="business" size={24} color={COLORS.primary} />
-       <Text style={[styles.navLabel, styles.navLabelActive]}>Dashboard</Text>
-      </TouchableOpacity>
+      {/* Bottom Navigation */}
+<View style={styles.bottomNav}>
+  <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
+    <Ionicons name="home-outline" size={24} color="#999" />
+    <Text style={styles.navLabel}>Home</Text>
+  </TouchableOpacity>
 
-        
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('MyProducts', {
-          businessId: profile?.vendor_id || businessData?.id,
-          vendorProfile: profile,
-          userId: userId,
-        })}>
-          <Ionicons name="grid-outline" size={24} color="#999" />
-          <Text style={styles.navLabel}>Products</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Orders', { status: 'all' })}>
-          <Ionicons name="receipt-outline" size={24} color="#999" />
-          <Text style={styles.navLabel}>Orders</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={[styles.navItem, styles.navItemActive]}>
-          <Ionicons name="person" size={24} color={COLORS.primary} />
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+  <TouchableOpacity style={styles.navItem}>
+    <Ionicons name="cart-outline" size={24} color="#999" />
+    <Text style={styles.navLabel}>Cart</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity style={styles.navItem}>
+    <Ionicons name="heart-outline" size={24} color="#999" />
+    <Text style={styles.navLabel}>Wishlist</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity style={styles.navItem}>
+    <Ionicons name="person" size={24} color={COLORS.primary} />
+    <Text style={[styles.navLabel, styles.navLabelActive]}>Profile</Text>
+  </TouchableOpacity>
+</View>
+
     </SafeAreaView>
   );
 };

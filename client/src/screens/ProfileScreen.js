@@ -1,53 +1,117 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { COLORS } from '../constants/colors';
+import { getVendorProfile } from '../api/VendorService';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, logout, isAuthenticated } = useAuth();
+  const [checkingVendor, setCheckingVendor] = useState(false);
+
+  // ✅ Check if vendor has completed business registration
+  useEffect(() => {
+    const checkVendorStatus = async () => {
+      if (isAuthenticated && user?.role === 'vendor') {
+        setCheckingVendor(true);
+        try {
+          const profileCheck = await getVendorProfile();
+          
+          if (!profileCheck.success) {
+            // No profile = incomplete registration
+            navigation.navigate('BusinessRegistration', {
+              userId: user.user_id,
+              userRole: 'vendor'
+            });
+          } else {
+            // Profile exists = go to dashboard
+            navigation.navigate('VendorDashboard', { 
+              userId: user.user_id,
+              vendorProfile: profileCheck.data.data?.profile || profileCheck.data.profile
+            });
+          }
+        } catch (error) {
+          // Error means no profile = incomplete registration
+          navigation.navigate('BusinessRegistration', {
+            userId: user.user_id,
+            userRole: 'vendor'
+          });
+        } finally {
+          setCheckingVendor(false);
+        }
+      }
+    };
+
+    checkVendorStatus();
+  }, [isAuthenticated, user, navigation]);
 
   const handleLogout = async () => {
-  const wasVendor = user?.role === 'vendor';
-  await logout();
-  
-  // Navigate to appropriate screen
-  if (wasVendor) {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' }],
-    });
-  } else {
+    await logout();
     navigation.navigate('Home');
-  }
-};
+  };
 
-
-
+  // ✅ NOT LOGGED IN: Show Create Account + Login
   if (!isAuthenticated) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Welcome!</Text>
-        <TouchableOpacity
-          style={styles.loginBtn}
-          onPress={() => navigation.navigate('Login')}
-        >
-          <Text style={styles.loginText}>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.createBtn}
-          onPress={() => navigation.navigate('PhoneNumber')}
-        >
-          <Text style={styles.createText}>Create Account</Text>
-        </TouchableOpacity>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.centerContent}>
+          <Text style={styles.title}>Welcome!</Text>
+          
+          <TouchableOpacity
+            style={styles.loginBtn}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={styles.loginText}>Login</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.createBtn}
+            onPress={() => navigation.navigate('PhoneNumber')}
+          >
+            <Text style={styles.createText}>Create Account</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ✅ BOTTOM NAVIGATION */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.navBtn} onPress={() => navigation.navigate('Home')}>
+            <Ionicons name="home-outline" size={24} color="#999" />
+            <Text style={styles.navLabel}>Home</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navBtn}>
+            <Ionicons name="cart-outline" size={24} color="#999" />
+            <Text style={styles.navLabel}>Cart</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navBtn}>
+            <FontAwesome name="heart-o" size={22} color="#999" />
+            <Text style={styles.navLabel}>Wishlist</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navBtn}>
+            <Ionicons name="person" size={24} color="#036c5f" />
+            <Text style={[styles.navLabel, { color: '#036c5f', fontWeight: '600' }]}>Profile</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // ✅ VENDOR: Show loading while checking/redirecting
+  if (isAuthenticated && user?.role === 'vendor' && checkingVendor) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
 
+  // ✅ CUSTOMER: Show Customer Profile
   return (
     <SafeAreaView style={styles.authenticatedContainer} edges={['top']}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View style={styles.header}>
           <View style={styles.avatar}>
             <Ionicons name="person" size={40} color={COLORS.primary} />
@@ -56,7 +120,7 @@ const ProfileScreen = ({ navigation }) => {
             {user?.first_name} {user?.last_name}
           </Text>
           <Text style={styles.email}>{user?.email || user?.phone_number}</Text>
-          <Text style={styles.role}>Role: {user?.role || 'User'}</Text>
+          <Text style={styles.role}>Role: Customer</Text>
         </View>
 
         <View style={styles.menuSection}>
@@ -84,6 +148,29 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* ✅ BOTTOM NAVIGATION */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navBtn} onPress={() => navigation.navigate('Home')}>
+          <Ionicons name="home-outline" size={24} color="#999" />
+          <Text style={styles.navLabel}>Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navBtn}>
+          <Ionicons name="cart-outline" size={24} color="#999" />
+          <Text style={styles.navLabel}>Cart</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navBtn}>
+          <FontAwesome name="heart-o" size={22} color="#999" />
+          <Text style={styles.navLabel}>Wishlist</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navBtn}>
+          <Ionicons name="person" size={24} color="#036c5f" />
+          <Text style={[styles.navLabel, { color: '#036c5f', fontWeight: '600' }]}>Profile</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -91,10 +178,13 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  centerContent: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    backgroundColor: '#fff',
   },
   authenticatedContainer: {
     flex: 1,
@@ -191,6 +281,27 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    paddingVertical: 10,
+  },
+  navBtn: {
+    alignItems: 'center',
+  },
+  navLabel: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 4,
   },
 });
 
