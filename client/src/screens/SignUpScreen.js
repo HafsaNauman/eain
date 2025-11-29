@@ -2,8 +2,8 @@
  * Sign Up Screen - EAIN Design with i18n
  * Inline voice input icons
  */
-import { Alert } from 'react-native'; // Add Alert
-import { getRecordingDuration } from '../utils/audioRecorder'; // Add this import
+import { Alert } from 'react-native';
+import { getRecordingDuration } from '../utils/audioRecorder';
 
 import React, { useState } from 'react';
 import {
@@ -26,16 +26,16 @@ import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { COLORS } from '../constants/colors';
 import { validateEmail, validatePassword, validateName } from '../utils/validation';
 import { signUp } from '../api/authService';
-import { saveTokens, saveUserData } from '../utils/storage';
 import { startRecording, stopRecording } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
-import { useAuth } from '../context/AuthContext'; 
+import { useAuth } from '../context/AuthContext';
 
 const SignUpScreen = ({ route, navigation }) => {
   const { phoneNumber } = route.params;
   const { t } = useTranslation();
   const { i18n } = useTranslation();
-  const { login: contextLogin } = useAuth(); 
+  const { login: contextLogin } = useAuth();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -97,127 +97,73 @@ const SignUpScreen = ({ route, navigation }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // const handleSignUp = async () => {
-  //   setGeneralError('');
-
-  //   if (!validateForm()) {
-  //     return;
-  //   }
-
-  //   setLoading(true);
-
-  //   try {
-  //     const result = await signUp({
-  //       firstName: formData.firstName.trim(),
-  //       lastName: formData.lastName.trim(),
-  //       phoneNumber: phoneNumber,
-  //       email: formData.email.trim() || null,
-  //       password: formData.password,
-  //       gender: formData.gender,
-  //       role: formData.role,
-  //     });
-
-  //     if (result.success) {
-  //       console.log('✅ Signup result:', result.data);
-
-  //       const accessToken = result.data.data?.accessToken || result.data.accessToken;
-  //       const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
-  //       const user = result.data.data?.user || result.data.user;
-
-  //       console.log('🔑 Saving tokens:', { accessToken: accessToken?.substring(0, 20) + '...', user });
-
-  //       await saveTokens(accessToken, refreshToken);
-  //       await saveUserData(user);
-
-  //       if (formData.role === 'vendor') {
-  //         navigation.navigate('BusinessRegistration', {
-  //           userId: user.user_id,
-  //           userRole: formData.role,
-  //         });
-  //       } else {
-  //         navigation.reset({
-  //           index: 0,
-  //           routes: [{ name: 'Home' }],
-  //         });
-  //       }
-  //     } else {
-  //       setGeneralError(result.error);
-  //     }
-  //   } catch (err) {
-  //     setGeneralError('Sign up failed. Please try again.');
-  //     console.error('Sign up error:', err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const handleVoiceInput = async (field) => {
-  //   if (recordingField === field) {
-  //     await stopVoiceRecording(field);
-  //   } else {
-  //     await startVoiceRecording(field);
-  //   }
-  // };
   const handleSignUp = async () => {
-  setGeneralError('');
+    setGeneralError('');
 
-  if (!validateForm()) {
-    return;
-  }
+    if (!validateForm()) {
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const result = await signUp({
-      firstName: formData.firstName.trim(),
-      lastName: formData.lastName.trim(),
-      phoneNumber: phoneNumber,
-      email: formData.email.trim() || null,
-      password: formData.password,
-      gender: formData.gender,
-      role: formData.role,
-    });
-
-    if (result.success) {
-      console.log('✅ Signup result:', result.data);
-
-      const accessToken = result.data.data?.accessToken || result.data.accessToken;
-      const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
-      const user = result.data.data?.user || result.data.user;
-
-      await contextLogin(accessToken, refreshToken, user);
+    try {
+      const result = await signUp({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        phoneNumber: phoneNumber,
+        email: formData.email.trim() || null,
+        password: formData.password,
+        gender: formData.gender,
+        role: formData.role,
+      });
 
       if (result.success) {
-  const accessToken = result.data.data?.accessToken || result.data.accessToken;
-  const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
-  const user = result.data.data?.user || result.data.user;
+        console.log('✅ Signup result:', result.data);
 
-  await contextLogin(accessToken, refreshToken, user);
+        const accessToken = result.data.data?.accessToken || result.data.accessToken;
+        const refreshToken = result.data.data?.refreshToken || result.data.refreshToken;
+        const user = result.data.data?.user || result.data.user;
 
-  if (formData.role === 'vendor') {
-    navigation.navigate('BusinessRegistration', {
-      userId: user.user_id,
-      userRole: formData.role,
-    });
-  } else {
-    navigation.reset({
+        console.log('🔑 Saving tokens:', { accessToken: accessToken?.substring(0, 20) + '...', user });
+
+        // ✅ Use AuthContext login
+        // ✅ Use AuthContext login
+      await contextLogin(accessToken, refreshToken, user);
+
+// ✅ Route based on role
+      if (formData.role === 'vendor') {
+      // Vendor goes to Business Registration
+       navigation.navigate('BusinessRegistration', {
+       userId: user.user_id,
+        userRole: 'vendor',
+  });
+} else {
+  // Customer goes to Home
+      navigation.reset({
       index: 0,
       routes: [{ name: 'Home' }],
-    });
-  }
+  });
 }
 
-    } else {
-      setGeneralError(result.error);
-    }
-  } catch (err) {
-    setGeneralError('Sign up failed. Please try again.');
-    console.error('Sign up error:', err);
-  } finally {
-    setLoading(false);
-  }
-};
 
+      } else {
+        setGeneralError(result.error);
+      }
+    } catch (err) {
+      setGeneralError('Sign up failed. Please try again.');
+      console.error('Sign up error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVoiceInput = async (field) => {
+    if (recordingField === field) {
+      await stopVoiceRecording(field);
+    } else {
+      await startVoiceRecording(field);
+    }
+  };
 
   const startVoiceRecording = async (field) => {
     try {
@@ -229,55 +175,6 @@ const SignUpScreen = ({ route, navigation }) => {
     }
   };
 
-  // const stopVoiceRecording = async (field) => {
-  //   try {
-  //     setRecordingField(null);
-
-  //     const recordingDuration = recording ? await getRecordingDuration(recording) : 0;
-  //     console.log('⏱️ Recording duration:', recordingDuration, 'ms');
-
-  //     if (recordingDuration < 1000) {
-  //       Alert.alert('Recording Too Short', 'Please record for at least 1 second.', [{ text: 'OK' }]);
-
-  //       if (recording) {
-  //         await recording.stopAndUnloadAsync();
-  //       }
-  //       setRecording(null);
-  //       return;
-  //     }
-
-  //     const audioUri = await stopRecording(recording);
-  //     console.log('📁 Audio URI:', audioUri);
-
-  //     // ✅ GET DYNAMIC LANGUAGE CODE
-  //     const languageCode = i18n.language === 'en' ? 'en-US' : 'ur-PK';
-  //     console.log(`📤 SignUpScreen sending language: ${languageCode}`);
-
-  //     const result = await transcribeAudio(audioUri, {
-  //       encoding: 'LINEAR16',
-  //       sampleRateHertz: 44100,
-  //       languageCode: languageCode,  // ✅ NOW DYNAMIC
-  //     });
-
-  //     if (result.success) {
-  //       const transcribedText = result.data?.transcript || '';
-  //       if (transcribedText && transcribedText.trim()) {
-  //         updateField(field, transcribedText.trim());
-  //         console.log('✅ Field updated with:', transcribedText.trim());
-  //       } else {
-  //         Alert.alert('No Speech', 'Could not detect speech. Please try again.');
-  //       }
-  //     } else {
-  //       Alert.alert('Error', result.error || 'Transcription failed');
-  //     }
-
-  //     setRecording(null);
-  //   } catch (error) {
-  //     console.error('❌ Transcription error:', error);
-  //     Alert.alert('Error', 'Failed to transcribe audio');
-  //     setRecording(null);
-  //   }
-  // };
   const stopVoiceRecording = async (field) => {
     try {
       setRecordingField(null);
@@ -302,12 +199,11 @@ const SignUpScreen = ({ route, navigation }) => {
       console.log(`📤 SignUpScreen language: ${i18n.language}`);
       console.log(`📤 SignUpScreen languageCode: ${languageCode}`);
 
-      // ✅ ADD fieldType to config
       const result = await transcribeAudio(audioUri, {
         encoding: 'LINEAR16',
         sampleRateHertz: 44100,
         languageCode: languageCode,
-        fieldType: 'name', // ✅ Specify field type for proper formatting
+        fieldType: 'name',
       });
 
       if (result.success) {
@@ -465,7 +361,7 @@ const SignUpScreen = ({ route, navigation }) => {
           />
 
           <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} />
+            <View style ={styles.dividerLine} />
             <Text style={styles.dividerText}>{t('signUp.orContinue')}</Text>
             <View style={styles.dividerLine} />
           </View>
@@ -502,6 +398,29 @@ const SignUpScreen = ({ route, navigation }) => {
             </Text>
           </TouchableOpacity>
         </ScrollView>
+
+        {/* ✅ BOTTOM NAVIGATION */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.navBtn} onPress={() => navigation.navigate('Home')}>
+            <Ionicons name="home-outline" size={24} color="#999" />
+            <Text style={styles.navLabel}>Home</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navBtn}>
+            <Ionicons name="cart-outline" size={24} color="#999" />
+            <Text style={styles.navLabel}>Cart</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navBtn}>
+            <FontAwesome name="heart-o" size={22} color="#999" />
+            <Text style={styles.navLabel}>Wishlist</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navBtn} onPress={() => navigation.navigate('Profile')}>
+            <Ionicons name="person-outline" size={24} color="#999" />
+            <Text style={styles.navLabel}>Profile</Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -519,7 +438,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 16,
-    paddingBottom: 24,
+    paddingBottom: 100, // ✅ Extra space for bottom nav
   },
   header: {
     marginBottom: 24,
@@ -626,6 +545,28 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.text,
     textDecorationLine: 'underline',
+  },
+  // ✅ BOTTOM NAV STYLES
+  bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    paddingVertical: 10,
+  },
+  navBtn: {
+    alignItems: 'center',
+  },
+  navLabel: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 4,
   },
 });
 

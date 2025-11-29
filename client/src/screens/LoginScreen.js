@@ -27,6 +27,7 @@ import { login as apiLogin } from '../api/authService';
 import { startRecording, stopRecording } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
 import { useAuth } from '../context/AuthContext';
+import { getVendorProfile } from '../api/VendorService'; 
 
 const LoginScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -63,12 +64,36 @@ if (result.success) {
   const { accessToken, refreshToken, user } = result.data.data;
   await contextLogin(accessToken, refreshToken, user);
   
-  // Navigate based on role
   if (user.role === 'vendor') {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'VendorDashboard', params: { userId: user.user_id } }],
-    });
+    // Check if vendor has profile
+    try {
+      const profileCheck = await getVendorProfile();
+      if (profileCheck.success) {
+        // Profile exists, go to dashboard
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'VendorDashboard', params: { userId: user.user_id } }],
+        });
+      } else {
+        // No profile, go to registration
+        navigation.reset({
+          index: 0,
+          routes: [{ 
+            name: 'BusinessRegistration', 
+            params: { userId: user.user_id, userRole: 'vendor' } 
+          }],
+        });
+      }
+    } catch (error) {
+      // Error or no profile, go to registration
+      navigation.reset({
+        index: 0,
+        routes: [{ 
+          name: 'BusinessRegistration', 
+          params: { userId: user.user_id, userRole: 'vendor' } 
+        }],
+      });
+    }
   } else {
     navigation.reset({
       index: 0,
