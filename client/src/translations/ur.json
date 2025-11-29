@@ -1,7 +1,7 @@
 {
   "splash": {
     "appName": "EAIN",
-    "tagline": "عورت کی پہچان ، بے سے آغاز",
+    "tagline": "عورت کی پہچان ، نام سے آغاز",
     "languages": "English | اردو"
   },
   "phoneNumber": {
@@ -56,6 +56,74 @@
     "dontHave": "اکاؤنٹ نہیں ہے؟",
     "signUp": "سائن اپ"
   },
+  "businessReg": {
+    "appName": "EAIN",
+    "title": "کاروباری رجسٹریشن",
+    "subtitle": "دکاندار کی معلومات",
+    "serviceProviderInfo": "خدمات فراہم کنندہ کی معلومات",
+    "businessName": "کاروبار کا نام *",
+    "businessNamePlaceholder": "کاروبار کا نام درج کریں",
+    "businessType": "کاروبار کی قسم *",
+    "selectType": "کاروبار کی قسم منتخب کریں",
+    "product": "مصنوعات",
+    "service": "خدمات",
+    "businessEmail": "کاروباری ای میل *",
+    "businessEmailPlaceholder": "business@example.com",
+    "businessPhone": "کاروباری فون نمبر *",
+    "businessPhonePlaceholder": "300 1234567",
+    "businessCategory": "کاروبار کا زمرہ *",
+    "selectCategory": "زمرہ منتخب کریں",
+    "businessDescription": "کاروبار کی تفصیل *",
+    "businessDescriptionPlaceholder": "اپنے کاروبار کے بارے میں بتائیں...",
+    "officeAddress": "دفتر کا پتہ / کاروباری مقام *",
+    "officeAddressPlaceholder": "مکمل پتہ درج کریں",
+    "businessLogo": "کاروباری لوگو (اختیاری)",
+    "uploadLogo": "لوگو اپ لوڈ کریں (JPG/PNG)",
+    "uploadLogoSubtext": "تصویر منتخب کرنے کے لیے ٹیپ کریں (اختیاری)",
+    "changeLogo": "لوگو تبدیل کریں",
+    "completeRegistration": "رجسٹریشن مکمل کریں",
+    "categories": {
+      "electronics": "الیکٹرانکس",
+      "fashion": "فیشن اور ملبوسات",
+      "food": "کھانا اور مشروبات",
+      "health": "صحت اور خوبصورتی",
+      "home": "گھر اور باغ",
+      "sports": "کھیل اور تندرستی",
+      "automotive": "گاڑیاں",
+      "professional": "پیشہ ورانہ خدمات",
+      "education": "تعلیم",
+      "entertainment": "تفریح",
+      "realEstate": "جائیداد",
+      "other": "دیگر"
+    },
+    "errors": {
+      "businessNameRequired": "کاروبار کا نام ضروری ہے",
+      "businessTypeRequired": "کاروبار کی قسم ضروری ہے",
+      "businessEmailRequired": "کاروباری ای میل ضروری ہے",
+      "invalidEmail": "ای میل کی غلط شکل",
+      "businessPhoneRequired": "کاروباری فون ضروری ہے",
+      "invalidPhone": "غلط فون نمبر",
+      "businessCategoryRequired": "کاروبار کا زمرہ ضروری ہے",
+      "businessDescriptionRequired": "کاروبار کی تفصیل ضروری ہے",
+      "officeAddressRequired": "دفتر کا پتہ ضروری ہے",
+      "registrationFailed": "کاروبار رجسٹر کرنے میں ناکام۔ براہ کرم دوبارہ کوشش کریں۔"
+    },
+    "alerts": {
+      "permissionDenied": "اجازت مسترد",
+      "permissionMessage": "لوگو اپ لوڈ کرنے کے لیے ہمیں کیمرا رول کی اجازت درکار ہے۔",
+      "imagePickerError": "تصویر منتخب کرنے میں ناکام",
+      "recordingError": "ریکارڈنگ کی خرابی",
+      "recordingFailed": "ریکارڈنگ شروع کرنے میں ناکام",
+      "recordingTooShort": "ریکارڈنگ بہت مختصر",
+      "recordingMessage": "براہ کرم کم از کم 1 سیکنڈ کے لیے ریکارڈ کریں۔",
+      "invalidInput": "غلط ان پٹ",
+      "invalidPhoneMessage": "درست فون نمبر کا پتہ نہیں لگا سکے۔ دوبارہ کوشش کریں یا دستی طور پر ٹائپ کریں۔",
+      "noSpeech": "آواز کا پتہ نہیں چلا",
+      "noSpeechMessage": "آواز کا پتہ نہیں لگا سکے۔ براہ کرم دوبارہ کوشش کریں۔",
+      "transcriptionError": "ٹرانسکرپشن کی خرابی",
+      "transcriptionFailed": "آڈیو ٹرانسکرائب کرنے میں ناکام"
+    }
+  },
   "home": {
     "title": "خوش آمدید!",
     "subtitle": "آپ کامیابی سے لاگ ان ہو گئے ہیں",
@@ -89,7 +157,8 @@
     "recording": "ریکارڈ ہو رہا ہے...",
     "processing": "پروسیس ہو رہا ہے...",
     "stop": "رکیں",
-    "loadingProfile": "آپ کی پروفائل لوڈ ہو رہی ہے..."
+    "loadingProfile": "آپ کی پروفائل لوڈ ہو رہی ہے...",
+    "submit": "جمع کروائیں"
   },
   "voice": {
     "recording": "ریکارڈنگ...",
