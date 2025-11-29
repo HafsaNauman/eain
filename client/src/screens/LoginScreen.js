@@ -23,14 +23,13 @@ import ErrorAlert from '../components/common/ErrorAlert';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { COLORS } from '../constants/colors';
 import { validatePhoneNumber } from '../utils/validation';
-import { login } from '../api/authService';
-import { saveTokens, saveUserData } from '../utils/storage';
+import { login as apiLogin } from '../api/authService';
 import { startRecording, stopRecording } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
+import { useAuth } from '../context/AuthContext';
 
 const LoginScreen = ({ navigation }) => {
   const { t } = useTranslation();
-  
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -39,11 +38,13 @@ const LoginScreen = ({ navigation }) => {
   const [recordingField, setRecordingField] = useState(null);
   const [recording, setRecording] = useState(null);
 
+  const { login: contextLogin } = useAuth();
+
   const handleLogin = async () => {
     setError('');
 
     const fullPhoneNumber = `+92${phoneNumber.replace(/\s/g, '')}`;
-    
+
     if (!validatePhoneNumber(fullPhoneNumber)) {
       setError(t('errors.invalidPhone'));
       return;
@@ -57,18 +58,25 @@ const LoginScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      const result = await login(fullPhoneNumber, password);
-
-      if (result.success) {
-        const { accessToken, refreshToken, user } = result.data.data;
-        await saveTokens(accessToken, refreshToken);
-        await saveUserData(user);
-
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
-      } else {
+      const result = await apiLogin(fullPhoneNumber, password);
+if (result.success) {
+  const { accessToken, refreshToken, user } = result.data.data;
+  await contextLogin(accessToken, refreshToken, user);
+  
+  // Navigate based on role
+  if (user.role === 'vendor') {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'VendorDashboard', params: { userId: user.user_id } }],
+    });
+  } else {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+    });
+  }
+}
+else {
         setError(result.error);
       }
     } catch (err) {
@@ -101,7 +109,6 @@ const LoginScreen = ({ navigation }) => {
     try {
       setRecordingField(null);
       const audioUri = await stopRecording(recording);
-      
       const result = await transcribeAudio(audioUri, {
         encoding: 'LINEAR16',
         sampleRateHertz: 44100,
@@ -109,12 +116,12 @@ const LoginScreen = ({ navigation }) => {
       });
 
       if (result.success) {
-        const transcribedText = 
+        const transcribedText =
           result.data?.data?.transcription ||
           result.data?.transcription ||
           result.data?.text ||
           '';
-        
+
         if (transcribedText && transcribedText.trim()) {
           if (field === 'phoneNumber') {
             const digits = transcribedText.replace(/\D/g, '');
@@ -136,7 +143,7 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoid}
@@ -144,8 +151,8 @@ const LoginScreen = ({ navigation }) => {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
         >
+          {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerRow}>
               <Text style={styles.appName}>{t('login.appName')}</Text>
@@ -155,39 +162,38 @@ const LoginScreen = ({ navigation }) => {
             <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
           </View>
 
-          <ErrorAlert message={error} />
+          {error ? <ErrorAlert message={error} onDismiss={() => setError('')} /> : null}
 
           {/* Phone Number Label */}
           <Text style={styles.label}>{t('login.phoneNumber')}</Text>
 
           {/* Phone Number Input Container with Inline Mic */}
-          <View style={[
-            styles.phoneInputContainer, 
-            error && !phoneNumber && styles.inputError
-          ]}>
+          <View style={[styles.phoneInputContainer, error && !phoneNumber && styles.inputError]}>
             <View style={styles.prefixContainer}>
               <Text style={styles.prefix}>+92</Text>
             </View>
             <TextInput
               style={styles.phoneInput}
+              placeholder="3xx xxxxxxx"
+              placeholderTextColor="#B0B0B0"
+              keyboardType="phone-pad"
               value={phoneNumber}
               onChangeText={setPhoneNumber}
-              placeholder="300 1234567"
-              placeholderTextColor={COLORS.placeholder}
-              keyboardType="phone-pad"
               maxLength={11}
+              editable={!loading}
             />
-            <TouchableOpacity 
-              style={styles.micIcon}
+            <TouchableOpacity
               onPress={() => handleVoiceInput('phoneNumber')}
+              style={styles.micIcon}
             >
-              <Ionicons 
-                name={recordingField === 'phoneNumber' ? 'mic' : 'mic-outline'} 
-                size={20} 
-                color={recordingField === 'phoneNumber' ? COLORS.error : COLORS.textSecondary} 
+              <Ionicons
+                name={recordingField === 'phoneNumber' ? 'stop-circle' : 'mic'}
+                size={22}
+                color={recordingField === 'phoneNumber' ? COLORS.error : COLORS.primary}
               />
             </TouchableOpacity>
           </View>
+
           {error && !phoneNumber && (
             <Text style={styles.errorText}>{t('errors.phoneRequired')}</Text>
           )}
@@ -197,72 +203,73 @@ const LoginScreen = ({ navigation }) => {
             label={t('login.password')}
             value={password}
             onChangeText={setPassword}
-            placeholder={t('login.password')}
-            error={error && !password ? t('errors.passwordRequired') : ''}
+            placeholder={t('login.enterPassword')}
             secureTextEntry={!showPassword}
+            editable={!loading}
             rightIcon={
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons 
-                  name={showPassword ? 'eye' : 'eye-off'} 
-                  size={20} 
-                  color={COLORS.textSecondary} 
+                <Ionicons
+                  name={showPassword ? 'eye-off' : 'eye'}
+                  size={22}
+                  color={COLORS.textSecondary}
                 />
               </TouchableOpacity>
             }
           />
 
-          <TouchableOpacity 
-            style={styles.forgotPassword}
+          <TouchableOpacity
             onPress={() => console.log('Forgot password clicked')}
+            style={styles.forgotPassword}
           >
-            <Text style={styles.forgotPasswordText}>
-              {t('login.forgotPassword')}
-            </Text>
+            <Text style={styles.forgotPasswordText}>{t('login.forgotPassword')}</Text>
           </TouchableOpacity>
 
           <CustomButton
             title={t('login.loginButton')}
             onPress={handleLogin}
             loading={loading}
-            disabled={!phoneNumber || !password || loading}
             style={styles.loginButton}
           />
 
+          {/* Social Login Divider */}
           <View style={styles.dividerContainer}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>{t('signUp.orContinue')}</Text>
             <View style={styles.dividerLine} />
           </View>
 
+          {/* Social Login Buttons */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Google')}
             >
-              <AntDesign name="google" size={24} color="#DB4437" />
+              <AntDesign name="google" size={22} color="#DB4437" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Apple')}
             >
-              <AntDesign name="apple1" size={26} color="#000000" />
+              <AntDesign name="apple1" size={22} color="#000" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Facebook')}
             >
-              <FontAwesome name="facebook" size={26} color="#1877F2" />
+              <FontAwesome name="facebook" size={22} color="#1877F2" />
             </TouchableOpacity>
           </View>
 
+          {/* Sign Up Link */}
           <TouchableOpacity
             onPress={() => navigation.navigate('PhoneNumber')}
             style={styles.signupLink}
           >
             <Text style={styles.signupText}>
-              {t('login.dontHave')} <Text style={styles.signupTextBold}>{t('login.signUp')}</Text>
+              {t('login.dontHave')}{' '}
+              <Text style={styles.signupTextBold}>{t('login.signUp')}</Text>
             </Text>
           </TouchableOpacity>
         </ScrollView>
