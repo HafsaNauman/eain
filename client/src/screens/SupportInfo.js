@@ -332,28 +332,7 @@ const SupportInfoScreen = ({ route, navigation }) => {
         {activeTab === 'contact' && <ContactContent />}
         {activeTab === 'privacy' && <PrivacyContent />}
       </ScrollView>
-      {/* Bottom Navigation */}
-<View style={styles.bottomNav}>
-  <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
-    <Ionicons name="home-outline" size={24} color="#999" />
-    <Text style={styles.navLabel}>Home</Text>
-  </TouchableOpacity>
 
-  <TouchableOpacity style={styles.navItem}>
-    <Ionicons name="cart-outline" size={24} color="#999" />
-    <Text style={styles.navLabel}>Cart</Text>
-  </TouchableOpacity>
-
-  <TouchableOpacity style={styles.navItem}>
-    <Ionicons name="heart-outline" size={24} color="#999" />
-    <Text style={styles.navLabel}>Wishlist</Text>
-  </TouchableOpacity>
-
-  <TouchableOpacity style={styles.navItem}>
-    <Ionicons name="person" size={24} color={COLORS.primary} />
-    <Text style={[styles.navLabel, styles.navLabelActive]}>Profile</Text>
-  </TouchableOpacity>
-</View>
 
     </SafeAreaView>
   );
