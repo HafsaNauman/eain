@@ -19,7 +19,7 @@
 //   BASE_URL:"https://unfiercely-javon-holistically.ngrok-free.dev",
 //   // Timeout for API requests (milliseconds)
 //   TIMEOUT: 30000,
-  
+
 //   // API endpoints
 //   ENDPOINTS: {
 //     AUTH: {
@@ -40,7 +40,7 @@
 const API_CONFIG = {
   BASE_URL: "https://unfiercely-javon-holistically.ngrok-free.dev",
   TIMEOUT: 30000,
-  
+
   ENDPOINTS: {
     AUTH: {
       SEND_OTP: '/api/auth/send-otp',
@@ -52,9 +52,19 @@ const API_CONFIG = {
       PROFILE: '/api/vendor/profile',
       LISTINGS: '/api/vendor/listings',
     },
+    CATALOG: {
+      LISTINGS: '/api/catalog/listings',
+      LISTING_DETAILS: '/api/catalog/listings/:listing_id',
+      SEARCH: '/api/catalog/search',
+      VENDOR_LISTINGS: '/api/catalog/vendors/:vendor_id/listings',
+    },
     STT: {
       TRANSCRIBE: '/api/stt/transcribe',
       HEALTH: '/api/stt/health',
+    },
+    AI: {
+      GENERATE_PRODUCT_DESCRIPTION: '/api/ai/generate-product-description',
+      UPDATE_LISTING_WITH_AI: '/api/ai/update-listing-with-ai/:listing_id',
     },
   },
 };
