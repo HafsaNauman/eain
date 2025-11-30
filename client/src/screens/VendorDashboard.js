@@ -29,6 +29,15 @@ const VendorDashboardScreen = ({ route, navigation }) => {
   const { vendorProfile: initialProfile, businessData, userId, userRole } = route.params || {};
   const [profile, setProfile] = useState(initialProfile || businessData || {});
   const { t } = useTranslation();
+    const handleBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      // Fallback if this is the root screen
+      navigation.navigate('Home');
+    }
+  };
+
 
   const [stats, setStats] = useState({
     totalProducts: 0,
@@ -199,13 +208,14 @@ const handleSwitchAccount = async () => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#333" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => alert('Notifications - Coming Soon!')}>
+         <TouchableOpacity onPress={handleBack}>
+          <Ionicons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
+         <TouchableOpacity onPress={() => alert('Notifications - Coming Soon!')}>
             <Ionicons name="notifications-outline" size={24} color="#333" />
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
+      </View>
+
 
         {/* Profile Card */}
         <View style={styles.profileCard}>
