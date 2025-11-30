@@ -156,6 +156,55 @@ export const createListing = async (listingData) => {
     };
   }
 };
+// VendorService.js
+export const updateListing = async (listingId, updates) => {
+  try {
+    const token = await getAccessToken();
+    const response = await apiClient.put(
+      `/api/vendor/listings/${listingId}`,
+      updates,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Update Listing Error:', error);
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Failed to update listing',
+    };
+  }
+};
+// DELETE /api/vendor/listings/:id
+export const deleteListing = async (listingId) => {
+  try {
+    const token = await getAccessToken();
+    const response = await apiClient.delete(`/api/vendor/listings/${listingId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error('Delete Listing Error:', error);
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Failed to delete listing',
+    };
+  }
+};
+
 
 /**
  * Get vendor listings
