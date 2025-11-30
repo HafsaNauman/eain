@@ -11,6 +11,7 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Alert,
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
@@ -18,6 +19,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/colors';
 import { getVendorListings } from '../api/VendorService';
+import { deleteListing } from '../api/VendorService';
+//            ^ add deleteListing import
+
 
 const MyProductsScreen = ({ route, navigation }) => {
   const [products, setProducts] = useState([]);
@@ -53,10 +57,40 @@ const MyProductsScreen = ({ route, navigation }) => {
     setRefreshing(false);
   };
 
+  const handleDeleteProduct = (item) => {
+    Alert.alert(
+      'Delete Product',
+      `Delete "${item.title_en}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const result = await deleteListing(item.listing_id);
+              if (!result.success) {
+                Alert.alert('Error', result.error || 'Failed to delete product');
+              } else {
+                // Remove from local state so list updates immediately
+                setProducts(prev =>
+                  prev.filter(p => p.listing_id !== item.listing_id)
+                );
+              }
+            } catch (e) {
+              Alert.alert('Error', 'Failed to delete product');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+
   const renderProductCard = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.productCard}
-      onPress={() => alert('Product Details - Coming Soon!')}
+      onPress={() => navigation.navigate('VendorProductDetail', { product: item })}
     >
       <View style={styles.productImageContainer}>
         {item.media && item.media.length > 0 && item.media[0].image_url ? (
@@ -69,44 +103,51 @@ const MyProductsScreen = ({ route, navigation }) => {
             <Ionicons name="image-outline" size={40} color="#ccc" />
           </View>
         )}
+
         <View style={[styles.badge, styles.activeBadge]}>
           <Text style={styles.badgeText}>Active</Text>
         </View>
       </View>
 
       <View style={styles.productInfo}>
-        <Text style={styles.productTitle} numberOfLines={2}>
-          {item.title_en}
-        </Text>
-        
-        <Text style={styles.productDescription} numberOfLines={2}>
+        <Text style={styles.productTitle}>{item.title_en}</Text>
+        <Text style={styles.productDescription}>
           {item.description_en || 'No description'}
         </Text>
 
         <View style={styles.productFooter}>
           <View>
-            <Text style={styles.productPrice}>Rs {item.price?.toLocaleString()}</Text>
-            <Text style={styles.productType}>{item.listing_type || 'product'}</Text>
+            <Text style={styles.productPrice}>
+              Rs {item.price?.toLocaleString()}
+            </Text>
+            <Text style={styles.productType}>
+              {item.listing_type || 'product'}
+            </Text>
           </View>
 
           <View style={styles.actions}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => alert('Edit - Coming Soon!')}
+              onPress={() =>
+                navigation.navigate('ProductDetail', { product: item })
+              }
             >
-              <Ionicons name="create-outline" size={20} color={COLORS.primary} />
+              <Ionicons name="create-outline" size={20} color="#111" />
             </TouchableOpacity>
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => alert('Delete - Coming Soon!')}
+              onPress={() => handleDeleteProduct(item)}
             >
-              <Ionicons name="trash-outline" size={20} color="#EF4444" />
+              <Ionicons name="trash-outline" size={20} color="#ef4444" />
             </TouchableOpacity>
+
           </View>
         </View>
       </View>
     </TouchableOpacity>
   );
+
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
