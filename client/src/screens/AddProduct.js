@@ -28,6 +28,8 @@ import { validateEmail } from '../utils/validation';
 //import { createListing } from '../api/listingService';
 import { createListing } from '../api/VendorService';
 import { generateProductDescription } from '../api/aiDescriptionService';
+import axios from 'axios';
+import API_CONFIG from '../api/config';
 
 const AddProductScreen = ({ route, navigation }) => {
   const { businessId, vendorProfile } = route.params || {};
@@ -193,48 +195,155 @@ const AddProductScreen = ({ route, navigation }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+////new addition 30/11/25
+// Helper: upload a single image to backend and get a public URL
+const uploadImageToServer = async (localImage) => {
+  try {
+    const photo = {
+      uri: localImage.uri,
+      type: 'image/jpeg',      // you can adjust if you detect type
+      name: 'listing-image.jpg',
+    };
 
+    const formData = new FormData();
+    // field name MUST be "image" because backend uses upload.single('image')
+    formData.append('image', photo);
+
+    const response = await axios.post(
+      `${API_CONFIG.BASE_URL}/api/upload/vendor-image`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    const url = response.data?.data?.image_url;
+    return url || null;
+  } catch (err) {
+    console.error('❌ Image upload error:', err);
+    return null;
+  }
+};
+
+  // const handleSubmit = async () => {
+  //   setGeneralError('');
+
+  //   if (!validateForm()) {
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     // Prepare media array
+  //     // const media = formData.images.map(img => ({
+  //     //   image_url: img.uri,
+  //     //   type: 'image',
+  //     // }));
+  //     const media = formData.images.map(img => ({
+  //     image_url: img.uri,
+  //     type: 'image',
+  //     }));
+
+  //     // Prepare tags array
+  //     const tags = formData.tags.trim()
+  //       ? formData.tags.split(',').map(tag => tag.trim())
+  //       : [];
+
+  //     const listingData = {
+  //       listing_type: formData.listingType,
+  //       title_en: formData.titleEn.trim(),
+  //       title_ur: formData.titleUr.trim() || null,
+  //       description_en: formData.descriptionEn.trim(),
+  //       description_ur: formData.descriptionUr.trim() || null,
+  //       price: parseFloat(formData.price),
+  //       currency: formData.currency,
+  //       category: formData.category,
+  //       tags: tags,
+  //       media: media,
+  //       is_female_only: formData.isFemaleOnly,
+  //     };
+
+  //     console.log('📤 Sending listing data:', listingData);
+  //     const result = await createListing(listingData);
+
+  //     if (result.success) {
+  //       console.log('✅ Listing created successfully:', result.data);
+  //       Alert.alert('Success', 'Product/Service added successfully!', [{
+  //         text: 'OK',
+  //         onPress: () => {
+  //           navigation.navigate('VendorDashboard', {
+  //             vendorProfile: vendorProfile,
+  //             userId: route.params?.userId,
+  //             refreshListings: true,
+  //           });
+  //         }, 
+  //       },
+  //       ]
+  //       );
+  //     }
+  //     else {
+  //       setGeneralError(result.error || 'Failed to create listing');
+  //     }
+  //   } catch (err) {
+  //     console.error('❌ Add product error:', err);
+  //     setGeneralError('Failed to add product. Please try again.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleSubmit = async () => {
-    setGeneralError('');
+  setGeneralError('');
 
-    if (!validateForm()) {
-      return;
+  if (!validateForm()) {
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // 1) Upload all selected images and collect HTTPS URLs
+    const imageUrls = [];
+
+    for (const img of formData.images) {
+      const uploadedUrl = await uploadImageToServer(img);
+      if (uploadedUrl) {
+        imageUrls.push(uploadedUrl);
+      }
     }
 
-    setLoading(true);
+    // 2) Prepare tags array (unchanged)
+    const tags = formData.tags.trim()
+      ? formData.tags.split(',').map(tag => tag.trim())
+      : [];
 
-    try {
-      // Prepare media array
-      const media = formData.images.map(img => ({
-        image_url: img.uri,
-        type: 'image',
-      }));
+    // 3) Build listing payload, but now media is clean:
+    //    media: { images: [ 'https://...', 'https://...' ] }
+    const listingData = {
+      listing_type: formData.listingType,
+      title_en: formData.titleEn.trim(),
+      title_ur: formData.titleUr.trim() || null,
+      description_en: formData.descriptionEn.trim(),
+      description_ur: formData.descriptionUr.trim() || null,
+      price: parseFloat(formData.price),
+      currency: formData.currency,
+      category: formData.category,
+      tags: tags,
+      media: {
+        images: imageUrls,
+      },
+      is_female_only: formData.isFemaleOnly,
+    };
 
-      // Prepare tags array
-      const tags = formData.tags.trim()
-        ? formData.tags.split(',').map(tag => tag.trim())
-        : [];
+    console.log('📤 Sending listing data:', listingData);
+    const result = await createListing(listingData);
 
-      const listingData = {
-        listing_type: formData.listingType,
-        title_en: formData.titleEn.trim(),
-        title_ur: formData.titleUr.trim() || null,
-        description_en: formData.descriptionEn.trim(),
-        description_ur: formData.descriptionUr.trim() || null,
-        price: parseFloat(formData.price),
-        currency: formData.currency,
-        category: formData.category,
-        tags: tags,
-        media: media,
-        is_female_only: formData.isFemaleOnly,
-      };
-
-      console.log('📤 Sending listing data:', listingData);
-      const result = await createListing(listingData);
-
-      if (result.success) {
-        console.log('✅ Listing created successfully:', result.data);
-        Alert.alert('Success', 'Product/Service added successfully!', [{
+    if (result.success) {
+      console.log('✅ Listing created successfully:', result.data);
+      Alert.alert('Success', 'Product/Service added successfully!', [
+        {
           text: 'OK',
           onPress: () => {
             navigation.navigate('VendorDashboard', {
@@ -244,19 +353,18 @@ const AddProductScreen = ({ route, navigation }) => {
             });
           },
         },
-        ]
-        );
-      }
-      else {
-        setGeneralError(result.error || 'Failed to create listing');
-      }
-    } catch (err) {
-      console.error('❌ Add product error:', err);
-      setGeneralError('Failed to add product. Please try again.');
-    } finally {
-      setLoading(false);
+      ]);
+    } else {
+      setGeneralError(result.error || 'Failed to create listing');
     }
-  };
+  } catch (err) {
+    console.error('❌ Add product error:', err);
+    setGeneralError('Failed to add product. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <SafeAreaView style={styles.container}>
