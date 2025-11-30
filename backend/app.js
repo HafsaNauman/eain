@@ -122,10 +122,14 @@ dotenv.config();
 // Import routes
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import sttRoutes from './routes/stt.routes.js';
 import vendorRoutes from './routes/vendor.routes.js';
 import listingRoutes from './routes/listing.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import catalogRoutes from './routes/catalog.routes.js';
+import uploadRoutes from './routes/upload.routes.js';
+import aiDescriptionRoutes from './routes/aiDescription.routes.js';
 
 console.log('🔄 Starting application...');
 
@@ -173,8 +177,13 @@ connectDB()
 console.log('🔄 Setting up routes...');
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/stt', sttRoutes);
+
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/vendor/listings', listingRoutes); // Vendor listing management (protected)
+app.use('/api/upload', uploadRoutes);
+app.use('/api/ai', aiDescriptionRoutes);
 app.use('/api/orders', orderRoutes); // Order management (protected)
 app.use('/api/catalog', catalogRoutes); // Public catalog browse
 
