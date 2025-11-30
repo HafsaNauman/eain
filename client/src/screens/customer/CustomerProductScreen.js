@@ -22,7 +22,7 @@ import CustomButton from '../../components/common/CustomButton';
 
 const { width } = Dimensions.get('window');
 
-const ProductDetailScreen = ({ route, navigation }) => {
+const CustomerProductScreen = ({ route, navigation }) => {
     const { listingId } = route.params;
     const { i18n } = useTranslation();
     const isUrdu = i18n.language === 'ur';
@@ -501,4 +501,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ProductDetailScreen;
+export default CustomerProductScreen;

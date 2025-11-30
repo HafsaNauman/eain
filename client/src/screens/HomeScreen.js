@@ -1377,8 +1377,9 @@ function HomeScreen() {
   };
 
   const navigateToProductDetail = (listingId) => {
-    navigation.navigate('ProductDetail', { listingId });
+    navigation.navigate('CustomerProduct', { listingId });  // ✅ CORRECT
   };
+
 
   const activeFiltersCount =
     (selectedCategory !== 'All' ? 1 : 0) +

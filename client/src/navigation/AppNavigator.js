@@ -134,9 +134,10 @@ import MyProducts from '../screens/MyProducts';
 import VendorInfo from '../screens/VendorInfo';
 import SupportInfo from '../screens/SupportInfo';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
+import VendorOrdersScreen from '../screens/VendorOrdersScreen';
 
-// New Customer Screens
-import ProductDetailScreen from '../screens/customer/ProductDetailScreen';
+// Customer Screens
+import CustomerProductScreen from '../screens/customer/CustomerProductScreen';
 import CheckoutScreen from '../screens/customer/CheckoutScreen';
 import MyOrdersScreen from '../screens/customer/MyOrdersScreen';
 import OrderDetailsScreen from '../screens/customer/OrderDetailsScreen';
@@ -160,61 +161,28 @@ const AppNavigator = () => {
         initialRouteName="Splash"
         screenOptions={{ headerShown: false }}
       >
-        {/* ===== SPLASH ===== */}
         <Stack.Screen name="Splash" component={SplashScreen} />
-
-        {/* ===== PUBLIC / MAIN FLOW ===== */}
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
 
-        {/* ===== AUTHENTICATION ===== */}
         <Stack.Screen name="PhoneNumber" component={PhoneNumberScreen} />
         <Stack.Screen name="OTP" component={OTPScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
 
-        {/* ===== CUSTOMER SHOPPING FLOW ===== */}
-        <Stack.Screen
-          name="ProductDetail"
-          component={ProductDetailScreen}
-          options={{
-            headerShown: false,
-            gestureEnabled: true,
-          }}
-        />
-        <Stack.Screen
-          name="Checkout"
-          component={CheckoutScreen}
-          options={{
-            headerShown: false,
-            gestureEnabled: true,
-          }}
-        />
-        <Stack.Screen
-          name="MyOrders"
-          component={MyOrdersScreen}
-          options={{
-            headerShown: false,
-            gestureEnabled: true,
-          }}
-        />
-        <Stack.Screen
-          name="OrderDetails"
-          component={OrderDetailsScreen}
-          options={{
-            headerShown: false,
-            gestureEnabled: true,
-          }}
-        />
+        <Stack.Screen name="CustomerProduct" component={CustomerProductScreen} />
+        <Stack.Screen name="Checkout" component={CheckoutScreen} />
+        <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
+        <Stack.Screen name="OrderDetails" component={OrderDetailsScreen} />
 
-        {/* ===== VENDOR FLOW ===== */}
         <Stack.Screen name="BusinessRegistration" component={BusinessRegistration} />
         <Stack.Screen name="VendorDashboard" component={VendorDashboard} />
         <Stack.Screen name="AddProduct" component={AddProduct} />
         <Stack.Screen name="MyProducts" component={MyProducts} />
         <Stack.Screen name="VendorInfo" component={VendorInfo} />
         <Stack.Screen name="SupportInfo" component={SupportInfo} />
-        <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="VendorProductDetail" component={ProductDetailScreen} />
+        <Stack.Screen name="VendorOrders" component={VendorOrdersScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
