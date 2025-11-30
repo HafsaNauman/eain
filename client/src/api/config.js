@@ -52,6 +52,12 @@ const API_CONFIG = {
       PROFILE: '/api/vendor/profile',
       LISTINGS: '/api/vendor/listings',
     },
+    CATALOG: {
+      LISTINGS: '/api/catalog/listings',
+      LISTING_DETAILS: '/api/catalog/listings/:listing_id',
+      SEARCH: '/api/catalog/search',
+      VENDOR_LISTINGS: '/api/catalog/vendors/:vendor_id/listings',
+    },
     STT: {
       TRANSCRIBE: '/api/stt/transcribe',
       HEALTH: '/api/stt/health',
