@@ -87,66 +87,66 @@ const MyProductsScreen = ({ route, navigation }) => {
   };
 
 
-const renderProductCard = ({ item }) => (
-  <TouchableOpacity
-    style={styles.productCard}
-    onPress={() => navigation.navigate('ProductDetail', { product: item })}
-  >
-    <View style={styles.productImageContainer}>
-      {item.media && item.media.length > 0 && item.media[0].image_url ? (
-        <Image
-          source={{ uri: item.media[0].image_url }}
-          style={styles.productImage}
-        />
-      ) : (
-        <View style={styles.productImagePlaceholder}>
-          <Ionicons name="image-outline" size={40} color="#ccc" />
-        </View>
-      )}
+  const renderProductCard = ({ item }) => (
+    <TouchableOpacity
+      style={styles.productCard}
+      onPress={() => navigation.navigate('VendorProductDetail', { product: item })}
+    >
+      <View style={styles.productImageContainer}>
+        {item.media && item.media.length > 0 && item.media[0].image_url ? (
+          <Image
+            source={{ uri: item.media[0].image_url }}
+            style={styles.productImage}
+          />
+        ) : (
+          <View style={styles.productImagePlaceholder}>
+            <Ionicons name="image-outline" size={40} color="#ccc" />
+          </View>
+        )}
 
-      <View style={[styles.badge, styles.activeBadge]}>
-        <Text style={styles.badgeText}>Active</Text>
-      </View>
-    </View>
-
-    <View style={styles.productInfo}>
-      <Text style={styles.productTitle}>{item.title_en}</Text>
-      <Text style={styles.productDescription}>
-        {item.description_en || 'No description'}
-      </Text>
-
-      <View style={styles.productFooter}>
-        <View>
-          <Text style={styles.productPrice}>
-            Rs {item.price?.toLocaleString()}
-          </Text>
-          <Text style={styles.productType}>
-            {item.listing_type || 'product'}
-          </Text>
-        </View>
-
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() =>
-              navigation.navigate('ProductDetail', { product: item })
-            }
-          >
-            <Ionicons name="create-outline" size={20} color="#111" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-  style={styles.actionButton}
-  onPress={() => handleDeleteProduct(item)}
->
-  <Ionicons name="trash-outline" size={20} color="#ef4444" />
-</TouchableOpacity>
-
+        <View style={[styles.badge, styles.activeBadge]}>
+          <Text style={styles.badgeText}>Active</Text>
         </View>
       </View>
-    </View>
-  </TouchableOpacity>
-);
+
+      <View style={styles.productInfo}>
+        <Text style={styles.productTitle}>{item.title_en}</Text>
+        <Text style={styles.productDescription}>
+          {item.description_en || 'No description'}
+        </Text>
+
+        <View style={styles.productFooter}>
+          <View>
+            <Text style={styles.productPrice}>
+              Rs {item.price?.toLocaleString()}
+            </Text>
+            <Text style={styles.productType}>
+              {item.listing_type || 'product'}
+            </Text>
+          </View>
+
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() =>
+                navigation.navigate('ProductDetail', { product: item })
+              }
+            >
+              <Ionicons name="create-outline" size={20} color="#111" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => handleDeleteProduct(item)}
+            >
+              <Ionicons name="trash-outline" size={20} color="#ef4444" />
+            </TouchableOpacity>
+
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
 
   const renderEmpty = () => (
