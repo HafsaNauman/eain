@@ -87,13 +87,59 @@ import SupportInfo from '../screens/SupportInfo';
 
 const Stack = createStackNavigator();
 
+// const AppNavigator = () => {
+//   const { isAuthenticated, isLoading, user } = useAuth();
+
+//   if (isLoading) {
+//     return (
+//       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+//         <ActivityIndicator size="large" color="#89B5A8" />
+//       </View>
+//     );
+//   }
+
+//   return (
+//     <NavigationContainer>
+//       <Stack.Navigator
+//         initialRouteName="Splash"
+//         screenOptions={{
+//           headerShown: false,
+//           gestureEnabled: true,
+//         }}
+//       >
+//         {/* ✅ Splash Screen - Always first */}
+//         <Stack.Screen name="Splash" component={SplashScreen} />
+
+//         {/* ✅ Always accessible screens */}
+//         <Stack.Screen name="Home" component={HomeScreen} />
+//         <Stack.Screen name="Profile" component={ProfileScreen} />
+
+//         {/* ✅ Auth Screens */}
+//         <Stack.Screen name="PhoneNumber" component={PhoneNumberScreen} />
+//         <Stack.Screen name="OTP" component={OTPScreen} />
+//         <Stack.Screen name="SignUp" component={SignUpScreen} />
+//         <Stack.Screen name="Login" component={LoginScreen} />
+
+//         {/* ✅ Vendor Screens */}
+//         <Stack.Screen name="BusinessRegistration" component={BusinessRegistration} />
+//         <Stack.Screen name="VendorDashboard" component={VendorDashboard} />
+//         <Stack.Screen name="AddProduct" component={AddProduct} />
+//         <Stack.Screen name="MyProducts" component={MyProducts} />
+//         <Stack.Screen name="VendorInfo" component={VendorInfo} />
+//         <Stack.Screen name="SupportInfo" component={SupportInfo} />
+//       </Stack.Navigator>
+//     </NavigationContainer>
+//   );
+// };
+
+// export default AppNavigator;
 const AppNavigator = () => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isLoading } = useAuth(); // user, isAuthenticated are used in screens
 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#89B5A8" />
+        <ActivityIndicator size="large" color="#036c5f" />
       </View>
     );
   }
@@ -102,25 +148,22 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Splash"
-        screenOptions={{
-          headerShown: false,
-          gestureEnabled: true,
-        }}
+        screenOptions={{ headerShown: false }}
       >
-        {/* ✅ Splash Screen - Always first */}
+        {/* Splash always first */}
         <Stack.Screen name="Splash" component={SplashScreen} />
 
-        {/* ✅ Always accessible screens */}
+        {/* Public / main flow */}
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
 
-        {/* ✅ Auth Screens */}
+        {/* Auth */}
         <Stack.Screen name="PhoneNumber" component={PhoneNumberScreen} />
         <Stack.Screen name="OTP" component={OTPScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
 
-        {/* ✅ Vendor Screens */}
+        {/* Vendor */}
         <Stack.Screen name="BusinessRegistration" component={BusinessRegistration} />
         <Stack.Screen name="VendorDashboard" component={VendorDashboard} />
         <Stack.Screen name="AddProduct" component={AddProduct} />
