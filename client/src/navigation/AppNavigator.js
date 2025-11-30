@@ -133,6 +133,7 @@ import AddProduct from '../screens/AddProduct';
 import MyProducts from '../screens/MyProducts';
 import VendorInfo from '../screens/VendorInfo';
 import SupportInfo from '../screens/SupportInfo';
+import ProductDetailScreen from '../screens/ProductDetailScreen';
 
 // New Customer Screens
 import ProductDetailScreen from '../screens/customer/ProductDetailScreen';
@@ -213,6 +214,7 @@ const AppNavigator = () => {
         <Stack.Screen name="MyProducts" component={MyProducts} />
         <Stack.Screen name="VendorInfo" component={VendorInfo} />
         <Stack.Screen name="SupportInfo" component={SupportInfo} />
+        <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
