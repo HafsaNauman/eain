@@ -9,13 +9,13 @@ import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 export const getProfile = async (req, res) => {
   try {
     const userId = req.userId; // From JWT middleware
-    
+
     const profile = await VendorProfile.findOne({ where: { user_id: userId } });
-    
+
     if (!profile) {
       return errorResponse(res, 404, 'Vendor profile not found');
     }
-    
+
     return successResponse(res, 200, 'Vendor profile retrieved', { profile });
   } catch (error) {
     console.error('Get Vendor Profile Error:', error);

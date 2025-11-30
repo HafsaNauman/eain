@@ -61,7 +61,9 @@ const VendorProfile = sequelize.define(
     is_active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false, // becomes true after Publish my shop
+      // defaultValue: false, // becomes true after Publish my shop
+      defaultValue: true // becomes true after Publish my shop
+
     },
     media: {
       type: DataTypes.JSONB, // e.g. { logo_url: '...', cover_url: '...' }
