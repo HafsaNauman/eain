@@ -307,30 +307,94 @@
 
 // export default ProfileScreen;
 
-
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { COLORS } from '../constants/colors';
+import { getVendorProfile } from '../api/VendorService';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, logout, isAuthenticated } = useAuth();
+  const [checkingVendor, setCheckingVendor] = useState(false);
 
-  const handleLogout = async () => {
+  // ✅ Check vendor status when screen loads
+  useEffect(() => {
+    const checkVendorStatus = async () => {
+      if (isAuthenticated && user?.role === 'vendor') {
+        setCheckingVendor(true);
+        try {
+          const profileCheck = await getVendorProfile();
+
+          if (profileCheck?.success && profileCheck.data) {
+            // ✅ Vendor with business → go to dashboard
+            navigation.reset({
+              index: 0,
+              routes: [{
+                name: 'VendorDashboard',
+                params: {
+                  userId: user.user_id,
+                  vendorProfile: profileCheck.data.data?.profile || profileCheck.data.profile,
+                },
+              }],
+            });
+          } else {
+            // ✅ Vendor without business → go to registration
+            navigation.reset({
+              index: 0,
+              routes: [{
+                name: 'BusinessRegistration',
+                params: { userId: user.user_id, userRole: 'vendor' },
+              }],
+            });
+          }
+        } catch (error) {
+          // On error, assume needs registration
+          navigation.reset({
+            index: 0,
+            routes: [{
+              name: 'BusinessRegistration',
+              params: { userId: user.user_id, userRole: 'vendor' },
+            }],
+          });
+        } finally {
+          setCheckingVendor(false);
+        }
+      }
+    };
+
+     checkVendorStatus();
+  }, [isAuthenticated, user, navigation]);
+
+    const handleLogout = async () => {
     await logout();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' }],
-    });
+    navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
   };
 
-  const handleVendorDashboard = () => {
-    // Navigate to dashboard (no auto-redirect, user clicks button)
-    navigation.navigate('VendorDashboard', {
-      userId: user.user_id
-    });
+
+  const handleVendorDashboard = async () => {
+    try {
+      const profileCheck = await getVendorProfile();
+      
+      if (profileCheck.success && profileCheck.data) {
+        navigation.navigate('VendorDashboard', {
+          userId: user.user_id,
+          vendorProfile: profileCheck.data.data?.profile || profileCheck.data.profile
+        });
+      } else {
+        navigation.navigate('BusinessRegistration', {
+          userId: user.user_id,
+          userRole: 'vendor'
+        });
+      }
+    } catch (error) {
+      console.error('Error navigating to dashboard:', error);
+      navigation.navigate('BusinessRegistration', {
+        userId: user.user_id,
+        userRole: 'vendor'
+      });
+    }
   };
 
   // ✅ NOT LOGGED IN: Show Login/Create Account
@@ -380,10 +444,29 @@ const ProfileScreen = ({ navigation }) => {
     );
   }
 
+  // // ✅ VENDOR CHECKING: Show loading
+  // if (checkingVendor) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+  //       <ActivityIndicator size="large" color={COLORS.primary} />
+  //       <Text style={{ marginTop: 16, color: COLORS.textSecondary }}>Loading...</Text>
+  //     </View>
+  //   );
+  // }
+  // ✅ VENDOR: we are redirecting; show loader while deciding
+if (isAuthenticated && user?.role === 'vendor' && checkingVendor) {
+  return (
+    <View style={styles.centerContent}>
+      <ActivityIndicator size="large" color={COLORS.primary} />
+      <Text>Checking your business status...</Text>
+    </View>
+  );
+}
+
   // ✅ LOGGED IN: Show Profile (Customer or Vendor)
   return (
     <SafeAreaView style={styles.authenticatedContainer} edges={['top']}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View style={styles.header}>
           <View style={styles.avatar}>
             <Ionicons name="person" size={40} color={COLORS.primary} />
