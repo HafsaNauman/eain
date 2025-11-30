@@ -62,6 +62,11 @@ const API_CONFIG = {
       TRANSCRIBE: '/api/stt/transcribe',
       HEALTH: '/api/stt/health',
     },
+    ORDERS: {
+      PLACE_ORDER: '/api/orders',
+      MY_ORDERS: '/api/orders/my',
+      ORDER_DETAILS: '/api/orders/:order_id',
+    },
     AI: {
       GENERATE_PRODUCT_DESCRIPTION: '/api/ai/generate-product-description',
       UPDATE_LISTING_WITH_AI: '/api/ai/update-listing-with-ai/:listing_id',
