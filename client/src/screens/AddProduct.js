@@ -27,6 +27,7 @@ import { COLORS } from '../constants/colors';
 import { validateEmail } from '../utils/validation';
 //import { createListing } from '../api/listingService';
 import { createListing } from '../api/VendorService';
+import { generateProductDescription } from '../api/aiDescriptionService';
 
 const AddProductScreen = ({ route, navigation }) => {
   const { businessId, vendorProfile } = route.params || {};
@@ -49,6 +50,8 @@ const AddProductScreen = ({ route, navigation }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiGeneratedFeatures, setAiGeneratedFeatures] = useState([]);
 
   const categories = [
     'Electronics',
@@ -76,7 +79,7 @@ const AddProductScreen = ({ route, navigation }) => {
   const pickImage = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
+
       if (status !== 'granted') {
         Alert.alert('Permission Denied', 'We need camera roll permissions to upload images.');
         return;
@@ -101,6 +104,69 @@ const AddProductScreen = ({ route, navigation }) => {
   const removeImage = (index) => {
     const newImages = formData.images.filter((_, i) => i !== index);
     updateField('images', newImages);
+  };
+
+  const handleGenerateWithAI = async () => {
+    try {
+      setGeneralError('');
+
+      // Request image picker permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'We need camera roll permissions to upload images.');
+        return;
+      }
+
+      // Pick image for AI analysis
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        return;
+      }
+
+      const selectedImage = result.assets[0];
+      setAiLoading(true);
+
+      // Call AI service
+      const aiResult = await generateProductDescription(selectedImage, vendorProfile?.vendor_id, false);
+
+      if (aiResult.success && aiResult.data) {
+        const { ai_description } = aiResult.data;
+
+        // Auto-fill form fields
+        setFormData(prev => ({
+          ...prev,
+          titleEn: ai_description.title || prev.titleEn,
+          descriptionEn: ai_description.description || prev.descriptionEn,
+          tags: ai_description.keywords ? ai_description.keywords.join(', ') : prev.tags,
+          images: [...prev.images, selectedImage],
+        }));
+
+        // Store features for display
+        if (ai_description.features && ai_description.features.length > 0) {
+          setAiGeneratedFeatures(ai_description.features);
+        }
+
+        Alert.alert(
+          'Success!',
+          'AI has generated a product description for you. You can edit it before submitting.',
+          [{ text: 'OK' }]
+        );
+      } else {
+        setGeneralError(aiResult.error || 'Failed to generate AI description');
+      }
+    } catch (error) {
+      console.error('❌ AI Generation Error:', error);
+      setGeneralError('Failed to generate AI description. Please try again.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const validateForm = () => {
@@ -145,7 +211,7 @@ const AddProductScreen = ({ route, navigation }) => {
       }));
 
       // Prepare tags array
-      const tags = formData.tags.trim() 
+      const tags = formData.tags.trim()
         ? formData.tags.split(',').map(tag => tag.trim())
         : [];
 
@@ -167,20 +233,21 @@ const AddProductScreen = ({ route, navigation }) => {
       const result = await createListing(listingData);
 
       if (result.success) {
-            console.log('✅ Listing created successfully:', result.data);
-        Alert.alert('Success', 'Product/Service added successfully!',[  { text: 'OK',
-        onPress: () => {
-          navigation.navigate('VendorDashboard', {
-            vendorProfile: vendorProfile,
-            userId: route.params?.userId,
-           refreshListings: true,
-          });
+        console.log('✅ Listing created successfully:', result.data);
+        Alert.alert('Success', 'Product/Service added successfully!', [{
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate('VendorDashboard', {
+              vendorProfile: vendorProfile,
+              userId: route.params?.userId,
+              refreshListings: true,
+            });
+          },
         },
-      },
-     ]
-      );
-}
- else {
+        ]
+        );
+      }
+      else {
         setGeneralError(result.error || 'Failed to create listing');
       }
     } catch (err) {
@@ -241,6 +308,42 @@ const AddProductScreen = ({ route, navigation }) => {
             editable={!loading}
           />
           {errors.titleEn && <Text style={styles.errorText}>{errors.titleEn}</Text>}
+
+          {/* AI Generate Button */}
+          <TouchableOpacity
+            style={styles.aiButton}
+            onPress={handleGenerateWithAI}
+            disabled={loading || aiLoading}
+          >
+            <Ionicons
+              name="sparkles"
+              size={20}
+              color={COLORS.primary}
+              style={styles.aiButtonIcon}
+            />
+            <Text style={styles.aiButtonText}>
+              {aiLoading ? 'Generating with AI...' : 'Generate with AI'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* AI Generated Features */}
+          {aiGeneratedFeatures.length > 0 && (
+            <View style={styles.featuresContainer}>
+              <View style={styles.featuresHeader}>
+                <Ionicons name="bulb" size={18} color={COLORS.primary} />
+                <Text style={styles.featuresTitle}>AI-Generated Features</Text>
+                <TouchableOpacity onPress={() => setAiGeneratedFeatures([])}>
+                  <Ionicons name="close" size={20} color="#999" />
+                </TouchableOpacity>
+              </View>
+              {aiGeneratedFeatures.map((feature, index) => (
+                <View key={index} style={styles.featureItem}>
+                  <Text style={styles.featureBullet}>•</Text>
+                  <Text style={styles.featureText}>{feature}</Text>
+                </View>
+              ))}
+            </View>
+          )}
 
           {/* Title (Urdu) - Optional */}
           <Text style={styles.label}>Title (Urdu)</Text>
@@ -513,6 +616,64 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 24,
     marginBottom: 20,
+  },
+  aiButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F0F4FF',
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  aiButtonIcon: {
+    marginRight: 8,
+  },
+  aiButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  featuresContainer: {
+    backgroundColor: '#F8F9FF',
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.primary,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  featuresHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    justifyContent: 'space-between',
+  },
+  featuresTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginLeft: 6,
+    flex: 1,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    marginTop: 4,
+  },
+  featureBullet: {
+    fontSize: 16,
+    color: COLORS.primary,
+    marginRight: 8,
+    lineHeight: 20,
+  },
+  featureText: {
+    fontSize: 13,
+    color: '#555',
+    flex: 1,
+    lineHeight: 20,
   },
 });
 
