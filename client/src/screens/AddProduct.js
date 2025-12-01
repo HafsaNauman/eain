@@ -28,6 +28,7 @@ import { validateEmail } from '../utils/validation';
 //import { createListing } from '../api/listingService';
 import { createListing } from '../api/VendorService';
 import { generateProductDescription } from '../api/aiDescriptionService';
+import { uploadMultipleProductImages } from '../api/uploadService'; // Add this import
 
 const AddProductScreen = ({ route, navigation }) => {
   const { businessId, vendorProfile } = route.params || {};
@@ -81,23 +82,57 @@ const AddProductScreen = ({ route, navigation }) => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'We need camera roll permissions to upload images.');
+        Alert.alert('Permission Denied', 'We need camera roll permissions.');
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
+        allowsMultipleSelection: true,
         quality: 0.8,
+        aspect: [4, 3],
+        selectionLimit: 5, // Limit to 5 images
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        updateField('images', [...formData.images, result.assets[0]]);
+        const localUris = result.assets.map(asset => asset.uri);
+
+        // Show uploading progress
+        Alert.alert('Uploading', `Uploading ${localUris.length} images...`);
+        setLoading(true);
+
+        try {
+          // Upload all images to Supabase
+          const uploadResult = await uploadMultipleProductImages(localUris);
+
+          if (uploadResult.success && uploadResult.imageUrls.length > 0) {
+            // Add Supabase URLs to product images
+            setProductImages(prev => [...prev, ...uploadResult.imageUrls]);
+
+            if (uploadResult.failedCount > 0) {
+              Alert.alert(
+                'Partial Success',
+                `${uploadResult.imageUrls.length} images uploaded successfully. ${uploadResult.failedCount} failed.`
+              );
+            } else {
+              Alert.alert(
+                'Success',
+                `All ${uploadResult.imageUrls.length} images uploaded successfully!`
+              );
+            }
+          } else {
+            Alert.alert('Upload Failed', uploadResult.error || 'No images were uploaded');
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          Alert.alert('Error', 'Failed to upload images');
+        } finally {
+          setLoading(false);
+        }
       }
     } catch (error) {
       console.error('Image picker error:', error);
-      Alert.alert('Error', 'Failed to pick image');
+      Alert.alert('Error', 'Failed to select images');
     }
   };
 
