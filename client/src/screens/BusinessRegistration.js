@@ -1741,7 +1741,8 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
       };
 
       console.log('📤 Sending profile data:', profileData);
-      const result = await createVendorProfile(profileData);
+      // const result = await createVendorProfile(profileData);
+      const result = await createVendorProfile(profileData, token);
 
       if (result.success) {
         console.log('✅ Profile created successfully:', result.data);
