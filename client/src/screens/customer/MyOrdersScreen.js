@@ -105,6 +105,9 @@ const MyOrdersScreen = ({ navigation }) => {
             ? order.vendor.business_name_ur
             : order.vendor?.business_name_en || 'Vendor';
 
+        // ✅ FIXED: Extract image URL correctly from media array
+        const imageUrl = order.listing?.media?.[0]?.image_url || 'https://via.placeholder.com/80?text=No+Image';
+
         return (
             <TouchableOpacity
                 style={styles.orderCard}
@@ -128,9 +131,7 @@ const MyOrdersScreen = ({ navigation }) => {
                 {/* Order Content */}
                 <View style={styles.orderContent}>
                     <Image
-                        source={{
-                            uri: order.listing?.media?.images?.[0] || 'https://via.placeholder.com/80',
-                        }}
+                        source={{ uri: imageUrl }}
                         style={styles.thumbnail}
                     />
                     <View style={styles.orderInfo}>
