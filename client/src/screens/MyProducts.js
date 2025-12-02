@@ -17,13 +17,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { COLORS } from '../constants/colors';
-import { getVendorListings } from '../api/VendorService';
-import { deleteListing } from '../api/VendorService';
-//            ^ add deleteListing import
-
+import { getVendorListings, deleteListing } from '../api/VendorService';
 
 const MyProductsScreen = ({ route, navigation }) => {
+  const { i18n, t } = useTranslation();
+  const isUrdu = i18n.language === 'ur';
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -58,27 +59,29 @@ const MyProductsScreen = ({ route, navigation }) => {
   };
 
   const handleDeleteProduct = (item) => {
+    const productTitle = isUrdu && item.title_ur ? item.title_ur : item.title_en;
+
     Alert.alert(
-      'Delete Product',
-      `Delete "${item.title_en}"?`,
+      t('myProducts.confirmDelete'),
+      `${t('myProducts.deleteMessage')} "${productTitle}"?`,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('myProducts.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               const result = await deleteListing(item.listing_id);
               if (!result.success) {
-                Alert.alert('Error', result.error || 'Failed to delete product');
+                Alert.alert(t('common.error'), result.error || t('addProduct.errors.updateFailed'));
               } else {
-                // Remove from local state so list updates immediately
                 setProducts(prev =>
                   prev.filter(p => p.listing_id !== item.listing_id)
                 );
+                Alert.alert(t('common.success'), t('myProducts.productDeleted'));
               }
             } catch (e) {
-              Alert.alert('Error', 'Failed to delete product');
+              Alert.alert(t('common.error'), t('addProduct.errors.updateFailed'));
             }
           },
         },
@@ -86,80 +89,82 @@ const MyProductsScreen = ({ route, navigation }) => {
     );
   };
 
+  const renderProductCard = ({ item }) => {
+    const productTitle = isUrdu && item.title_ur ? item.title_ur : item.title_en;
+    const productDescription = isUrdu && item.description_ur ? item.description_ur : item.description_en;
 
-  const renderProductCard = ({ item }) => (
-    <TouchableOpacity
-      style={styles.productCard}
-      onPress={() => navigation.navigate('VendorProductDetail', { product: item })}
-    >
-      <View style={styles.productImageContainer}>
-        {item.media && item.media.length > 0 && item.media[0].image_url ? (
-          <Image
-            source={{ uri: item.media[0].image_url }}
-            style={styles.productImage}
-          />
-        ) : (
-          <View style={styles.productImagePlaceholder}>
-            <Ionicons name="image-outline" size={40} color="#ccc" />
-          </View>
-        )}
+    return (
+      <TouchableOpacity
+        style={styles.productCard}
+        onPress={() => navigation.navigate('VendorProductDetail', { product: item })}
+      >
+        <View style={styles.productImageContainer}>
+          {item.media && item.media.length > 0 && item.media[0].image_url ? (
+            <Image
+              source={{ uri: item.media[0].image_url }}
+              style={styles.productImage}
+            />
+          ) : (
+            <View style={styles.productImagePlaceholder}>
+              <Ionicons name="image-outline" size={40} color="#ccc" />
+            </View>
+          )}
 
-        <View style={[styles.badge, styles.activeBadge]}>
-          <Text style={styles.badgeText}>Active</Text>
-        </View>
-      </View>
-
-      <View style={styles.productInfo}>
-        <Text style={styles.productTitle}>{item.title_en}</Text>
-        <Text style={styles.productDescription}>
-          {item.description_en || 'No description'}
-        </Text>
-
-        <View style={styles.productFooter}>
-          <View>
-            <Text style={styles.productPrice}>
-              Rs {item.price?.toLocaleString()}
-            </Text>
-            <Text style={styles.productType}>
-              {item.listing_type || 'product'}
-            </Text>
-          </View>
-
-          <View style={styles.actions}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() =>
-                navigation.navigate('ProductDetail', { product: item })
-              }
-            >
-              <Ionicons name="create-outline" size={20} color="#111" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => handleDeleteProduct(item)}
-            >
-              <Ionicons name="trash-outline" size={20} color="#ef4444" />
-            </TouchableOpacity>
-
+          <View style={[styles.badge, styles.activeBadge]}>
+            <Text style={styles.badgeText}>{t('vendorOrders.confirmed')}</Text>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
 
+        <View style={styles.productInfo}>
+          <Text style={styles.productTitle}>{productTitle}</Text>
+          <Text style={styles.productDescription} numberOfLines={2}>
+            {productDescription || t('addProduct.productDescription')}
+          </Text>
+
+          <View style={styles.productFooter}>
+            <View>
+              <Text style={styles.productPrice}>
+                Rs {item.price?.toLocaleString()}
+              </Text>
+              <Text style={styles.productType}>
+                {item.listing_type === 'product' ? t('businessReg.product') : t('businessReg.service')}
+              </Text>
+            </View>
+
+            <View style={styles.actions}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() =>
+                  navigation.navigate('ProductDetail', { product: item })
+                }
+              >
+                <Ionicons name="create-outline" size={20} color="#111" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleDeleteProduct(item)}
+              >
+                <Ionicons name="trash-outline" size={20} color="#ef4444" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       <Ionicons name="cube-outline" size={80} color="#ccc" />
-      <Text style={styles.emptyTitle}>No Products Yet</Text>
-      <Text style={styles.emptyText}>Start adding products to grow your business</Text>
+      <Text style={styles.emptyTitle}>{t('myProducts.noProducts')}</Text>
+      <Text style={styles.emptyText}>{t('myProducts.noProductsMessage')}</Text>
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('AddProduct', route.params)}
       >
         <Ionicons name="add" size={20} color="#fff" />
-        <Text style={styles.addButtonText}>Add Product</Text>
+        <Text style={styles.addButtonText}>{t('myProducts.addProduct')}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -171,12 +176,12 @@ const MyProductsScreen = ({ route, navigation }) => {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color="#333" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>My Products</Text>
+          <Text style={styles.headerTitle}>{t('myProducts.title')}</Text>
           <View style={{ width: 24 }} />
         </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Loading products...</Text>
+          <Text style={styles.loadingText}>{t('myProducts.loadingProducts')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -188,7 +193,7 @@ const MyProductsScreen = ({ route, navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Products</Text>
+        <Text style={styles.headerTitle}>{t('myProducts.title')}</Text>
         <TouchableOpacity onPress={() => navigation.navigate('AddProduct', route.params)}>
           <Ionicons name="add-circle-outline" size={24} color={COLORS.primary} />
         </TouchableOpacity>
@@ -196,9 +201,11 @@ const MyProductsScreen = ({ route, navigation }) => {
 
       <View style={styles.statsBar}>
         <Text style={styles.statsText}>
-          {products.length} {products.length === 1 ? 'Product' : 'Products'}
+          {products.length} {products.length === 1
+            ? t('vendorOrders.product')
+            : t('vendorDashboard.totalProducts')}
         </Text>
-        <TouchableOpacity onPress={() => alert('Filter - Coming Soon!')}>
+        <TouchableOpacity onPress={() => Alert.alert(t('common.success'), 'Coming Soon!')}>
           <Ionicons name="filter-outline" size={20} color="#666" />
         </TouchableOpacity>
       </View>
@@ -207,10 +214,13 @@ const MyProductsScreen = ({ route, navigation }) => {
         data={products}
         renderItem={renderProductCard}
         keyExtractor={(item) => item.listing_id.toString()}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          products.length === 0 && styles.emptyListContent
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
         }
         ListEmptyComponent={renderEmpty}
       />
@@ -254,6 +264,9 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+  },
+  emptyListContent: {
+    flexGrow: 1,
   },
   productCard: {
     backgroundColor: '#fff',
@@ -370,6 +383,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999',
     marginBottom: 24,
+    textAlign: 'center',
+    paddingHorizontal: 40,
   },
   addButton: {
     flexDirection: 'row',

@@ -26,7 +26,7 @@ const VendorInfoScreen = ({ route, navigation }) => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     businessName: initialData.business_name_en || initialData.businessName || '',
     businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
@@ -161,14 +161,14 @@ const VendorInfoScreen = ({ route, navigation }) => {
         {/* Basic Details */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Details</Text>
-          
+
           <InfoField
             icon="business-outline"
             label="Business Name (English)"
             value={formData.businessName}
             field="businessName"
           />
-          
+
           <InfoField
             icon="business-outline"
             label="Business Name (Urdu)"
@@ -254,7 +254,7 @@ const VendorInfoScreen = ({ route, navigation }) => {
         {/* Contact Information */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Contact Information</Text>
-          
+
           <InfoField
             icon="mail-outline"
             label="Email"
@@ -262,7 +262,7 @@ const VendorInfoScreen = ({ route, navigation }) => {
             field="email"
             editable={false}
           />
-          
+
           <InfoField
             icon="call-outline"
             label="Phone"
@@ -270,7 +270,7 @@ const VendorInfoScreen = ({ route, navigation }) => {
             field="phone"
             editable={false}
           />
-          
+
           <InfoField
             icon="location-outline"
             label="Address"
@@ -298,7 +298,7 @@ const VendorInfoScreen = ({ route, navigation }) => {
         {/* Description */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Description</Text>
-          
+
           <InfoField
             icon="document-text-outline"
             label="Description (English)"

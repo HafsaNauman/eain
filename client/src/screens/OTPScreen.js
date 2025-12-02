@@ -33,7 +33,7 @@ const OTPScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
-  
+
   // Refs for OTP inputs
   const inputRefs = useRef([]);
 
@@ -52,7 +52,7 @@ const OTPScreen = ({ route, navigation }) => {
   const handleOTPChange = (text, index) => {
     // Only allow digits
     const digit = text.replace(/\D/g, '');
-    
+
     // Update OTP array
     const newOtp = [...otp];
     newOtp[index] = digit.slice(-1); // Only take last digit
@@ -133,7 +133,7 @@ const OTPScreen = ({ route, navigation }) => {
   const handleVoiceTranscription = (transcribedText) => {
     // Extract 6 digits from transcribed text
     const digits = transcribedText.replace(/\D/g, '').slice(0, 6);
-    
+
     if (digits.length === 6) {
       const newOtp = digits.split('');
       setOtp(newOtp);

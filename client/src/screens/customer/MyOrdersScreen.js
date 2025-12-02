@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { getMyOrders } from '../../api/orderService';
 
 const MyOrdersScreen = ({ navigation }) => {
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
     const isUrdu = i18n.language === 'ur';
 
     const [orders, setOrders] = useState([]);
@@ -49,12 +49,12 @@ const MyOrdersScreen = ({ navigation }) => {
             } else {
                 setError(result.error);
                 if (!isRefresh) {
-                    Alert.alert('Error', result.error);
+                    Alert.alert(t('common.error'), result.error);
                 }
             }
         } catch (err) {
             console.error('❌ Fetch Orders Error:', err);
-            setError('Failed to load orders');
+            setError(t('errors.networkError'));
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -105,7 +105,7 @@ const MyOrdersScreen = ({ navigation }) => {
             ? order.vendor.business_name_ur
             : order.vendor?.business_name_en || 'Vendor';
 
-        // ✅ FIXED: Extract image URL correctly from media array
+        // Extract image URL correctly from media array
         const imageUrl = order.listing?.media?.[0]?.image_url || 'https://via.placeholder.com/80?text=No+Image';
 
         return (
@@ -118,12 +118,12 @@ const MyOrdersScreen = ({ navigation }) => {
                 <View style={styles.orderHeader}>
                     <View style={styles.orderIdRow}>
                         <Ionicons name="receipt-outline" size={16} color="#666" />
-                        <Text style={styles.orderId}>Order #{order.order_id}</Text>
+                        <Text style={styles.orderId}>{t('orderDetails.orderNumber')} #{order.order_id}</Text>
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
                         <Ionicons name={statusIcon} size={14} color="#fff" />
                         <Text style={styles.statusText}>
-                            {order.status?.toUpperCase()}
+                            {t(`myOrders.${order.status?.toLowerCase()}`)}
                         </Text>
                     </View>
                 </View>
@@ -140,7 +140,7 @@ const MyOrdersScreen = ({ navigation }) => {
                         </Text>
                         <View style={styles.infoRow}>
                             <Ionicons name="cube-outline" size={14} color="#666" />
-                            <Text style={styles.infoText}>Qty: {order.quantity}</Text>
+                            <Text style={styles.infoText}>{t('myOrders.quantity')}: {order.quantity}</Text>
                         </View>
                         <View style={styles.infoRow}>
                             <Ionicons name="storefront-outline" size={14} color="#666" />
@@ -151,7 +151,7 @@ const MyOrdersScreen = ({ navigation }) => {
                         <View style={styles.infoRow}>
                             <Ionicons name="card-outline" size={14} color="#666" />
                             <Text style={styles.infoText}>
-                                {order.payment_method === 'cod' ? 'Cash on Delivery' : 'Bank Transfer'}
+                                {order.payment_method === 'cod' ? t('myOrders.cashOnDelivery') : t('myOrders.bankTransfer')}
                             </Text>
                         </View>
                     </View>
@@ -160,7 +160,7 @@ const MyOrdersScreen = ({ navigation }) => {
                 {/* Order Footer */}
                 <View style={styles.orderFooter}>
                     <View style={styles.footerLeft}>
-                        <Text style={styles.amountLabel}>Total Amount</Text>
+                        <Text style={styles.amountLabel}>{t('myOrders.totalAmount')}</Text>
                         <Text style={styles.amount}>
                             PKR {order.total_amount?.toLocaleString()}
                         </Text>
@@ -181,7 +181,7 @@ const MyOrdersScreen = ({ navigation }) => {
 
                 {/* View Details Arrow */}
                 <View style={styles.viewDetailsRow}>
-                    <Text style={styles.viewDetailsText}>View Details</Text>
+                    <Text style={styles.viewDetailsText}>{t('myOrders.viewDetails')}</Text>
                     <Ionicons name="chevron-forward" size={16} color="#036c5f" />
                 </View>
             </TouchableOpacity>
@@ -191,15 +191,15 @@ const MyOrdersScreen = ({ navigation }) => {
     const renderEmpty = () => (
         <View style={styles.emptyContainer}>
             <Ionicons name="basket-outline" size={80} color="#ccc" />
-            <Text style={styles.emptyTitle}>No Orders Yet</Text>
+            <Text style={styles.emptyTitle}>{t('myOrders.noOrders')}</Text>
             <Text style={styles.emptySubtitle}>
-                Start shopping to see your orders here
+                {t('myOrders.noOrdersMessage')}
             </Text>
             <TouchableOpacity
                 style={styles.shopButton}
                 onPress={() => navigation.navigate('Home')}
             >
-                <Text style={styles.shopButtonText}>Start Shopping</Text>
+                <Text style={styles.shopButtonText}>{t('myOrders.startShopping')}</Text>
             </TouchableOpacity>
         </View>
     );
@@ -208,7 +208,7 @@ const MyOrdersScreen = ({ navigation }) => {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#036c5f" />
-                <Text style={styles.loadingText}>Loading orders...</Text>
+                <Text style={styles.loadingText}>{t('myOrders.loadingOrders')}</Text>
             </View>
         );
     }
@@ -217,7 +217,7 @@ const MyOrdersScreen = ({ navigation }) => {
         <SafeAreaView style={styles.container} edges={['top']}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>My Orders</Text>
+                <Text style={styles.headerTitle}>{t('myOrders.title')}</Text>
                 <TouchableOpacity onPress={onRefresh}>
                     <Ionicons name="refresh" size={24} color="#036c5f" />
                 </TouchableOpacity>
@@ -229,7 +229,7 @@ const MyOrdersScreen = ({ navigation }) => {
                     <Ionicons name="alert-circle" size={20} color="#ff6b6b" />
                     <Text style={styles.errorText}>{error}</Text>
                     <TouchableOpacity onPress={() => fetchMyOrders()}>
-                        <Text style={styles.retryText}>Retry</Text>
+                        <Text style={styles.retryText}>{t('myOrders.retry')}</Text>
                     </TouchableOpacity>
                 </View>
             )}
