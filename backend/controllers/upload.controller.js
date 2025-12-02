@@ -89,6 +89,7 @@ export const uploadVendorImage = async (req, res) => {
       .from('vendor-images')
       .getPublicUrl(fileName);
 
+    console.log("UPLOAD CONTROLLER: Final Image URL:", data.publicUrl);
     // Delete temp file
     fs.unlinkSync(file.path);
 
