@@ -91,34 +91,32 @@ const AddProductScreen = ({ route, navigation }) => {
         allowsMultipleSelection: true,
         quality: 0.8,
         aspect: [4, 3],
-        selectionLimit: 5, // Limit to 5 images
+        selectionLimit: 5,
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const localUris = result.assets.map(asset => asset.uri);
 
-        // Show uploading progress
         Alert.alert('Uploading', `Uploading ${localUris.length} images...`);
         setLoading(true);
 
         try {
-          // Upload all images to Supabase
           const uploadResult = await uploadMultipleProductImages(localUris);
 
           if (uploadResult.success && uploadResult.imageUrls.length > 0) {
-            // Add Supabase URLs to product images
-            setProductImages(prev => [...prev, ...uploadResult.imageUrls]);
+            // ✅ Convert Supabase URLs to the format formData.images expects
+            const newImages = uploadResult.imageUrls.map(url => ({ uri: url }));
+
+            // ✅ Add to existing images using updateField
+            updateField('images', [...formData.images, ...newImages]);
 
             if (uploadResult.failedCount > 0) {
               Alert.alert(
                 'Partial Success',
-                `${uploadResult.imageUrls.length} images uploaded successfully. ${uploadResult.failedCount} failed.`
+                `${uploadResult.imageUrls.length} images uploaded. ${uploadResult.failedCount} failed.`
               );
             } else {
-              Alert.alert(
-                'Success',
-                `All ${uploadResult.imageUrls.length} images uploaded successfully!`
-              );
+              Alert.alert('Success', `All ${uploadResult.imageUrls.length} images uploaded!`);
             }
           } else {
             Alert.alert('Upload Failed', uploadResult.error || 'No images were uploaded');
@@ -135,6 +133,7 @@ const AddProductScreen = ({ route, navigation }) => {
       Alert.alert('Error', 'Failed to select images');
     }
   };
+
 
   const removeImage = (index) => {
     const newImages = formData.images.filter((_, i) => i !== index);
@@ -166,35 +165,55 @@ const AddProductScreen = ({ route, navigation }) => {
       }
 
       const selectedImage = result.assets[0];
+      const localUri = selectedImage.uri;
+
       setAiLoading(true);
 
-      // Call AI service
-      const aiResult = await generateProductDescription(selectedImage, vendorProfile?.vendor_id, false);
+      try {
+        // ✅ STEP 1: Upload image to Supabase first
+        console.log('📤 [AI] Uploading image to Supabase...');
+        const uploadResult = await uploadMultipleProductImages([localUri]);
 
-      if (aiResult.success && aiResult.data) {
-        const { ai_description } = aiResult.data;
-
-        // Auto-fill form fields
-        setFormData(prev => ({
-          ...prev,
-          titleEn: ai_description.title || prev.titleEn,
-          descriptionEn: ai_description.description || prev.descriptionEn,
-          tags: ai_description.keywords ? ai_description.keywords.join(', ') : prev.tags,
-          images: [...prev.images, selectedImage],
-        }));
-
-        // Store features for display
-        if (ai_description.features && ai_description.features.length > 0) {
-          setAiGeneratedFeatures(ai_description.features);
+        if (!uploadResult.success || uploadResult.imageUrls.length === 0) {
+          Alert.alert('Error', 'Failed to upload image to server');
+          return;
         }
 
-        Alert.alert(
-          'Success!',
-          'AI has generated a product description for you. You can edit it before submitting.',
-          [{ text: 'OK' }]
-        );
-      } else {
-        setGeneralError(aiResult.error || 'Failed to generate AI description');
+        const supabaseImageUrl = uploadResult.imageUrls[0];
+        console.log('✅ [AI] Image uploaded to Supabase:', supabaseImageUrl);
+
+        // ✅ STEP 2: Call AI service with the selected image
+        console.log('🤖 [AI] Generating description...');
+        const aiResult = await generateProductDescription(selectedImage, vendorProfile?.vendor_id, false);
+
+        if (aiResult.success && aiResult.data) {
+          const { ai_description } = aiResult.data;
+
+          // ✅ STEP 3: Auto-fill form fields with Supabase URL
+          setFormData(prev => ({
+            ...prev,
+            titleEn: ai_description.title || prev.titleEn,
+            descriptionEn: ai_description.description || prev.descriptionEn,
+            tags: ai_description.keywords ? ai_description.keywords.join(', ') : prev.tags,
+            images: [...prev.images, { uri: supabaseImageUrl }], // ✅ Store Supabase URL, not local
+          }));
+
+          // Store features for display
+          if (ai_description.features && ai_description.features.length > 0) {
+            setAiGeneratedFeatures(ai_description.features);
+          }
+
+          Alert.alert(
+            'Success!',
+            'AI has generated a product description for you. You can edit it before submitting.',
+            [{ text: 'OK' }]
+          );
+        } else {
+          setGeneralError(aiResult.error || 'Failed to generate AI description');
+        }
+      } catch (uploadError) {
+        console.error('❌ [AI] Upload or generation error:', uploadError);
+        Alert.alert('Error', 'Failed to process image. Please try again.');
       }
     } catch (error) {
       console.error('❌ AI Generation Error:', error);
