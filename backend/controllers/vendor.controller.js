@@ -62,7 +62,9 @@ export const createOrUpdateProfile = async (req, res) => {
         city,
         area,
         location,
-        is_female_only: is_female_only !== undefined ? is_female_only : true,
+        // is_female_only: is_female_only !== undefined ? is_female_only : true,
+        is_female_only: is_female_only !== undefined ? is_female_only : false,
+
         media,
       },
       {
