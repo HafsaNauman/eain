@@ -19,28 +19,53 @@ import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { COLORS } from '../constants/colors';
 import { updateVendorProfile } from '../api/VendorService';
+import { useAuth } from '../context/AuthContext';
+
 
 const VendorInfoScreen = ({ route, navigation }) => {
   const { profile, businessData } = route.params || {};
+
+//changed tuesday 2/12/25
+const { user } = useAuth();
+
+const signupEmail = user?.email || user?.user_email || '';
+const signupPhone = user?.phone_number || user?.phone || '';
+
+
   const initialData = profile || businessData || {};
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   
+  // const [formData, setFormData] = useState({
+  //   businessName: initialData.business_name_en || initialData.businessName || '',
+  //   businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
+  //   category: initialData.category || initialData.businessCategory || '',
+  //   businessType: initialData.vendor_type || initialData.businessType || '',
+  //   email: initialData.business_email || initialData.businessEmail || '',
+  //   phone: initialData.business_phone || initialData.businessPhone || '',
+  //   address: initialData.office_address || initialData.officeAddress || '',
+  //   city: initialData.city || '',
+  //   area: initialData.area || '',
+  //   description: initialData.description_en || initialData.businessDescription || '',
+  //   descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
+  //   isFemaleOnly: initialData.is_female_only || false,
+  // });
   const [formData, setFormData] = useState({
-    businessName: initialData.business_name_en || initialData.businessName || '',
-    businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
-    category: initialData.category || initialData.businessCategory || '',
-    businessType: initialData.vendor_type || initialData.businessType || '',
-    email: initialData.business_email || initialData.businessEmail || '',
-    phone: initialData.business_phone || initialData.businessPhone || '',
-    address: initialData.office_address || initialData.officeAddress || '',
-    city: initialData.city || '',
-    area: initialData.area || '',
-    description: initialData.description_en || initialData.businessDescription || '',
-    descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
-    isFemaleOnly: initialData.is_female_only || false,
-  });
+  businessName: initialData.business_name_en || initialData.businessName || '',
+  businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
+  category: initialData.category || initialData.businessCategory || '',
+  businessType: initialData.vendor_type || initialData.businessType || '',
+  email: signupEmail || initialData.business_email || initialData.businessEmail || '',
+  phone: signupPhone || initialData.business_phone || initialData.businessPhone || '',
+  address: initialData.office_address || initialData.officeAddress || '',
+  city: initialData.city || '',
+  area: initialData.area || '',
+  description: initialData.description_en || initialData.businessDescription || '',
+  descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
+  isFemaleOnly: initialData.is_female_only || false,
+});
+
 
   const categories = [
     'Electronics',
@@ -96,48 +121,88 @@ const VendorInfoScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleCancel = () => {
-    // Reset form data
-    setFormData({
-      businessName: initialData.business_name_en || initialData.businessName || '',
-      businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
-      category: initialData.category || initialData.businessCategory || '',
-      businessType: initialData.vendor_type || initialData.businessType || '',
-      email: initialData.business_email || initialData.businessEmail || '',
-      phone: initialData.business_phone || initialData.businessPhone || '',
-      address: initialData.office_address || initialData.officeAddress || '',
-      city: initialData.city || '',
-      area: initialData.area || '',
-      description: initialData.description_en || initialData.businessDescription || '',
-      descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
-      isFemaleOnly: initialData.is_female_only || false,
-    });
-    setIsEditing(false);
-  };
+  // const handleCancel = () => {
+  //   // Reset form data
+  //   setFormData({
+  //     businessName: initialData.business_name_en || initialData.businessName || '',
+  //     businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
+  //     category: initialData.category || initialData.businessCategory || '',
+  //     businessType: initialData.vendor_type || initialData.businessType || '',
+  //     email: initialData.business_email || initialData.businessEmail || '',
+  //     phone: initialData.business_phone || initialData.businessPhone || '',
+  //     address: initialData.office_address || initialData.officeAddress || '',
+  //     city: initialData.city || '',
+  //     area: initialData.area || '',
+  //     description: initialData.description_en || initialData.businessDescription || '',
+  //     descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
+  //     isFemaleOnly: initialData.is_female_only || false,
+  //   });
+  //   setIsEditing(false);
+  // };
+const handleCancel = () => {
+  setFormData({
+    businessName: initialData.business_name_en || initialData.businessName || '',
+    businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
+    category: initialData.category || initialData.businessCategory || '',
+    businessType: initialData.vendor_type || initialData.businessType || '',
+    email: signupEmail || initialData.business_email || initialData.businessEmail || '',
+    phone: signupPhone || initialData.business_phone || initialData.businessPhone || '',
+    address: initialData.office_address || initialData.officeAddress || '',
+    city: initialData.city || '',
+    area: initialData.area || '',
+    description: initialData.description_en || initialData.businessDescription || '',
+    descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
+    isFemaleOnly: initialData.is_female_only || false,
+  });
+  setIsEditing(false);
+};
 
-  const InfoField = ({ icon, label, value, field, multiline = false, editable = true }) => (
-    <View style={styles.infoItem}>
-      <View style={styles.infoHeader}>
-        <View style={styles.infoLeft}>
-          <Ionicons name={icon} size={20} color={COLORS.primary} />
-          <Text style={styles.infoLabel}>{label}</Text>
-        </View>
+  // const InfoField = ({ icon, label, value, field, multiline = false, editable = true }) => (
+  //   <View style={styles.infoItem}>
+  //     <View style={styles.infoHeader}>
+  //       <View style={styles.infoLeft}>
+  //         <Ionicons name={icon} size={20} color={COLORS.primary} />
+  //         <Text style={styles.infoLabel}>{label}</Text>
+  //       </View>
+  //     </View>
+  //     {isEditing && editable ? (
+  //       <TextInput
+  //         style={[styles.input, multiline && styles.multilineInput]}
+  //         value={value}
+  //         onChangeText={(text) => setFormData({ ...formData, [field]: text })}
+  //         placeholder={`Enter ${label.toLowerCase()}`}
+  //         placeholderTextColor="#999"
+  //         multiline={multiline}
+  //         editable={!loading}
+  //       />
+  //     ) : (
+  //       <Text style={styles.infoValue}>{value || 'Not provided'}</Text>
+  //     )}
+  //   </View>
+  // );
+const InfoField = ({ icon, label, value, field, multiline = false }) => (
+  <View style={styles.infoItem}>
+    <View style={styles.infoHeader}>
+      <View style={styles.infoLeft}>
+        <Ionicons name={icon} size={20} color={COLORS.primary} />
+        <Text style={styles.infoLabel}>{label}</Text>
       </View>
-      {isEditing && editable ? (
-        <TextInput
-          style={[styles.input, multiline && styles.multilineInput]}
-          value={value}
-          onChangeText={(text) => setFormData({ ...formData, [field]: text })}
-          placeholder={`Enter ${label.toLowerCase()}`}
-          placeholderTextColor="#999"
-          multiline={multiline}
-          editable={!loading}
-        />
-      ) : (
-        <Text style={styles.infoValue}>{value || 'Not provided'}</Text>
-      )}
     </View>
-  );
+    {isEditing ? (
+      <TextInput
+        style={[styles.input, multiline && styles.multilineInput]}
+        value={value}
+        onChangeText={(text) => setFormData({ ...formData, [field]: text })}
+        placeholder={`Enter ${label.toLowerCase()}`}
+        placeholderTextColor="#999"
+        multiline={multiline}
+        editable={!loading}
+      />
+    ) : (
+      <Text style={styles.infoValue}>{value || 'Not provided'}</Text>
+    )}
+  </View>
+);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -258,7 +323,7 @@ const VendorInfoScreen = ({ route, navigation }) => {
             label="Email"
             value={formData.email}
             field="email"
-            editable={false}
+            // editable={false}
           />
           
           <InfoField
@@ -266,17 +331,17 @@ const VendorInfoScreen = ({ route, navigation }) => {
             label="Phone"
             value={formData.phone}
             field="phone"
-            editable={false}
+            // editable={false}
           />
           
-          <InfoField
+          {/* <InfoField
             icon="location-outline"
             label="Address"
             value={formData.address}
             field="address"
             multiline
-            editable={false}
-          />
+            // editable={false}
+          /> */}
 
           <InfoField
             icon="business-outline"
