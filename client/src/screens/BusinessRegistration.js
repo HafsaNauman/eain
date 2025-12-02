@@ -2336,7 +2336,6 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-
       if (status !== 'granted') {
         Alert.alert(
           t('businessReg.alerts.permissionDenied'),
@@ -2345,7 +2344,6 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
         return;
       }
 
-
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -2353,40 +2351,44 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
         quality: 0.8,
       });
 
-
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const localUri = result.assets[0].uri;
 
-        // Show uploading state
+        // Show uploading indicator
         setLoading(true);
 
         try {
-          console.log('📤 Uploading logo to Supabase...');
+          console.log('📤 [pickImage] Uploading logo to Supabase...');
 
           // Upload to Supabase via backend
           const uploadResult = await uploadVendorImage(localUri, 'logo');
 
           if (uploadResult.success) {
-            // Store Supabase URL (NOT local URI)
-            updateField('logo', {
-              uri: uploadResult.imageUrl, // ✅ This is Supabase URL
-              ...result.assets[0],
-            });
+            // ✅ CRITICAL: Only store Supabase URL, nothing else
+            const supabaseUrl = uploadResult.imageUrl;
 
-            console.log('✅ Logo uploaded successfully:', uploadResult.imageUrl);
+            console.log('✅ THIS SHOULD BE SUPABASE URL [pickImage] Supabase URL received:', supabaseUrl);
+
+            // Store ONLY the Supabase URL
+            // updateField('logo', { uri: supabaseUrl });
+            updateField('logo', supabaseUrl);
+
+
+            console.log('✅ [pickImage] formData.logo updated with Supabase URL');
+
             Alert.alert(
               t('common.success') || 'Success',
               'Logo uploaded successfully!'
             );
           } else {
-            console.error('❌ Upload failed:', uploadResult.error);
+            console.error('❌ [pickImage] Upload failed:', uploadResult.error);
             Alert.alert(
               t('common.error') || 'Error',
               uploadResult.error || 'Failed to upload logo'
             );
           }
         } catch (uploadError) {
-          console.error('❌ Upload exception:', uploadError);
+          console.error('❌ [pickImage] Upload exception:', uploadError);
           Alert.alert(
             t('common.error') || 'Error',
             'Failed to upload image to server'
@@ -2396,13 +2398,15 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
         }
       }
     } catch (error) {
-      console.error('Image picker error:', error);
+      console.error('❌ [pickImage] Image picker error:', error);
       Alert.alert(
         t('common.error') || 'Error',
         t('businessReg.alerts.imagePickerError') || 'Failed to pick image'
       );
     }
   };
+
+
 
 
   const validateForm = () => {
@@ -2472,11 +2476,12 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
         area: formData.area.trim(),
         location: null,
         is_female_only: false,
-        media: formData.logo ? { logo_url: formData.logo.uri } : null,
+        // media: formData.logo ? { logo_url: formData.logo.uri } : null,
+        media: formData.logo ? { logo_url: formData.logo } : null,
       };
 
 
-      console.log('📤 [BusinessRegistration] Sending profile data:', profileData);
+      console.log('HANDLE SUBMIT📤 [BusinessRegistration] Sending profile data:', profileData.media);
       const result = await createVendorProfile(profileData);
 
 
