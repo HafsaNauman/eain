@@ -10,7 +10,7 @@ import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 export const uploadVendorImage = async (req, res) => {
   try {
     const file = req.file;
-    
+
     if (!file) {
       return errorResponse(res, 400, 'No file uploaded');
     }
@@ -37,6 +37,7 @@ export const uploadVendorImage = async (req, res) => {
       .from('vendor-images')
       .getPublicUrl(fileName);
 
+    console.log("UPLOAD CONTROLLER: Final Image URL:", data.publicUrl);
     // Delete temp file
     fs.unlinkSync(file.path);
 
