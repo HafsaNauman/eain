@@ -46,6 +46,8 @@ const CustomerProductScreen = ({ route, navigation }) => {
 
             if (result.success) {
                 setProduct(result.data);
+                console.log('📦 Product loaded:', result.data);
+                console.log('🖼️ Product media:', result.data.media);
             } else {
                 setError(result.error);
                 Alert.alert('Error', result.error);
@@ -91,7 +93,11 @@ const CustomerProductScreen = ({ route, navigation }) => {
         );
     }
 
-    const images = product.media?.images || ['https://via.placeholder.com/400'];
+    // ✅ FIXED: Extract images correctly from media array
+    const images = product.media && product.media.length > 0
+        ? product.media.map(item => item.image_url)
+        : ['https://via.placeholder.com/400?text=No+Image'];
+
     const title = isUrdu && product.title_ur ? product.title_ur : product.title_en;
     const description = isUrdu && product.description_ur ? product.description_ur : product.description_en;
 
