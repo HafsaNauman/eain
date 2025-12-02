@@ -47,7 +47,7 @@ export const createListing = async (req, res) => {
       category,
       tags,
       media,
-      is_female_only: is_female_only !== undefined ? is_female_only : true,
+      is_female_only: is_female_only !== undefined ? is_female_only : false,
     });
 
     return successResponse(res, 201, 'Listing created successfully', { listing });

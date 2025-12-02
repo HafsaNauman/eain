@@ -68,7 +68,8 @@ const Listing = sequelize.define(
     is_female_only: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
+      // defaultValue: true,
+      defaultValue: false,
     },
     is_active: {
       type: DataTypes.BOOLEAN,
