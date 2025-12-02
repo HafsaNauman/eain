@@ -287,10 +287,10 @@ const SupportInfoScreen = ({ route, navigation }) => {
           style={[styles.tab, activeTab === 'help' && styles.tabActive]}
           onPress={() => setActiveTab('help')}
         >
-          <Ionicons 
-            name="help-circle-outline" 
-            size={20} 
-            color={activeTab === 'help' ? COLORS.primary : '#999'} 
+          <Ionicons
+            name="help-circle-outline"
+            size={20}
+            color={activeTab === 'help' ? COLORS.primary : '#999'}
           />
           <Text style={[styles.tabText, activeTab === 'help' && styles.tabTextActive]}>
             Help & Support
@@ -301,10 +301,10 @@ const SupportInfoScreen = ({ route, navigation }) => {
           style={[styles.tab, activeTab === 'contact' && styles.tabActive]}
           onPress={() => setActiveTab('contact')}
         >
-          <Ionicons 
-            name="mail-outline" 
-            size={20} 
-            color={activeTab === 'contact' ? COLORS.primary : '#999'} 
+          <Ionicons
+            name="mail-outline"
+            size={20}
+            color={activeTab === 'contact' ? COLORS.primary : '#999'}
           />
           <Text style={[styles.tabText, activeTab === 'contact' && styles.tabTextActive]}>
             Contact Us
@@ -315,10 +315,10 @@ const SupportInfoScreen = ({ route, navigation }) => {
           style={[styles.tab, activeTab === 'privacy' && styles.tabActive]}
           onPress={() => setActiveTab('privacy')}
         >
-          <Ionicons 
-            name="shield-checkmark-outline" 
-            size={20} 
-            color={activeTab === 'privacy' ? COLORS.primary : '#999'} 
+          <Ionicons
+            name="shield-checkmark-outline"
+            size={20}
+            color={activeTab === 'privacy' ? COLORS.primary : '#999'}
           />
           <Text style={[styles.tabText, activeTab === 'privacy' && styles.tabTextActive]}>
             Privacy Policy

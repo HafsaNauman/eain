@@ -12,7 +12,7 @@ import {
   Alert,
   Modal,
 } from 'react-native';
-import { Ionicons, FontAwesome, Feather, AntDesign } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { getAllListings, searchListings } from '../api/catalogService';
@@ -20,14 +20,9 @@ import { useTranslation } from 'react-i18next';
 
 const categories = ['All', 'Electronics', 'Fashion & Apparel', 'Home & Garden', 'Health & Beauty', 'Sports & Fitness', 'Food & Beverage'];
 const cities = ['All Cities', 'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
-const sortOptions = [
-  { label: 'Newest First', value: 'created_at' },
-  { label: 'Price: Low to High', value: 'price_asc' },
-  { label: 'Price: High to Low', value: 'price_desc' },
-];
 
 function HomeScreen() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const isUrdu = i18n.language === 'ur';
   const navigation = useNavigation();
 
@@ -45,15 +40,18 @@ function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  // Debounce timer for search
   const [searchTimer, setSearchTimer] = useState(null);
 
-  // Fetch listings on mount
+  const sortOptions = [
+    { label: t('homeScreen.newestFirst'), value: 'created_at' },
+    { label: t('homeScreen.priceLowToHigh'), value: 'price_asc' },
+    { label: t('homeScreen.priceHighToLow'), value: 'price_desc' },
+  ];
+
   useEffect(() => {
     fetchListings();
   }, []);
 
-  // Debounced search - triggers 500ms after user stops typing
   useEffect(() => {
     if (searchTimer) {
       clearTimeout(searchTimer);
@@ -77,33 +75,27 @@ function HomeScreen() {
 
       setError('');
 
-      // Build filters
       const filters = {
         limit: 50,
         offset: 0,
       };
 
-      // Add search query
       if (searchQuery.trim()) {
         filters.q = searchQuery.trim();
       }
 
-      // Add category filter
       if (selectedCategory !== 'All') {
         filters.category = selectedCategory;
       }
 
-      // Add city filter
       if (selectedCity !== 'All Cities') {
         filters.city = selectedCity;
       }
 
-      // Add sort
       if (selectedSort !== 'created_at') {
         filters.sort = selectedSort;
       }
 
-      // Use advanced search if filters are applied
       const hasFilters = selectedCategory !== 'All' || selectedCity !== 'All Cities' || selectedSort !== 'created_at';
       const result = hasFilters
         ? await searchListings(filters)
@@ -117,7 +109,7 @@ function HomeScreen() {
       }
     } catch (err) {
       console.error('❌ Fetch Error:', err);
-      setError('Failed to load products');
+      setError(t('errors.networkError'));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -150,7 +142,8 @@ function HomeScreen() {
     } else {
       setCart([...cart, { ...product, quantity: 1 }]);
     }
-    Alert.alert('Added to Cart', `${product.title_en} added to your cart`);
+    const productName = isUrdu && product.title_ur ? product.title_ur : product.title_en;
+    Alert.alert(t('homeScreen.addedToCart'), `${productName} ${t('homeScreen.cartMessage')}`);
   };
 
   const toggleWishlist = (product) => {
@@ -178,7 +171,7 @@ function HomeScreen() {
           <Ionicons name={menuOpen ? "close" : "menu"} size={28} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.logo}>EAIN</Text>
-        <TouchableOpacity onPress={() => Alert.alert('Cart', 'Cart feature coming soon')}>
+        <TouchableOpacity onPress={() => Alert.alert(t('homeScreen.home'), t('homeScreen.cartFeature'))}>
           <Ionicons name="cart-outline" size={28} color="#fff" />
           {cartCount > 0 && (
             <View style={styles.cartBadge}>
@@ -204,7 +197,7 @@ function HomeScreen() {
           <Ionicons name="search" size={20} color="#036c5f" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search products..."
+            placeholder={t('homeScreen.searchPlaceholder')}
             placeholderTextColor="#8CBFC5"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -251,7 +244,7 @@ function HomeScreen() {
               </View>
             )}
             <TouchableOpacity onPress={clearFilters}>
-              <Text style={styles.clearFiltersText}>Clear All</Text>
+              <Text style={styles.clearFiltersText}>{t('homeScreen.clearAll')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -283,7 +276,7 @@ function HomeScreen() {
         {loading && (
           <View style={{ paddingVertical: 20, alignItems: 'center' }}>
             <ActivityIndicator size="large" color="#036c5f" />
-            <Text style={{ marginTop: 10, color: '#8CBFC5' }}>Loading products...</Text>
+            <Text style={{ marginTop: 10, color: '#8CBFC5' }}>{t('homeScreen.loadingProducts')}</Text>
           </View>
         )}
 
@@ -292,7 +285,7 @@ function HomeScreen() {
           <View style={{ padding: 16, backgroundColor: '#ffebee', borderRadius: 8, marginBottom: 16 }}>
             <Text style={{ color: '#c62828' }}>{error}</Text>
             <TouchableOpacity onPress={() => fetchListings()} style={{ marginTop: 8 }}>
-              <Text style={{ color: '#036c5f', fontWeight: 'bold' }}>Retry</Text>
+              <Text style={{ color: '#036c5f', fontWeight: 'bold' }}>{t('myOrders.retry')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -300,32 +293,32 @@ function HomeScreen() {
         {/* Products Section */}
         {!loading && (
           <>
-            <Text style={styles.sectionTitle}>Products ({products.length})</Text>
+            <Text style={styles.sectionTitle}>{t('homeScreen.products')} ({products.length})</Text>
 
             {products.length === 0 && (
               <View style={{ padding: 20, alignItems: 'center' }}>
                 <Ionicons name="basket-outline" size={48} color="#8CBFC5" />
                 <Text style={{ marginTop: 10, color: '#8CBFC5' }}>
                   {searchQuery || activeFiltersCount > 0
-                    ? 'No products match your search'
-                    : 'No products found'}
+                    ? t('homeScreen.noMatch')
+                    : t('homeScreen.noProducts')}
                 </Text>
                 {activeFiltersCount > 0 && (
                   <TouchableOpacity onPress={clearFilters} style={{ marginTop: 10 }}>
-                    <Text style={{ color: '#036c5f', fontWeight: 'bold' }}>Clear Filters</Text>
+                    <Text style={{ color: '#036c5f', fontWeight: 'bold' }}>{t('homeScreen.clearFilters')}</Text>
                   </TouchableOpacity>
                 )}
               </View>
             )}
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {/* Grid layout with 2 columns */}
+            <View style={styles.productsGrid}>
               {products.map(product => (
                 <TouchableOpacity
                   key={product.listing_id}
                   style={styles.productCard}
                   onPress={() => navigateToProductDetail(product.listing_id)}
                 >
-                  {/* ✅ FIXED: Correct image path */}
                   <Image
                     source={{
                       uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
@@ -380,12 +373,12 @@ function HomeScreen() {
                   </View>
                 </TouchableOpacity>
               ))}
-            </ScrollView>
+            </View>
           </>
         )}
 
         {/* Favorites Section */}
-        <Text style={styles.sectionTitle}>Your Favorites</Text>
+        <Text style={styles.sectionTitle}>{t('homeScreen.favorites')}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {wishlist.map(product => (
             <TouchableOpacity
@@ -393,7 +386,6 @@ function HomeScreen() {
               style={styles.favoriteCard}
               onPress={() => navigateToProductDetail(product.listing_id)}
             >
-              {/* ✅ FIXED: Correct image path */}
               <Image
                 source={{
                   uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
@@ -416,7 +408,7 @@ function HomeScreen() {
         </ScrollView>
 
         {wishlist.length === 0 && (
-          <Text style={styles.noFavorites}>No favorites yet</Text>
+          <Text style={styles.noFavorites}>{t('homeScreen.noFavorites')}</Text>
         )}
 
         {/* Filter Modal */}
@@ -429,7 +421,7 @@ function HomeScreen() {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Filters</Text>
+                <Text style={styles.modalTitle}>{t('homeScreen.filters')}</Text>
                 <TouchableOpacity onPress={() => setShowFilters(false)}>
                   <Ionicons name="close" size={24} color="#036c5f" />
                 </TouchableOpacity>
@@ -437,7 +429,7 @@ function HomeScreen() {
 
               <ScrollView style={styles.modalBody}>
                 {/* City Filter */}
-                <Text style={styles.filterLabel}>City</Text>
+                <Text style={styles.filterLabel}>{t('homeScreen.city')}</Text>
                 <View style={styles.pickerWrapper}>
                   <Picker
                     selectedValue={selectedCity}
@@ -451,7 +443,7 @@ function HomeScreen() {
                 </View>
 
                 {/* Category Filter */}
-                <Text style={styles.filterLabel}>Category</Text>
+                <Text style={styles.filterLabel}>{t('homeScreen.category')}</Text>
                 <View style={styles.pickerWrapper}>
                   <Picker
                     selectedValue={selectedCategory}
@@ -465,7 +457,7 @@ function HomeScreen() {
                 </View>
 
                 {/* Sort Filter */}
-                <Text style={styles.filterLabel}>Sort By</Text>
+                <Text style={styles.filterLabel}>{t('homeScreen.sortBy')}</Text>
                 <View style={styles.pickerWrapper}>
                   <Picker
                     selectedValue={selectedSort}
@@ -484,14 +476,14 @@ function HomeScreen() {
                   style={styles.clearButton}
                   onPress={clearFilters}
                 >
-                  <Text style={styles.clearButtonText}>Clear All</Text>
+                  <Text style={styles.clearButtonText}>{t('homeScreen.clearAll')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.applyButton}
                   onPress={() => setShowFilters(false)}
                 >
-                  <Text style={styles.applyButtonText}>Apply Filters</Text>
+                  <Text style={styles.applyButtonText}>{t('homeScreen.applyFilters')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -506,7 +498,7 @@ function HomeScreen() {
           style={styles.navBtn}
         >
           <Ionicons name="home" size={24} color="#036c5f" />
-          <Text style={{ color: '#036c5f', fontSize: 12 }}>Home</Text>
+          <Text style={{ color: '#036c5f', fontSize: 12 }}>{t('homeScreen.home')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -517,7 +509,7 @@ function HomeScreen() {
           style={styles.navBtn}
         >
           <Ionicons name="receipt-outline" size={24} color="#666" />
-          <Text style={{ color: '#666', fontSize: 12 }}>Orders</Text>
+          <Text style={{ color: '#666', fontSize: 12 }}>{t('homeScreen.orders')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -525,7 +517,7 @@ function HomeScreen() {
           style={styles.navBtn}
         >
           <Ionicons name="heart-outline" size={24} color="#666" />
-          <Text style={{ color: '#666', fontSize: 12 }}>Wishlist</Text>
+          <Text style={{ color: '#666', fontSize: 12 }}>{t('homeScreen.wishlist')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -536,7 +528,7 @@ function HomeScreen() {
           style={styles.navBtn}
         >
           <Ionicons name="person-outline" size={24} color="#666" />
-          <Text style={{ color: '#666', fontSize: 12 }}>Profile</Text>
+          <Text style={{ color: '#666', fontSize: 12 }}>{t('homeScreen.profile')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -637,13 +629,19 @@ const styles = StyleSheet.create({
     marginTop: 8,
     color: '#036c5f'
   },
+  productsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
   productCard: {
     backgroundColor: '#fff6ed',
     borderRadius: 16,
-    marginRight: 12,
     padding: 15,
     alignItems: 'center',
-    width: 140,
+    width: '48%',
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.07,
@@ -664,8 +662,8 @@ const styles = StyleSheet.create({
     elevation: 2
   },
   productImage: {
-    width: 100,
-    height: 100,
+    width: '100%',
+    height: 120,
     marginBottom: 8,
     borderRadius: 8,
     resizeMode: 'cover'
@@ -695,7 +693,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   },
   navBtn: { alignItems: 'center' },
-  // Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

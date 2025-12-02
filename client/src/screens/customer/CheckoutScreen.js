@@ -1,6 +1,6 @@
 /**
  * Checkout Screen
- * Customer fills order details and confirms purchase
+ * Handle order placement with delivery info
  */
 import React, { useState } from 'react';
 import {
@@ -11,8 +11,8 @@ import {
     TextInput,
     TouchableOpacity,
     Alert,
-    KeyboardAvoidingView,
-    Platform,
+    ActivityIndicator,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,45 +20,47 @@ import { Picker } from '@react-native-picker/picker';
 import { useTranslation } from 'react-i18next';
 import { placeOrder } from '../../api/orderService';
 import CustomButton from '../../components/common/CustomButton';
-import ErrorAlert from '../../components/common/ErrorAlert';
+
+const cities = ['Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
 
 const CheckoutScreen = ({ route, navigation }) => {
     const { product } = route.params;
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
     const isUrdu = i18n.language === 'ur';
 
-    // Form State
-    const [quantity, setQuantity] = useState(1);
-    const [address, setAddress] = useState('');
-    const [city, setCity] = useState('');
-    const [area, setArea] = useState('');
-    const [phone, setPhone] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('cod');
+    const [formData, setFormData] = useState({
+        customerName: '',
+        customerPhone: '',
+        shippingAddress: '',
+        city: '',
+        paymentMethod: 'cod',
+        quantity: 1,
+    });
+
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const [errors, setErrors] = useState({});
 
-    const cities = ['Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
+    const deliveryCharges = 200;
+    const subtotal = product.price * formData.quantity;
+    const total = subtotal + deliveryCharges;
 
     const validateForm = () => {
         const newErrors = {};
 
-        if (!address.trim()) {
-            newErrors.address = 'Shipping address is required';
+        if (!formData.customerName.trim()) {
+            newErrors.customerName = t('checkout.errors.nameRequired');
         }
 
-        if (!city.trim()) {
-            newErrors.city = 'City is required';
+        if (!formData.customerPhone.trim()) {
+            newErrors.customerPhone = t('checkout.errors.phoneRequired');
         }
 
-        if (!phone.trim()) {
-            newErrors.phone = 'Phone number is required';
-        } else if (!/^(\+92|92|0)?3[0-9]{9}$/.test(phone.replace(/\s/g, ''))) {
-            newErrors.phone = 'Please enter a valid Pakistani phone number';
+        if (!formData.shippingAddress.trim()) {
+            newErrors.shippingAddress = t('checkout.errors.addressRequired');
         }
 
-        if (quantity < 1) {
-            newErrors.quantity = 'Quantity must be at least 1';
+        if (!formData.city) {
+            newErrors.city = t('checkout.errors.cityRequired');
         }
 
         setErrors(newErrors);
@@ -66,10 +68,7 @@ const CheckoutScreen = ({ route, navigation }) => {
     };
 
     const handlePlaceOrder = async () => {
-        setError('');
-
         if (!validateForm()) {
-            Alert.alert('Validation Error', 'Please fill all required fields correctly');
             return;
         }
 
@@ -78,50 +77,53 @@ const CheckoutScreen = ({ route, navigation }) => {
         try {
             const orderData = {
                 listing_id: product.listing_id,
-                quantity: parseInt(quantity),
-                payment_method: paymentMethod,
-                shipping_address: address.trim(),
-                city: city.trim(),
-                area: area.trim() || undefined,
-                customer_phone: phone.trim(),
+                vendor_id: product.vendor_id,
+                quantity: formData.quantity,
+                customer_name: formData.customerName,
+                customer_phone: formData.customerPhone,
+                shipping_address: formData.shippingAddress,
+                city: formData.city,
+                payment_method: formData.paymentMethod,
+                total_amount: total,
             };
-
-            console.log('📦 Placing order:', orderData);
 
             const result = await placeOrder(orderData);
 
             if (result.success) {
                 Alert.alert(
-                    'Order Placed Successfully! 🎉',
-                    `Your order #${result.data.order.order_id} has been placed. The vendor will contact you soon.`,
+                    t('checkout.orderPlaced'),
+                    t('checkout.orderSuccess'),
                     [
                         {
-                            text: 'View Orders',
+                            text: t('checkout.viewOrders'),
                             onPress: () => navigation.navigate('MyOrders'),
                         },
                         {
-                            text: 'Continue Shopping',
+                            text: t('checkout.continueShopping'),
                             onPress: () => navigation.navigate('Home'),
                         },
                     ]
                 );
             } else {
-                setError(result.error);
-                Alert.alert('Order Failed', result.error);
+                Alert.alert(t('common.error'), result.error || t('checkout.errors.orderFailed'));
             }
         } catch (err) {
             console.error('❌ Place Order Error:', err);
-            setError('Failed to place order. Please try again.');
+            Alert.alert(t('common.error'), t('checkout.errors.orderFailed'));
         } finally {
             setLoading(false);
         }
     };
 
-    const incrementQuantity = () => setQuantity(quantity + 1);
-    const decrementQuantity = () => setQuantity(Math.max(1, quantity - 1));
+    const updateField = (field, value) => {
+        setFormData({ ...formData, [field]: value });
+        if (errors[field]) {
+            setErrors({ ...errors, [field]: '' });
+        }
+    };
 
-    const totalAmount = (product.price * quantity).toFixed(2);
-    const title = isUrdu && product.title_ur ? product.title_ur : product.title_en;
+    const productTitle = isUrdu && product.title_ur ? product.title_ur : product.title_en;
+    const imageUrl = product.media?.[0]?.image_url || 'https://via.placeholder.com/80?text=No+Image';
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
@@ -130,183 +132,178 @@ const CheckoutScreen = ({ route, navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#1a1a1a" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Checkout</Text>
+                <Text style={styles.headerTitle}>{t('checkout.title')}</Text>
                 <View style={{ width: 40 }} />
             </View>
 
-            <KeyboardAvoidingView
-                style={{ flex: 1 }}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            >
-                <ScrollView style={styles.scrollArea} showsVerticalScrollIndicator={false}>
-                    {/* Error Alert */}
-                    {error ? <ErrorAlert message={error} onDismiss={() => setError('')} /> : null}
-
-                    {/* Order Summary */}
-                    <View style={styles.summaryCard}>
-                        <Text style={styles.sectionTitle}>Order Summary</Text>
-                        <View style={styles.productSummary}>
-                            <Text style={styles.productTitle} numberOfLines={2}>
-                                {title}
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+                {/* Product Summary */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>{t('checkout.productSummary')}</Text>
+                    <View style={styles.productCard}>
+                        <Image source={{ uri: imageUrl }} style={styles.productImage} />
+                        <View style={styles.productInfo}>
+                            <Text style={styles.productName} numberOfLines={2}>
+                                {productTitle}
                             </Text>
                             <Text style={styles.productPrice}>
-                                {product.currency} {product.price.toLocaleString()} × {quantity}
+                                {product.currency} {product.price?.toLocaleString()}
                             </Text>
+                            <View style={styles.quantityRow}>
+                                <Text style={styles.quantityLabel}>{t('checkout.quantity')}:</Text>
+                                <View style={styles.quantityControls}>
+                                    <TouchableOpacity
+                                        onPress={() => formData.quantity > 1 && updateField('quantity', formData.quantity - 1)}
+                                        style={styles.quantityButton}
+                                    >
+                                        <Ionicons name="remove" size={20} color="#036c5f" />
+                                    </TouchableOpacity>
+                                    <Text style={styles.quantityValue}>{formData.quantity}</Text>
+                                    <TouchableOpacity
+                                        onPress={() => updateField('quantity', formData.quantity + 1)}
+                                        style={styles.quantityButton}
+                                    >
+                                        <Ionicons name="add" size={20} color="#036c5f" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
                         </View>
                     </View>
+                </View>
 
-                    {/* Quantity Selector */}
-                    <View style={styles.section}>
-                        <Text style={styles.label}>Quantity *</Text>
-                        <View style={styles.quantitySelector}>
-                            <TouchableOpacity
-                                style={styles.quantityButton}
-                                onPress={decrementQuantity}
-                                disabled={quantity <= 1}
-                            >
-                                <Ionicons name="remove" size={20} color={quantity <= 1 ? '#ccc' : '#036c5f'} />
-                            </TouchableOpacity>
+                {/* Delivery Information */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>{t('checkout.deliveryInfo')}</Text>
 
-                            <Text style={styles.quantityText}>{quantity}</Text>
-
-                            <TouchableOpacity style={styles.quantityButton} onPress={incrementQuantity}>
-                                <Ionicons name="add" size={20} color="#036c5f" />
-                            </TouchableOpacity>
-                        </View>
-                        {errors.quantity && <Text style={styles.errorText}>{errors.quantity}</Text>}
-                    </View>
-
-                    {/* Shipping Address */}
-                    <View style={styles.section}>
-                        <Text style={styles.label}>Shipping Address *</Text>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>{t('checkout.fullName')}</Text>
                         <TextInput
-                            style={[styles.input, styles.multilineInput, errors.address && styles.inputError]}
-                            placeholder="Enter your complete address"
-                            placeholderTextColor="#999"
-                            value={address}
-                            onChangeText={setAddress}
+                            style={[styles.input, errors.customerName && styles.inputError]}
+                            placeholder={t('checkout.fullNamePlaceholder')}
+                            value={formData.customerName}
+                            onChangeText={(value) => updateField('customerName', value)}
+                        />
+                        {errors.customerName && (
+                            <Text style={styles.errorText}>{errors.customerName}</Text>
+                        )}
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>{t('checkout.phoneNumber')}</Text>
+                        <TextInput
+                            style={[styles.input, errors.customerPhone && styles.inputError]}
+                            placeholder={t('checkout.phoneNumberPlaceholder')}
+                            value={formData.customerPhone}
+                            onChangeText={(value) => updateField('customerPhone', value)}
+                            keyboardType="phone-pad"
+                        />
+                        {errors.customerPhone && (
+                            <Text style={styles.errorText}>{errors.customerPhone}</Text>
+                        )}
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>{t('checkout.shippingAddress')}</Text>
+                        <TextInput
+                            style={[styles.input, styles.textArea, errors.shippingAddress && styles.inputError]}
+                            placeholder={t('checkout.shippingAddressPlaceholder')}
+                            value={formData.shippingAddress}
+                            onChangeText={(value) => updateField('shippingAddress', value)}
                             multiline
                             numberOfLines={3}
                         />
-                        {errors.address && <Text style={styles.errorText}>{errors.address}</Text>}
+                        {errors.shippingAddress && (
+                            <Text style={styles.errorText}>{errors.shippingAddress}</Text>
+                        )}
                     </View>
 
-                    {/* City */}
-                    <View style={styles.section}>
-                        <Text style={styles.label}>City *</Text>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>{t('checkout.city')}</Text>
                         <View style={[styles.pickerWrapper, errors.city && styles.inputError]}>
                             <Picker
-                                selectedValue={city}
-                                onValueChange={(value) => setCity(value)}
+                                selectedValue={formData.city}
+                                onValueChange={(value) => updateField('city', value)}
                                 style={styles.picker}
                             >
-                                <Picker.Item label="Select City" value="" />
-                                {cities.map((c) => (
-                                    <Picker.Item key={c} label={c} value={c} />
+                                <Picker.Item label={t('checkout.cityPlaceholder')} value="" />
+                                {cities.map(city => (
+                                    <Picker.Item key={city} label={city} value={city} />
                                 ))}
                             </Picker>
                         </View>
-                        {errors.city && <Text style={styles.errorText}>{errors.city}</Text>}
+                        {errors.city && (
+                            <Text style={styles.errorText}>{errors.city}</Text>
+                        )}
                     </View>
-
-                    {/* Area */}
-                    <View style={styles.section}>
-                        <Text style={styles.label}>Area (Optional)</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="e.g., DHA, Gulshan, Johar Town"
-                            placeholderTextColor="#999"
-                            value={area}
-                            onChangeText={setArea}
-                        />
-                    </View>
-
-                    {/* Phone Number */}
-                    <View style={styles.section}>
-                        <Text style={styles.label}>Phone Number *</Text>
-                        <TextInput
-                            style={[styles.input, errors.phone && styles.inputError]}
-                            placeholder="+92 300 1234567"
-                            placeholderTextColor="#999"
-                            value={phone}
-                            onChangeText={setPhone}
-                            keyboardType="phone-pad"
-                        />
-                        {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
-                    </View>
-
-                    {/* Payment Method */}
-                    <View style={styles.section}>
-                        <Text style={styles.label}>Payment Method *</Text>
-
-                        <TouchableOpacity
-                            style={[styles.radioOption, paymentMethod === 'cod' && styles.radioOptionSelected]}
-                            onPress={() => setPaymentMethod('cod')}
-                        >
-                            <View style={styles.radioCircle}>
-                                {paymentMethod === 'cod' && <View style={styles.radioCircleFilled} />}
-                            </View>
-                            <View style={styles.radioContent}>
-                                <Ionicons name="cash-outline" size={24} color="#036c5f" />
-                                <View style={styles.radioText}>
-                                    <Text style={styles.radioTitle}>Cash on Delivery</Text>
-                                    <Text style={styles.radioSubtitle}>Pay when you receive the product</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.radioOption,
-                                paymentMethod === 'bank_transfer' && styles.radioOptionSelected,
-                            ]}
-                            onPress={() => setPaymentMethod('bank_transfer')}
-                        >
-                            <View style={styles.radioCircle}>
-                                {paymentMethod === 'bank_transfer' && <View style={styles.radioCircleFilled} />}
-                            </View>
-                            <View style={styles.radioContent}>
-                                <Ionicons name="card-outline" size={24} color="#036c5f" />
-                                <View style={styles.radioText}>
-                                    <Text style={styles.radioTitle}>Bank Transfer</Text>
-                                    <Text style={styles.radioSubtitle}>Vendor will share account details</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Order Total */}
-                    <View style={styles.totalCard}>
-                        <View style={styles.totalRow}>
-                            <Text style={styles.totalLabel}>Subtotal</Text>
-                            <Text style={styles.totalValue}>
-                                {product.currency} {totalAmount}
-                            </Text>
-                        </View>
-                        <View style={styles.totalRow}>
-                            <Text style={styles.totalLabel}>Quantity</Text>
-                            <Text style={styles.totalValue}>{quantity}</Text>
-                        </View>
-                        <View style={styles.divider} />
-                        <View style={styles.totalRow}>
-                            <Text style={styles.grandTotalLabel}>Total Amount</Text>
-                            <Text style={styles.grandTotalValue}>
-                                {product.currency} {totalAmount}
-                            </Text>
-                        </View>
-                    </View>
-                </ScrollView>
-
-                {/* Bottom CTA */}
-                <View style={styles.bottomBar}>
-                    <CustomButton
-                        title={loading ? 'Placing Order...' : 'Place Order'}
-                        onPress={handlePlaceOrder}
-                        disabled={loading}
-                        style={styles.placeOrderButton}
-                    />
                 </View>
-            </KeyboardAvoidingView>
+
+                {/* Payment Method */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>{t('checkout.paymentMethod')}</Text>
+                    <TouchableOpacity
+                        style={[
+                            styles.paymentOption,
+                            formData.paymentMethod === 'cod' && styles.paymentOptionActive,
+                        ]}
+                        onPress={() => updateField('paymentMethod', 'cod')}
+                    >
+                        <Ionicons
+                            name={formData.paymentMethod === 'cod' ? 'radio-button-on' : 'radio-button-off'}
+                            size={24}
+                            color="#036c5f"
+                        />
+                        <View style={styles.paymentInfo}>
+                            <Text style={styles.paymentTitle}>{t('checkout.cashOnDelivery')}</Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[
+                            styles.paymentOption,
+                            formData.paymentMethod === 'bank_transfer' && styles.paymentOptionActive,
+                        ]}
+                        onPress={() => updateField('paymentMethod', 'bank_transfer')}
+                    >
+                        <Ionicons
+                            name={formData.paymentMethod === 'bank_transfer' ? 'radio-button-on' : 'radio-button-off'}
+                            size={24}
+                            color="#036c5f"
+                        />
+                        <View style={styles.paymentInfo}>
+                            <Text style={styles.paymentTitle}>{t('checkout.bankTransfer')}</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Order Summary */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>{t('checkout.orderSummary')}</Text>
+                    <View style={styles.summaryCard}>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>{t('checkout.productPrice')}</Text>
+                            <Text style={styles.summaryValue}>PKR {subtotal.toLocaleString()}</Text>
+                        </View>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>{t('checkout.deliveryCharges')}</Text>
+                            <Text style={styles.summaryValue}>PKR {deliveryCharges.toLocaleString()}</Text>
+                        </View>
+                        <View style={[styles.summaryRow, styles.totalRow]}>
+                            <Text style={styles.totalLabel}>{t('checkout.totalAmount')}</Text>
+                            <Text style={styles.totalValue}>PKR {total.toLocaleString()}</Text>
+                        </View>
+                    </View>
+                </View>
+            </ScrollView>
+
+            {/* Bottom Button */}
+            <View style={styles.bottomBar}>
+                <CustomButton
+                    title={loading ? t('common.loading') : t('checkout.placeOrder')}
+                    onPress={handlePlaceOrder}
+                    disabled={loading}
+                    style={styles.placeOrderButton}
+                />
+            </View>
         </SafeAreaView>
     );
 };
@@ -334,63 +331,95 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#1a1a1a',
     },
-    scrollArea: {
+    content: {
         flex: 1,
         padding: 16,
     },
-    summaryCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
+    section: {
+        marginBottom: 24,
     },
     sectionTitle: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#1a1a1a',
         marginBottom: 12,
     },
-    productSummary: {
+    productCard: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
     },
-    productTitle: {
+    productImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 8,
+        backgroundColor: '#f0f0f0',
+    },
+    productInfo: {
         flex: 1,
-        fontSize: 14,
-        color: '#666',
-        marginRight: 12,
+        marginLeft: 12,
+        justifyContent: 'space-between',
+    },
+    productName: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#1a1a1a',
     },
     productPrice: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#036c5f',
     },
-    section: {
-        marginBottom: 20,
+    quantityRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    quantityLabel: {
+        fontSize: 14,
+        color: '#666',
+    },
+    quantityControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+        padding: 4,
+    },
+    quantityButton: {
+        padding: 4,
+    },
+    quantityValue: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#1a1a1a',
+        paddingHorizontal: 16,
+    },
+    inputGroup: {
+        marginBottom: 16,
     },
     label: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#333',
+        color: '#1a1a1a',
         marginBottom: 8,
     },
     input: {
         backgroundColor: '#fff',
-        borderRadius: 12,
         borderWidth: 1,
         borderColor: '#e0e0e0',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 15,
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
         color: '#1a1a1a',
     },
-    multilineInput: {
+    textArea: {
         height: 80,
         textAlignVertical: 'top',
     },
@@ -406,117 +435,73 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderWidth: 1,
         borderColor: '#e0e0e0',
-        borderRadius: 12,
+        borderRadius: 8,
         overflow: 'hidden',
     },
     picker: {
         height: 50,
     },
-    quantitySelector: {
+    paymentOption: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#fff',
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-    },
-    quantityButton: {
-        padding: 8,
-    },
-    quantityText: {
-        flex: 1,
-        textAlign: 'center',
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#1a1a1a',
-    },
-    radioOption: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        borderWidth: 2,
-        borderColor: '#e0e0e0',
+        borderRadius: 8,
         padding: 16,
         marginBottom: 12,
-    },
-    radioOptionSelected: {
-        borderColor: '#036c5f',
-        backgroundColor: '#f0f9f8',
-    },
-    radioCircle: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
         borderWidth: 2,
+        borderColor: '#e0e0e0',
+    },
+    paymentOptionActive: {
         borderColor: '#036c5f',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
+        backgroundColor: '#e0f7fa',
     },
-    radioCircleFilled: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: '#036c5f',
-    },
-    radioContent: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    radioText: {
+    paymentInfo: {
         marginLeft: 12,
         flex: 1,
     },
-    radioTitle: {
-        fontSize: 15,
+    paymentTitle: {
+        fontSize: 16,
         fontWeight: '600',
         color: '#1a1a1a',
     },
-    radioSubtitle: {
-        fontSize: 12,
-        color: '#666',
-        marginTop: 2,
-    },
-    totalCard: {
+    summaryCard: {
         backgroundColor: '#fff',
         borderRadius: 12,
         padding: 16,
-        marginBottom: 20,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowRadius: 3,
         elevation: 2,
     },
-    totalRow: {
+    summaryRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        alignItems: 'center',
+        marginBottom: 12,
     },
-    totalLabel: {
+    summaryLabel: {
         fontSize: 14,
         color: '#666',
     },
-    totalValue: {
+    summaryValue: {
         fontSize: 14,
+        fontWeight: '600',
         color: '#1a1a1a',
     },
-    divider: {
-        height: 1,
-        backgroundColor: '#e0e0e0',
-        marginVertical: 12,
+    totalRow: {
+        borderTopWidth: 1,
+        borderTopColor: '#e0e0e0',
+        paddingTop: 12,
+        marginBottom: 0,
     },
-    grandTotalLabel: {
-        fontSize: 18,
+    totalLabel: {
+        fontSize: 16,
         fontWeight: 'bold',
         color: '#1a1a1a',
     },
-    grandTotalValue: {
-        fontSize: 20,
+    totalValue: {
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#036c5f',
     },

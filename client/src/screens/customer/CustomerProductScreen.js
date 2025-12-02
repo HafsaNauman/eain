@@ -24,7 +24,7 @@ const { width } = Dimensions.get('window');
 
 const CustomerProductScreen = ({ route, navigation }) => {
     const { listingId } = route.params;
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
     const isUrdu = i18n.language === 'ur';
 
     const [product, setProduct] = useState(null);
@@ -50,11 +50,11 @@ const CustomerProductScreen = ({ route, navigation }) => {
                 console.log('🖼️ Product media:', result.data.media);
             } else {
                 setError(result.error);
-                Alert.alert('Error', result.error);
+                Alert.alert(t('common.error'), result.error);
             }
         } catch (err) {
             console.error('❌ Fetch Product Details Error:', err);
-            setError('Failed to load product details');
+            setError(t('errors.networkError'));
         } finally {
             setLoading(false);
         }
@@ -67,8 +67,8 @@ const CustomerProductScreen = ({ route, navigation }) => {
     const toggleFavorite = () => {
         setIsFavorite(!isFavorite);
         Alert.alert(
-            isFavorite ? 'Removed from Favorites' : 'Added to Favorites',
-            isFavorite ? 'Product removed from your wishlist' : 'Product added to your wishlist'
+            isFavorite ? t('customerProduct.removedFromFavorites') : t('customerProduct.addedToFavorites'),
+            isFavorite ? t('customerProduct.favoriteRemoved') : t('customerProduct.favoriteAdded')
         );
     };
 
@@ -76,7 +76,7 @@ const CustomerProductScreen = ({ route, navigation }) => {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#036c5f" />
-                <Text style={styles.loadingText}>Loading product...</Text>
+                <Text style={styles.loadingText}>{t('customerProduct.loadingProduct')}</Text>
             </View>
         );
     }
@@ -85,15 +85,15 @@ const CustomerProductScreen = ({ route, navigation }) => {
         return (
             <View style={styles.errorContainer}>
                 <Ionicons name="alert-circle-outline" size={64} color="#ff6b6b" />
-                <Text style={styles.errorText}>{error || 'Product not found'}</Text>
+                <Text style={styles.errorText}>{error || t('customerProduct.productNotFound')}</Text>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Text style={styles.backButtonText}>Go Back</Text>
+                    <Text style={styles.backButtonText}>{t('customerProduct.goBack')}</Text>
                 </TouchableOpacity>
             </View>
         );
     }
 
-    // ✅ FIXED: Extract images correctly from media array
+    // Extract images correctly from media array
     const images = product.media && product.media.length > 0
         ? product.media.map(item => item.image_url)
         : ['https://via.placeholder.com/400?text=No+Image'];
@@ -108,7 +108,7 @@ const CustomerProductScreen = ({ route, navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
                     <Ionicons name="arrow-back" size={24} color="#1a1a1a" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Product Details</Text>
+                <Text style={styles.headerTitle}>{t('customerProduct.productDetails')}</Text>
                 <TouchableOpacity onPress={toggleFavorite} style={styles.headerButton}>
                     <Ionicons
                         name={isFavorite ? "heart" : "heart-outline"}
@@ -169,7 +169,7 @@ const CustomerProductScreen = ({ route, navigation }) => {
                         {product.is_female_only && (
                             <View style={styles.femaleOnlyBadge}>
                                 <Ionicons name="female" size={14} color="#ff6b9d" />
-                                <Text style={styles.femaleOnlyText}>Female Only</Text>
+                                <Text style={styles.femaleOnlyText}>{t('customerProduct.femaleOnly')}</Text>
                             </View>
                         )}
                     </View>
@@ -196,7 +196,7 @@ const CustomerProductScreen = ({ route, navigation }) => {
                     {/* Description */}
                     {description && (
                         <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>About this product</Text>
+                            <Text style={styles.sectionTitle}>{t('customerProduct.aboutProduct')}</Text>
                             <Text style={styles.descriptionText}>{description}</Text>
                         </View>
                     )}
@@ -249,7 +249,7 @@ const CustomerProductScreen = ({ route, navigation }) => {
                                     navigation.navigate('VendorStore', { vendorId: product.Vendor.vendor_id })
                                 }
                             >
-                                <Text style={styles.viewStoreText}>View Store</Text>
+                                <Text style={styles.viewStoreText}>{t('customerProduct.viewStore')}</Text>
                                 <Ionicons name="arrow-forward" size={16} color="#036c5f" />
                             </TouchableOpacity>
                         </View>
@@ -260,7 +260,7 @@ const CustomerProductScreen = ({ route, navigation }) => {
             {/* Bottom CTA */}
             <View style={styles.bottomBar}>
                 <CustomButton
-                    title="Order Now"
+                    title={t('customerProduct.orderNow')}
                     onPress={handleOrderNow}
                     style={styles.orderButton}
                 />
