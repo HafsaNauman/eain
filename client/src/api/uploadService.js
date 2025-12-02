@@ -41,7 +41,7 @@ export const uploadVendorImage = async (imageUri, imageType = 'logo') => {
 
         if (response.data.success) {
             const supabaseUrl = response.data.data.image_url;
-            console.log('✅ Image uploaded to Supabase:', supabaseUrl);
+            console.log('✅ uPLOADSERVICE.JS Image uploaded to Supabase:', supabaseUrl);
             return {
                 success: true,
                 imageUrl: supabaseUrl,
