@@ -364,10 +364,10 @@ const ProfileScreen = ({ navigation }) => {
       }
     };
 
-     checkVendorStatus();
+    checkVendorStatus();
   }, [isAuthenticated, user, navigation]);
 
-    const handleLogout = async () => {
+  const handleLogout = async () => {
     await logout();
     navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
   };
@@ -376,7 +376,7 @@ const ProfileScreen = ({ navigation }) => {
   const handleVendorDashboard = async () => {
     try {
       const profileCheck = await getVendorProfile();
-      
+
       if (profileCheck.success && profileCheck.data) {
         navigation.navigate('VendorDashboard', {
           userId: user.user_id,
@@ -454,14 +454,14 @@ const ProfileScreen = ({ navigation }) => {
   //   );
   // }
   // ✅ VENDOR: we are redirecting; show loader while deciding
-if (isAuthenticated && user?.role === 'vendor' && checkingVendor) {
-  return (
-    <View style={styles.centerContent}>
-      <ActivityIndicator size="large" color={COLORS.primary} />
-      <Text>Checking your business status...</Text>
-    </View>
-  );
-}
+  if (isAuthenticated && user?.role === 'vendor' && checkingVendor) {
+    return (
+      <View style={styles.centerContent}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text>Checking your business status...</Text>
+      </View>
+    );
+  }
 
   // ✅ LOGGED IN: Show Profile (Customer or Vendor)
   return (
