@@ -39,7 +39,9 @@ const VendorInfoScreen = ({ route, navigation }) => {
     area: initialData.area || '',
     description: initialData.description_en || initialData.businessDescription || '',
     descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
-    isFemaleOnly: initialData.is_female_only || false,
+    // isFemaleOnly: initialData.is_female_only || false,
+    isFemaleOnly: initialData.is_female_only === true,
+
   });
 
   const categories = [
