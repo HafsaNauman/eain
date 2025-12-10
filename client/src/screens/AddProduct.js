@@ -25,13 +25,14 @@ import CustomButton from '../components/common/CustomButton';
 import ErrorAlert from '../components/common/ErrorAlert';
 import { COLORS } from '../constants/colors';
 import { validateEmail } from '../utils/validation';
-//import { createListing } from '../api/listingService';
 import { createListing } from '../api/VendorService';
 import { generateProductDescription } from '../api/aiDescriptionService';
+import { uploadMultipleProductImages } from '../api/uploadService';
 
 const AddProductScreen = ({ route, navigation }) => {
   const { businessId, vendorProfile } = route.params || {};
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const isUrdu = i18n.language === 'ur';
 
   const [formData, setFormData] = useState({
     listingType: 'product',
@@ -54,18 +55,18 @@ const AddProductScreen = ({ route, navigation }) => {
   const [aiGeneratedFeatures, setAiGeneratedFeatures] = useState([]);
 
   const categories = [
-    'Electronics',
-    'Fashion & Apparel',
-    'Food & Beverage',
-    'Health & Beauty',
-    'Home & Garden',
-    'Sports & Fitness',
-    'Automotive',
-    'Professional Services',
-    'Education',
-    'Entertainment',
-    'Real Estate',
-    'Other',
+    { label: t('businessReg.categories.electronics'), value: 'Electronics' },
+    { label: t('businessReg.categories.fashion'), value: 'Fashion & Apparel' },
+    { label: t('businessReg.categories.food'), value: 'Food & Beverage' },
+    { label: t('businessReg.categories.health'), value: 'Health & Beauty' },
+    { label: t('businessReg.categories.home'), value: 'Home & Garden' },
+    { label: t('businessReg.categories.sports'), value: 'Sports & Fitness' },
+    { label: t('businessReg.categories.automotive'), value: 'Automotive' },
+    { label: t('businessReg.categories.professional'), value: 'Professional Services' },
+    { label: t('businessReg.categories.education'), value: 'Education' },
+    { label: t('businessReg.categories.entertainment'), value: 'Entertainment' },
+    { label: t('businessReg.categories.realEstate'), value: 'Real Estate' },
+    { label: t('businessReg.categories.other'), value: 'Other' },
   ];
 
   const updateField = (field, value) => {
@@ -81,23 +82,55 @@ const AddProductScreen = ({ route, navigation }) => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'We need camera roll permissions to upload images.');
+        Alert.alert(
+          t('businessReg.alerts.permissionDenied'),
+          t('businessReg.alerts.permissionMessage')
+        );
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
+        allowsMultipleSelection: true,
         quality: 0.8,
+        aspect: [4, 3],
+        selectionLimit: 5,
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        updateField('images', [...formData.images, result.assets[0]]);
+        const localUris = result.assets.map(asset => asset.uri);
+
+        Alert.alert(t('common.loading'), `${t('addProduct.uploadImages')} ${localUris.length}...`);
+        setLoading(true);
+
+        try {
+          const uploadResult = await uploadMultipleProductImages(localUris);
+
+          if (uploadResult.success && uploadResult.imageUrls.length > 0) {
+            const newImages = uploadResult.imageUrls.map(url => ({ uri: url }));
+            updateField('images', [...formData.images, ...newImages]);
+
+            if (uploadResult.failedCount > 0) {
+              Alert.alert(
+                t('common.success'),
+                `${uploadResult.imageUrls.length} ${t('addProduct.productImages')}. ${uploadResult.failedCount} failed.`
+              );
+            } else {
+              Alert.alert(t('common.success'), `${uploadResult.imageUrls.length} ${t('addProduct.productImages')}!`);
+            }
+          } else {
+            Alert.alert(t('common.error'), uploadResult.error || t('addProduct.errors.imagesRequired'));
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          Alert.alert(t('common.error'), t('addProduct.errors.addFailed'));
+        } finally {
+          setLoading(false);
+        }
       }
     } catch (error) {
       console.error('Image picker error:', error);
-      Alert.alert('Error', 'Failed to pick image');
+      Alert.alert(t('common.error'), t('addProduct.errors.addFailed'));
     }
   };
 
@@ -110,15 +143,16 @@ const AddProductScreen = ({ route, navigation }) => {
     try {
       setGeneralError('');
 
-      // Request image picker permissions
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'We need camera roll permissions to upload images.');
+        Alert.alert(
+          t('businessReg.alerts.permissionDenied'),
+          t('businessReg.alerts.permissionMessage')
+        );
         return;
       }
 
-      // Pick image for AI analysis
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -131,39 +165,55 @@ const AddProductScreen = ({ route, navigation }) => {
       }
 
       const selectedImage = result.assets[0];
+      const localUri = selectedImage.uri;
+
       setAiLoading(true);
 
-      // Call AI service
-      const aiResult = await generateProductDescription(selectedImage, vendorProfile?.vendor_id, false);
+      try {
+        console.log('📤 [AI] Uploading image to Supabase...');
+        const uploadResult = await uploadMultipleProductImages([localUri]);
 
-      if (aiResult.success && aiResult.data) {
-        const { ai_description } = aiResult.data;
-
-        // Auto-fill form fields
-        setFormData(prev => ({
-          ...prev,
-          titleEn: ai_description.title || prev.titleEn,
-          descriptionEn: ai_description.description || prev.descriptionEn,
-          tags: ai_description.keywords ? ai_description.keywords.join(', ') : prev.tags,
-          images: [...prev.images, selectedImage],
-        }));
-
-        // Store features for display
-        if (ai_description.features && ai_description.features.length > 0) {
-          setAiGeneratedFeatures(ai_description.features);
+        if (!uploadResult.success || uploadResult.imageUrls.length === 0) {
+          Alert.alert(t('common.error'), t('addProduct.errors.addFailed'));
+          return;
         }
 
-        Alert.alert(
-          'Success!',
-          'AI has generated a product description for you. You can edit it before submitting.',
-          [{ text: 'OK' }]
-        );
-      } else {
-        setGeneralError(aiResult.error || 'Failed to generate AI description');
+        const supabaseImageUrl = uploadResult.imageUrls[0];
+        console.log('✅ [AI] Image uploaded to Supabase:', supabaseImageUrl);
+
+        console.log('🤖 [AI] Generating description...');
+        const aiResult = await generateProductDescription(selectedImage, vendorProfile?.vendor_id, false);
+
+        if (aiResult.success && aiResult.data) {
+          const { ai_description } = aiResult.data;
+
+          setFormData(prev => ({
+            ...prev,
+            titleEn: ai_description.title || prev.titleEn,
+            descriptionEn: ai_description.description || prev.descriptionEn,
+            tags: ai_description.keywords ? ai_description.keywords.join(', ') : prev.tags,
+            images: [...prev.images, { uri: supabaseImageUrl }],
+          }));
+
+          if (ai_description.features && ai_description.features.length > 0) {
+            setAiGeneratedFeatures(ai_description.features);
+          }
+
+          Alert.alert(
+            t('common.success'),
+            t('addProduct.productAdded'),
+            [{ text: t('common.ok') }]
+          );
+        } else {
+          setGeneralError(aiResult.error || t('addProduct.errors.addFailed'));
+        }
+      } catch (uploadError) {
+        console.error('❌ [AI] Upload or generation error:', uploadError);
+        Alert.alert(t('common.error'), t('addProduct.errors.addFailed'));
       }
     } catch (error) {
       console.error('❌ AI Generation Error:', error);
-      setGeneralError('Failed to generate AI description. Please try again.');
+      setGeneralError(t('addProduct.errors.addFailed'));
     } finally {
       setAiLoading(false);
     }
@@ -173,21 +223,21 @@ const AddProductScreen = ({ route, navigation }) => {
     const newErrors = {};
 
     if (!formData.titleEn.trim()) {
-      newErrors.titleEn = 'English title is required';
+      newErrors.titleEn = t('addProduct.errors.nameRequired');
     }
 
     if (!formData.descriptionEn.trim()) {
-      newErrors.descriptionEn = 'English description is required';
+      newErrors.descriptionEn = t('addProduct.errors.descriptionRequired');
     }
 
     if (!formData.price.trim()) {
-      newErrors.price = 'Price is required';
+      newErrors.price = t('addProduct.errors.priceRequired');
     } else if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
-      newErrors.price = 'Invalid price';
+      newErrors.price = t('addProduct.errors.priceRequired');
     }
 
     if (!formData.category) {
-      newErrors.category = 'Category is required';
+      newErrors.category = t('addProduct.errors.categoryRequired');
     }
 
     setErrors(newErrors);
@@ -204,13 +254,11 @@ const AddProductScreen = ({ route, navigation }) => {
     setLoading(true);
 
     try {
-      // Prepare media array
       const media = formData.images.map(img => ({
         image_url: img.uri,
         type: 'image',
       }));
 
-      // Prepare tags array
       const tags = formData.tags.trim()
         ? formData.tags.split(',').map(tag => tag.trim())
         : [];
@@ -234,8 +282,8 @@ const AddProductScreen = ({ route, navigation }) => {
 
       if (result.success) {
         console.log('✅ Listing created successfully:', result.data);
-        Alert.alert('Success', 'Product/Service added successfully!', [{
-          text: 'OK',
+        Alert.alert(t('common.success'), t('addProduct.productAdded'), [{
+          text: t('common.ok'),
           onPress: () => {
             navigation.navigate('VendorDashboard', {
               vendorProfile: vendorProfile,
@@ -243,16 +291,13 @@ const AddProductScreen = ({ route, navigation }) => {
               refreshListings: true,
             });
           },
-        },
-        ]
-        );
-      }
-      else {
-        setGeneralError(result.error || 'Failed to create listing');
+        }]);
+      } else {
+        setGeneralError(result.error || t('addProduct.errors.addFailed'));
       }
     } catch (err) {
       console.error('❌ Add product error:', err);
-      setGeneralError('Failed to add product. Please try again.');
+      setGeneralError(t('addProduct.errors.addFailed'));
     } finally {
       setLoading(false);
     }
@@ -277,7 +322,7 @@ const AddProductScreen = ({ route, navigation }) => {
             >
               <Ionicons name="arrow-back" size={24} color={COLORS.text} />
             </TouchableOpacity>
-            <Text style={styles.title}>Add Product/Service</Text>
+            <Text style={styles.title}>{t('addProduct.title')}</Text>
             <View style={{ width: 24 }} />
           </View>
 
@@ -285,25 +330,25 @@ const AddProductScreen = ({ route, navigation }) => {
           {generalError ? <ErrorAlert message={generalError} /> : null}
 
           {/* Listing Type */}
-          <Text style={styles.label}>Listing Type *</Text>
+          <Text style={styles.label}>{t('businessReg.businessType')} *</Text>
           <View style={[styles.pickerWrapper, errors.listingType && styles.pickerError]}>
             <Picker
               selectedValue={formData.listingType}
               onValueChange={(value) => updateField('listingType', value)}
               style={styles.picker}
             >
-              <Picker.Item label="Product" value="product" />
-              <Picker.Item label="Service" value="service" />
+              <Picker.Item label={t('businessReg.product')} value="product" />
+              <Picker.Item label={t('businessReg.service')} value="service" />
             </Picker>
           </View>
 
           {/* Title (English) */}
-          <Text style={styles.label}>Title (English) *</Text>
+          <Text style={styles.label}>{t('addProduct.productName')}</Text>
           <TextInput
             style={[styles.input, errors.titleEn && styles.inputError]}
             value={formData.titleEn}
             onChangeText={(text) => updateField('titleEn', text)}
-            placeholder="Enter product/service title"
+            placeholder={t('addProduct.productNamePlaceholder')}
             placeholderTextColor="#B0B0B0"
             editable={!loading}
           />
@@ -322,7 +367,7 @@ const AddProductScreen = ({ route, navigation }) => {
               style={styles.aiButtonIcon}
             />
             <Text style={styles.aiButtonText}>
-              {aiLoading ? 'Generating with AI...' : 'Generate with AI'}
+              {aiLoading ? t('common.processing') : 'Generate with AI'}
             </Text>
           </TouchableOpacity>
 
@@ -346,7 +391,7 @@ const AddProductScreen = ({ route, navigation }) => {
           )}
 
           {/* Title (Urdu) - Optional */}
-          <Text style={styles.label}>Title (Urdu)</Text>
+          <Text style={styles.label}>{t('addProduct.productName')} ({t('profile.urdu')})</Text>
           <TextInput
             style={styles.input}
             value={formData.titleUr}
@@ -357,12 +402,12 @@ const AddProductScreen = ({ route, navigation }) => {
           />
 
           {/* Description (English) */}
-          <Text style={styles.label}>Description (English) *</Text>
+          <Text style={styles.label}>{t('addProduct.productDescription')}</Text>
           <TextInput
             style={[styles.input, styles.multilineInput, errors.descriptionEn && styles.inputError]}
             value={formData.descriptionEn}
             onChangeText={(text) => updateField('descriptionEn', text)}
-            placeholder="Describe your product/service..."
+            placeholder={t('addProduct.productDescriptionPlaceholder')}
             placeholderTextColor="#B0B0B0"
             multiline
             editable={!loading}
@@ -370,7 +415,7 @@ const AddProductScreen = ({ route, navigation }) => {
           {errors.descriptionEn && <Text style={styles.errorText}>{errors.descriptionEn}</Text>}
 
           {/* Description (Urdu) - Optional */}
-          <Text style={styles.label}>Description (Urdu)</Text>
+          <Text style={styles.label}>{t('addProduct.productDescription')} ({t('profile.urdu')})</Text>
           <TextInput
             style={[styles.input, styles.multilineInput]}
             value={formData.descriptionUr}
@@ -382,12 +427,12 @@ const AddProductScreen = ({ route, navigation }) => {
           />
 
           {/* Price */}
-          <Text style={styles.label}>Price (PKR) *</Text>
+          <Text style={styles.label}>{t('addProduct.price')}</Text>
           <TextInput
             style={[styles.input, errors.price && styles.inputError]}
             value={formData.price}
             onChangeText={(text) => updateField('price', text)}
-            placeholder="0.00"
+            placeholder={t('addProduct.pricePlaceholder')}
             placeholderTextColor="#B0B0B0"
             keyboardType="numeric"
             editable={!loading}
@@ -395,35 +440,35 @@ const AddProductScreen = ({ route, navigation }) => {
           {errors.price && <Text style={styles.errorText}>{errors.price}</Text>}
 
           {/* Category */}
-          <Text style={styles.label}>Category *</Text>
+          <Text style={styles.label}>{t('addProduct.category')}</Text>
           <View style={[styles.pickerWrapper, errors.category && styles.pickerError]}>
             <Picker
               selectedValue={formData.category}
               onValueChange={(value) => updateField('category', value)}
               style={styles.picker}
             >
-              <Picker.Item label="Select category" value="" color="#B0B0B0" />
-              {categories.map((category) => (
-                <Picker.Item key={category} label={category} value={category} />
+              <Picker.Item label={t('addProduct.selectCategory')} value="" color="#B0B0B0" />
+              {categories.map((cat) => (
+                <Picker.Item key={cat.value} label={cat.label} value={cat.value} />
               ))}
             </Picker>
           </View>
           {errors.category && <Text style={styles.errorText}>{errors.category}</Text>}
 
           {/* Tags */}
-          <Text style={styles.label}>Tags (comma separated)</Text>
+          <Text style={styles.label}>{t('addProduct.tags')}</Text>
           <TextInput
             style={styles.input}
             value={formData.tags}
             onChangeText={(text) => updateField('tags', text)}
-            placeholder="e.g. organic, handmade, premium"
+            placeholder={t('addProduct.tagsPlaceholder')}
             placeholderTextColor="#B0B0B0"
             editable={!loading}
           />
 
           {/* Female Only Toggle */}
           <View style={styles.toggleContainer}>
-            <Text style={styles.label}>Female Only Service</Text>
+            <Text style={styles.label}>{t('addProduct.femaleOnly')}</Text>
             <TouchableOpacity
               style={[styles.toggle, formData.isFemaleOnly && styles.toggleActive]}
               onPress={() => updateField('isFemaleOnly', !formData.isFemaleOnly)}
@@ -433,11 +478,11 @@ const AddProductScreen = ({ route, navigation }) => {
           </View>
 
           {/* Images */}
-          <Text style={styles.label}>Images</Text>
+          <Text style={styles.label}>{t('addProduct.productImages')}</Text>
           <TouchableOpacity style={styles.uploadButton} onPress={pickImage} disabled={loading}>
             <Ionicons name="cloud-upload-outline" size={40} color={COLORS.primary} />
-            <Text style={styles.uploadText}>Upload Images</Text>
-            <Text style={styles.uploadSubtext}>Tap to select images</Text>
+            <Text style={styles.uploadText}>{t('addProduct.uploadImages')}</Text>
+            <Text style={styles.uploadSubtext}>{t('businessReg.uploadLogoSubtext')}</Text>
           </TouchableOpacity>
 
           {/* Image Preview */}
@@ -459,7 +504,7 @@ const AddProductScreen = ({ route, navigation }) => {
 
           {/* Submit Button */}
           <CustomButton
-            title="Add Product/Service"
+            title={t('addProduct.addProduct')}
             onPress={handleSubmit}
             loading={loading}
             disabled={loading}

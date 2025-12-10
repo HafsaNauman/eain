@@ -1,6 +1,19 @@
-import { Listing, VendorProfile } from '../models/index.js';
+import { Listing, VendorProfile, User } from '../models/index.js';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 import { Op } from 'sequelize';
+
+// Helper to check if user is female
+const canViewFemaleOnly = async (userId) => {
+    if (!userId) return false;
+    try {
+        const user = await User.findByPk(userId);
+        // Check for 'female' (case insensitive)
+        return user && user.gender && user.gender.toLowerCase() === 'female';
+    } catch (error) {
+        console.error('Error checking user gender:', error);
+        return false;
+    }
+};
 
 /**
  * GET /api/catalog/listings
@@ -11,10 +24,18 @@ export const getAllListings = async (req, res) => {
     try {
         const { q, city, limit = 20, offset = 0 } = req.query;
 
+        // Check user gender
+        const isFemale = await canViewFemaleOnly(req.userId);
+
         // Build where clause for Listing
         const listingWhere = {
             is_active: true
         };
+
+        // If not female, can only see non-female-only items
+        if (!isFemale) {
+            listingWhere.is_female_only = false;
+        }
 
         // Search in title, category, tags
         if (q) {
@@ -114,6 +135,14 @@ export const getListingDetails = async (req, res) => {
             return errorResponse(res, 404, 'Listing not found or is inactive');
         }
 
+        // Check access for female-only items
+        if (listing.is_female_only) {
+            const isFemale = await canViewFemaleOnly(req.userId);
+            if (!isFemale) {
+                return errorResponse(res, 403, 'Access denied. This listing is for female customers only.');
+            }
+        }
+
         return successResponse(res, 200, 'Listing details retrieved', {
             listing,
         });
@@ -155,11 +184,18 @@ export const getVendorListingsPublic = async (req, res) => {
         const maxLimit = Math.min(parseInt(limit) || 20, 100);
         const skip = parseInt(offset) || 0;
 
+        const isFemale = await canViewFemaleOnly(req.userId);
+        const listingWhere = {
+            vendor_id,
+            is_active: true, // Only active listings
+        };
+
+        if (!isFemale) {
+            listingWhere.is_female_only = false;
+        }
+
         const { count, rows } = await Listing.findAndCountAll({
-            where: {
-                vendor_id,
-                is_active: true, // Only active listings
-            },
+            where: listingWhere,
             limit: maxLimit,
             offset: skip,
             order: [['created_at', 'DESC']],
@@ -211,14 +247,26 @@ export const searchListings = async (req, res) => {
             offset = 0,
         } = req.query;
 
+        // Check user gender
+        const isFemale = await canViewFemaleOnly(req.userId);
+
         // Build listing filters
         const listingWhere = { is_active: true };
+
+        if (!isFemale) {
+            // Male/Guest can ONLY see non-female-only items
+            listingWhere.is_female_only = false;
+        } else {
+            // Female user can filter if they want
+            if (is_female_only === 'true') {
+                listingWhere.is_female_only = true;
+            }
+        }
+
         if (category) {
             listingWhere.category = category;
         }
-        if (is_female_only === 'true') {
-            listingWhere.is_female_only = true;
-        }
+
         if (q) {
             listingWhere[Op.or] = [
                 { title_en: { [Op.iLike]: `%${q}%` } },
