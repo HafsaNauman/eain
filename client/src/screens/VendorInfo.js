@@ -36,36 +36,23 @@ const signupPhone = user?.phone_number || user?.phone || '';
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  
-  // const [formData, setFormData] = useState({
-  //   businessName: initialData.business_name_en || initialData.businessName || '',
-  //   businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
-  //   category: initialData.category || initialData.businessCategory || '',
-  //   businessType: initialData.vendor_type || initialData.businessType || '',
-  //   email: initialData.business_email || initialData.businessEmail || '',
-  //   phone: initialData.business_phone || initialData.businessPhone || '',
-  //   address: initialData.office_address || initialData.officeAddress || '',
-  //   city: initialData.city || '',
-  //   area: initialData.area || '',
-  //   description: initialData.description_en || initialData.businessDescription || '',
-  //   descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
-  //   isFemaleOnly: initialData.is_female_only || false,
-  // });
-  const [formData, setFormData] = useState({
-  businessName: initialData.business_name_en || initialData.businessName || '',
-  businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
-  category: initialData.category || initialData.businessCategory || '',
-  businessType: initialData.vendor_type || initialData.businessType || '',
-  email: signupEmail || initialData.business_email || initialData.businessEmail || '',
-  phone: signupPhone || initialData.business_phone || initialData.businessPhone || '',
-  address: initialData.office_address || initialData.officeAddress || '',
-  city: initialData.city || '',
-  area: initialData.area || '',
-  description: initialData.description_en || initialData.businessDescription || '',
-  descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
-  isFemaleOnly: initialData.is_female_only || false,
-});
 
+  const [formData, setFormData] = useState({
+    businessName: initialData.business_name_en || initialData.businessName || '',
+    businessNameUrdu: initialData.business_name_ur || initialData.businessNameUrdu || '',
+    category: initialData.category || initialData.businessCategory || '',
+    businessType: initialData.vendor_type || initialData.businessType || '',
+    email: initialData.business_email || initialData.businessEmail || '',
+    phone: initialData.business_phone || initialData.businessPhone || '',
+    address: initialData.office_address || initialData.officeAddress || '',
+    city: initialData.city || '',
+    area: initialData.area || '',
+    description: initialData.description_en || initialData.businessDescription || '',
+    descriptionUrdu: initialData.description_ur || initialData.businessDescriptionUrdu || '',
+    // isFemaleOnly: initialData.is_female_only || false,
+    isFemaleOnly: initialData.is_female_only === true,
+
+  });
 
   const categories = [
     'Electronics',
@@ -224,14 +211,14 @@ const InfoField = ({ icon, label, value, field, multiline = false }) => (
         {/* Basic Details */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Details</Text>
-          
+
           <InfoField
             icon="business-outline"
             label="Business Name (English)"
             value={formData.businessName}
             field="businessName"
           />
-          
+
           <InfoField
             icon="business-outline"
             label="Business Name (Urdu)"
@@ -317,7 +304,7 @@ const InfoField = ({ icon, label, value, field, multiline = false }) => (
         {/* Contact Information */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Contact Information</Text>
-          
+
           <InfoField
             icon="mail-outline"
             label="Email"
@@ -325,7 +312,7 @@ const InfoField = ({ icon, label, value, field, multiline = false }) => (
             field="email"
             // editable={false}
           />
-          
+
           <InfoField
             icon="call-outline"
             label="Phone"
@@ -361,7 +348,7 @@ const InfoField = ({ icon, label, value, field, multiline = false }) => (
         {/* Description */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Description</Text>
-          
+
           <InfoField
             icon="document-text-outline"
             label="Description (English)"

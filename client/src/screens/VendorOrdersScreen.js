@@ -1,3 +1,4 @@
+
 /**
  * Vendor Orders Screen
  * Shows all orders for the vendor's shop with status management
@@ -18,14 +19,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { getVendorOrders, updateOrderStatus } from '../api/vendorOrderService';
 
-const VendorOrdersScreen = ({ navigation }) => {
-    const { i18n } = useTranslation();
+const VendorOrdersScreen = ({ navigation, route }) => {
+    const { i18n, t } = useTranslation();
     const isUrdu = i18n.language === 'ur';
+    const { initialFilter } = route.params || {};
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [filter, setFilter] = useState('all');
+    const [filter, setFilter] = useState(initialFilter || 'all');
     const [error, setError] = useState('');
     const [updatingOrderId, setUpdatingOrderId] = useState(null);
 
@@ -50,12 +52,12 @@ const VendorOrdersScreen = ({ navigation }) => {
             } else {
                 setError(result.error);
                 if (!isRefresh) {
-                    Alert.alert('Error', result.error);
+                    Alert.alert(t('common.error'), result.error);
                 }
             }
         } catch (err) {
             console.error('❌ Fetch Orders Error:', err);
-            setError('Failed to load orders');
+            setError(t('errors.networkError'));
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -64,25 +66,28 @@ const VendorOrdersScreen = ({ navigation }) => {
 
     const handleStatusChange = async (orderId, newStatus) => {
         Alert.alert(
-            'Confirm Action',
-            `Are you sure you want to ${newStatus} this order?`,
+            t('vendorOrders.confirmAction'),
+            `${t('vendorOrders.confirmMessage')} ${t(`vendorOrders.${newStatus}`)} ${t('vendorOrders.thisOrder')}`,
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Confirm',
+                    text: t('common.yes'),
                     onPress: async () => {
                         setUpdatingOrderId(orderId);
                         try {
                             const result = await updateOrderStatus(orderId, newStatus);
 
                             if (result.success) {
-                                Alert.alert('Success', `Order ${newStatus} successfully`);
+                                Alert.alert(
+                                    t('vendorOrders.success'),
+                                    `${t('orderDetails.orderNumber')} ${t(`vendorOrders.${newStatus}`)} ${t('vendorOrders.orderStatusUpdated')}`
+                                );
                                 fetchVendorOrders(true);
                             } else {
-                                Alert.alert('Error', result.error);
+                                Alert.alert(t('common.error'), result.error);
                             }
                         } catch (err) {
-                            Alert.alert('Error', 'Failed to update order status');
+                            Alert.alert(t('common.error'), t('errors.serverError'));
                         } finally {
                             setUpdatingOrderId(null);
                         }
@@ -119,6 +124,9 @@ const VendorOrdersScreen = ({ navigation }) => {
     const renderOrderCard = ({ item: order }) => {
         const statusColor = getStatusColor(order.status);
         const isUpdating = updatingOrderId === order.order_id;
+        const productTitle = isUrdu && order.listing?.title_ur
+            ? order.listing.title_ur
+            : order.listing?.title_en || t('vendorOrders.product');
 
         return (
             <View style={styles.orderCard}>
@@ -126,28 +134,36 @@ const VendorOrdersScreen = ({ navigation }) => {
                 <View style={styles.orderHeader}>
                     <View style={styles.orderIdRow}>
                         <Ionicons name="receipt-outline" size={16} color="#666" />
-                        <Text style={styles.orderId}>Order #{order.order_id}</Text>
+                        <Text style={styles.orderId}>
+                            {t('orderDetails.orderNumber')} #{order.order_id}
+                        </Text>
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
-                        <Text style={styles.statusText}>{order.status?.toUpperCase()}</Text>
+                        <Text style={styles.statusText}>
+                            {t(`vendorOrders.${order.status?.toLowerCase()}`).toUpperCase()}
+                        </Text>
                     </View>
                 </View>
 
                 {/* Product Info */}
                 <View style={styles.productSection}>
-                    <Text style={styles.sectionLabel}>Product</Text>
+                    <Text style={styles.sectionLabel}>{t('vendorOrders.product')}</Text>
                     <Text style={styles.productTitle} numberOfLines={2}>
-                        {order.listing?.title_en || 'Product'}
+                        {productTitle}
                     </Text>
-                    <Text style={styles.productQuantity}>Quantity: {order.quantity}</Text>
+                    <Text style={styles.productQuantity}>
+                        {t('orderDetails.quantity')}: {order.quantity}
+                    </Text>
                 </View>
 
                 {/* Customer Info */}
                 <View style={styles.customerSection}>
-                    <Text style={styles.sectionLabel}>Customer Details</Text>
+                    <Text style={styles.sectionLabel}>{t('vendorOrders.customerDetails')}</Text>
                     <View style={styles.infoRow}>
                         <Ionicons name="person-outline" size={14} color="#666" />
-                        <Text style={styles.infoText}>{order.customer?.full_name || 'Customer'}</Text>
+                        <Text style={styles.infoText}>
+                            {order.customer?.full_name || order.customer_name || t('vendorOrders.customerDetails')}
+                        </Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Ionicons name="call-outline" size={14} color="#666" />
@@ -162,14 +178,16 @@ const VendorOrdersScreen = ({ navigation }) => {
                     <View style={styles.infoRow}>
                         <Ionicons name="card-outline" size={14} color="#666" />
                         <Text style={styles.infoText}>
-                            {order.payment_method === 'cod' ? 'Cash on Delivery' : 'Bank Transfer'}
+                            {order.payment_method === 'cod'
+                                ? t('vendorOrders.cashOnDelivery')
+                                : t('vendorOrders.bankTransfer')}
                         </Text>
                     </View>
                 </View>
 
                 {/* Total Amount */}
                 <View style={styles.amountSection}>
-                    <Text style={styles.amountLabel}>Total Amount</Text>
+                    <Text style={styles.amountLabel}>{t('vendorOrders.totalAmount')}</Text>
                     <Text style={styles.amount}>PKR {order.total_amount?.toLocaleString()}</Text>
                 </View>
 
@@ -186,7 +204,9 @@ const VendorOrdersScreen = ({ navigation }) => {
                             ) : (
                                 <>
                                     <Ionicons name="checkmark-circle" size={18} color="#fff" />
-                                    <Text style={styles.confirmButtonText}>Confirm</Text>
+                                    <Text style={styles.confirmButtonText}>
+                                        {t('vendorOrders.confirm')}
+                                    </Text>
                                 </>
                             )}
                         </TouchableOpacity>
@@ -197,7 +217,9 @@ const VendorOrdersScreen = ({ navigation }) => {
                             disabled={isUpdating}
                         >
                             <Ionicons name="close-circle" size={18} color="#fff" />
-                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                            <Text style={styles.cancelButtonText}>
+                                {t('vendorOrders.cancel')}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -205,14 +227,14 @@ const VendorOrdersScreen = ({ navigation }) => {
                 {order.status === 'confirmed' && (
                     <View style={styles.statusMessage}>
                         <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                        <Text style={styles.confirmedText}>Order Confirmed</Text>
+                        <Text style={styles.confirmedText}>{t('vendorOrders.orderConfirmed')}</Text>
                     </View>
                 )}
 
                 {order.status === 'cancelled' && (
                     <View style={styles.statusMessage}>
                         <Ionicons name="close-circle" size={20} color="#F44336" />
-                        <Text style={styles.cancelledText}>Order Cancelled</Text>
+                        <Text style={styles.cancelledText}>{t('vendorOrders.orderCancelled')}</Text>
                     </View>
                 )}
 
@@ -233,11 +255,11 @@ const VendorOrdersScreen = ({ navigation }) => {
     const renderEmpty = () => (
         <View style={styles.emptyContainer}>
             <Ionicons name="receipt-outline" size={80} color="#ccc" />
-            <Text style={styles.emptyTitle}>No Orders Yet</Text>
+            <Text style={styles.emptyTitle}>{t('vendorOrders.noOrders')}</Text>
             <Text style={styles.emptySubtitle}>
                 {filter === 'all'
-                    ? 'Orders will appear here when customers place them'
-                    : `No ${filter} orders found`}
+                    ? t('vendorOrders.noOrdersMessage')
+                    : `${t('vendorOrders.noFilteredOrders')} ${t(`vendorOrders.${filter}`)}`}
             </Text>
         </View>
     );
@@ -246,7 +268,7 @@ const VendorOrdersScreen = ({ navigation }) => {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#036c5f" />
-                <Text style={styles.loadingText}>Loading orders...</Text>
+                <Text style={styles.loadingText}>{t('vendorOrders.loadingOrders')}</Text>
             </View>
         );
     }
@@ -258,7 +280,7 @@ const VendorOrdersScreen = ({ navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#036c5f" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>My Orders</Text>
+                <Text style={styles.headerTitle}>{t('vendorOrders.title')}</Text>
                 <TouchableOpacity onPress={onRefresh}>
                     <Ionicons name="refresh" size={24} color="#036c5f" />
                 </TouchableOpacity>
@@ -275,7 +297,7 @@ const VendorOrdersScreen = ({ navigation }) => {
                         <Text
                             style={[styles.filterTabText, filter === status && styles.filterTabTextActive]}
                         >
-                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                            {t(`vendorOrders.${status}`)}
                         </Text>
                         {filter === status && <View style={styles.filterTabIndicator} />}
                     </TouchableOpacity>
@@ -288,7 +310,7 @@ const VendorOrdersScreen = ({ navigation }) => {
                     <Ionicons name="alert-circle" size={20} color="#ff6b6b" />
                     <Text style={styles.errorText}>{error}</Text>
                     <TouchableOpacity onPress={() => fetchVendorOrders()}>
-                        <Text style={styles.retryText}>Retry</Text>
+                        <Text style={styles.retryText}>{t('myOrders.retry')}</Text>
                     </TouchableOpacity>
                 </View>
             )}
@@ -359,9 +381,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         position: 'relative',
     },
-    filterTabActive: {
-        // Active state handled by indicator
-    },
+    filterTabActive: {},
     filterTabText: {
         fontSize: 14,
         color: '#666',

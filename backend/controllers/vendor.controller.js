@@ -43,7 +43,7 @@ export const createOrUpdateProfile = async (req, res) => {
       is_female_only,
       media,
     } = req.body;
-
+    console.log("VENDOR PROFILE CONTROLLER: Media:", media);
     // Validate required fields
     if (!business_name_en || !vendor_type) {
       return errorResponse(res, 400, 'Business name (English) and vendor type are required');
@@ -62,7 +62,9 @@ export const createOrUpdateProfile = async (req, res) => {
         city,
         area,
         location,
-        is_female_only: is_female_only !== undefined ? is_female_only : true,
+        // is_female_only: is_female_only !== undefined ? is_female_only : true,
+        is_female_only: is_female_only !== undefined ? is_female_only : false,
+
         media,
       },
       {
