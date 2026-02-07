@@ -1,4 +1,5 @@
 .env
+.idea
 client/.env
 client/node_modules/
 backend/.env
@@ -6,10 +7,11 @@ backend/node_modules/
 .vscode/
 stt-service/.env
 stt-service/credentials.json
+stt-service/venv/
 stt-service/app/__pycache__/
 client/.expo/
 backend/uploads/
-ai_descriptions/app/__pycache__/
 ai_descriptions/venv/
 ai_descriptions/.env
 ai_descriptions/uploads/
+ai_descriptions/__pycache__/

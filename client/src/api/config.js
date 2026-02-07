@@ -38,7 +38,7 @@
 // export default API_CONFIG;
 
 const API_CONFIG = {
-  BASE_URL: "https://unfiercely-javon-holistically.ngrok-free.dev",
+  BASE_URL: "https://mightiest-unextolled-valeri.ngrok-free.dev",
   TIMEOUT: 30000,
 
   ENDPOINTS: {
