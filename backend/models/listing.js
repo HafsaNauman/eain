@@ -52,11 +52,6 @@ const Listing = sequelize.define(
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: true,
     },
-    // Option 2 (alternative): JSONB array if you prefer
-    // tags: {
-    //   type: DataTypes.JSONB,
-    //   allowNull: true,
-    // },
     media: {
       type: DataTypes.JSONB, // { images: ['url1', 'url2'], videos: [] }
       allowNull: true,
@@ -76,6 +71,36 @@ const Listing = sequelize.define(
       allowNull: false,
       defaultValue: true,
     },
+    stock_quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: true, // Null = unlimited (for services)
+      defaultValue: null,
+      validate: {
+      min: 0
+      }
+    },
+    reserved_quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0
+      }
+    },
+    track_inventory: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: 'Set to true for physical products, false for services'
+    },
+    low_stock_threshold: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 5,
+      validate: {
+        min: 0
+      }
+    },
   },
   {
     tableName: 'listings',
@@ -83,7 +108,6 @@ const Listing = sequelize.define(
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-  }
-);
+  });
 
 export default Listing;
