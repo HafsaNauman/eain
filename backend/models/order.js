@@ -71,15 +71,32 @@ const Order = sequelize.define(
                 isIn: [['pending', 'completed', 'failed']],
             },
         },
+        // status: {
+        //     type: DataTypes.STRING(20),
+        //     allowNull: false,
+        //     defaultValue: 'pending',
+        //     validate: {
+        //         isIn: [['pending', 'confirmed', 'cancelled', 'completed']],
+        //     },
+        //     comment: "Order status: pending (new), confirmed (accepted), cancelled, completed",
+        // },
         status: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.ENUM(
+              'pending',
+              'confirmed',
+              'processing',
+              'ready_for_pickup',
+              'shipped',
+              'out_for_delivery',
+              'delivered',
+              'cancelled',
+              'refunded',
+              'failed'
+            ),
             allowNull: false,
-            defaultValue: 'pending',
-            validate: {
-                isIn: [['pending', 'confirmed', 'cancelled', 'completed']],
-            },
-            comment: "Order status: pending (new), confirmed (accepted), cancelled, completed",
+            defaultValue: 'pending'
         },
+
         shipping_address: {
             type: DataTypes.TEXT,
             allowNull: false,
@@ -105,6 +122,62 @@ const Order = sequelize.define(
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,
+        },
+    // Add to your existing order.js model definition:
+// Delivery tracking
+        courier_name: {
+            type: DataTypes.STRING,
+             allowNull: true
+        },
+        tracking_number: {
+          type: DataTypes.STRING,
+          allowNull: true
+        },
+        estimated_delivery_date: {
+          type: DataTypes.DATE,
+          allowNull: true
+        },
+        actual_delivery_date: {
+          type: DataTypes.DATE,
+          allowNull: true
+        },
+        delivery_fee: {
+          type: DataTypes.DECIMAL(10, 2),
+          allowNull: false,
+          defaultValue: 0.00
+        },
+        delivery_status: {
+          type: DataTypes.ENUM('pending', 'in_transit', 'delivered', 'failed'),
+          allowNull: false,
+          defaultValue: 'pending'
+        },
+
+// Timestamps for each status
+        confirmed_at: {
+          type: DataTypes.DATE,
+          allowNull: true
+        },
+        shipped_at: {
+          type: DataTypes.DATE,
+          allowNull: true
+        },
+        delivered_at: {
+          type: DataTypes.DATE,
+          allowNull: true
+        },
+        cancelled_at: {
+          type: DataTypes.DATE,
+          allowNull: true
+        },
+
+// Cancellation details
+        cancellation_reason: {
+          type: DataTypes.TEXT,
+          allowNull: true
+        },
+        cancelled_by: {
+          type: DataTypes.ENUM('customer', 'vendor', 'admin'),
+          allowNull: true
         },
     },
     {
@@ -136,6 +209,7 @@ const Order = sequelize.define(
             },
         ],
     }
+
 );
 
 export default Order;

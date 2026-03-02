@@ -25,9 +25,9 @@ export const verifyJWT = async (req, res, next) => {
   //   return errorResponse(res, 401, 'Unauthorized - Invalid token', error.message);
   // }
     // Debug: Check what we receive
-    console.log('🔍 Full Headers:', req.headers);
+    console.log('Full Headers:', req.headers);
     const authHeader = req.headers['authorization'];
-    console.log('🔍 Authorization Header:', authHeader);
+    console.log('Authorization Header:', authHeader);
     
     // Get token from header
     const token = authHeader?.split(' ')[1]; // Bearer TOKEN
