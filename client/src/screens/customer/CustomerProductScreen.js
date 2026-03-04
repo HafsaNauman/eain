@@ -1,6 +1,6 @@
 /**
- * Product Detail Screen
- * Shows full product information with vendor details
+ * Product Detail Screen - STOCK MANAGEMENT COMPLETE
+ * Shows full product information with vendor details + stock validation
  */
 import React, { useState, useEffect } from 'react';
 import {
@@ -17,8 +17,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { useAppSelector } from '../../redux/hooks';  // ✅ STOCK: Redux auth
 import { getListingDetails } from '../../api/catalogService';
 import CustomButton from '../../components/common/CustomButton';
+import StockIndicator from '../../components/StockIndicator';  // ✅ STOCK: Import
+import QuantityPicker from '../../components/common/QuantityPicker';  // ✅ STOCK: Import
 
 const { width } = Dimensions.get('window');
 
@@ -26,12 +29,16 @@ const CustomerProductScreen = ({ route, navigation }) => {
     const { listingId } = route.params;
     const { i18n, t } = useTranslation();
     const isUrdu = i18n.language === 'ur';
+    
+    // ✅ STOCK: Redux auth check (female-only filtering)
+    const { user } = useAppSelector(state => state.auth);
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [quantity, setQuantity] = useState(1);  // ✅ STOCK: Quantity selector
 
     useEffect(() => {
         fetchProductDetails();
@@ -60,8 +67,27 @@ const CustomerProductScreen = ({ route, navigation }) => {
         }
     };
 
+    // ✅ STOCK: Calculate available stock
+    const availableStock = product?.track_inventory 
+        ? Math.max(0, (product.stock_quantity || 0) - (product.reserved_quantity || 0))
+        : null;
+    const isOutOfStock = availableStock === 0 && product?.track_inventory;
+    const maxQuantity = availableStock !== null ? availableStock : 999;
+
     const handleOrderNow = () => {
-        navigation.navigate('Checkout', { product });
+        // ✅ STOCK: Block out-of-stock orders
+        if (isOutOfStock) {
+            Alert.alert('Out of Stock', 'This product is currently unavailable.');
+            return;
+        }
+        if (quantity > maxQuantity) {
+            Alert.alert('Stock Limit', `Only ${maxQuantity} items available.`);
+            return;
+        }
+        navigation.navigate('Checkout', { 
+            product, 
+            quantity  // ✅ STOCK: Pass quantity to checkout
+        });
     };
 
     const toggleFavorite = () => {
@@ -182,6 +208,26 @@ const CustomerProductScreen = ({ route, navigation }) => {
                         {product.currency} {product.price?.toLocaleString()}
                     </Text>
 
+                    {/* ✅ STOCK: Stock Indicator */}
+                    {product.track_inventory && (
+                        <View style={[styles.badgeRow, { marginTop: 8, marginBottom: 16 }]}>
+                            <StockIndicator
+                                stockQuantity={product.stock_quantity}
+                                reservedQuantity={product.reserved_quantity}
+                                trackInventory={true}
+                            />
+                        </View>
+                    )}
+
+                    {/* ✅ STOCK: Out of Stock Warning */}
+                    {isOutOfStock && (
+                        <View style={styles.outOfStockContainer}>
+                            <Ionicons name="close-circle" size={48} color="#ff6b6b" />
+                            <Text style={styles.outOfStockText}>Out of Stock</Text>
+                            <Text style={styles.outOfStockSubtext}>Check back later</Text>
+                        </View>
+                    )}
+
                     {/* Tags */}
                     {product.tags && product.tags.length > 0 && (
                         <View style={styles.tagsContainer}>
@@ -190,6 +236,24 @@ const CustomerProductScreen = ({ route, navigation }) => {
                                     <Text style={styles.tagText}>{tag}</Text>
                                 </View>
                             ))}
+                        </View>
+                    )}
+
+                    {/* ✅ STOCK: Quantity Selector */}
+                    {!isOutOfStock && (
+                        <View style={styles.quantitySection}>
+                            <Text style={styles.sectionTitle}>Quantity</Text>
+                            <QuantityPicker
+                                value={quantity}
+                                onChange={setQuantity}
+                                max={maxQuantity}
+                                min={1}
+                            />
+                            {availableStock !== null && (
+                                <Text style={styles.stockInfo}>
+                                    📦 {availableStock} available
+                                </Text>
+                            )}
                         </View>
                     )}
 
@@ -260,9 +324,17 @@ const CustomerProductScreen = ({ route, navigation }) => {
             {/* Bottom CTA */}
             <View style={styles.bottomBar}>
                 <CustomButton
-                    title={t('customerProduct.orderNow')}
+                    title={
+                        isOutOfStock 
+                            ? 'Sold Out' 
+                            : `Order Now (${quantity})`
+                    }
                     onPress={handleOrderNow}
-                    style={styles.orderButton}
+                    style={[
+                        styles.orderButton,
+                        isOutOfStock && styles.disabledButton
+                    ]}
+                    disabled={isOutOfStock || loading}
                 />
             </View>
         </SafeAreaView>
@@ -433,6 +505,36 @@ const styles = StyleSheet.create({
         color: '#666',
         lineHeight: 22,
     },
+    // ✅ STOCK: NEW STYLES
+    outOfStockContainer: {
+        backgroundColor: '#ffebee',
+        padding: 20,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginVertical: 16,
+    },
+    outOfStockText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#c62828',
+        marginTop: 8,
+        textAlign: 'center',
+    },
+    outOfStockSubtext: {
+        fontSize: 14,
+        color: '#666',
+        textAlign: 'center',
+        marginTop: 4,
+    },
+    quantitySection: {
+        marginBottom: 24,
+    },
+    stockInfo: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 8,
+        textAlign: 'center',
+    },
     vendorCard: {
         backgroundColor: '#f9f9f9',
         borderRadius: 12,
@@ -504,6 +606,9 @@ const styles = StyleSheet.create({
     },
     orderButton: {
         backgroundColor: '#036c5f',
+    },
+    disabledButton: {
+        backgroundColor: '#ccc',
     },
 });
 

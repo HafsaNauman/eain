@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { getAllListings, searchListings } from '../api/catalogService';
 import { useTranslation } from 'react-i18next';
+import StockIndicator from '../components/StockIndicator';  // ✅ NEW
 
 const categories = ['All', 'Electronics', 'Fashion & Apparel', 'Home & Garden', 'Health & Beauty', 'Sports & Fitness', 'Food & Beverage'];
 const cities = ['All Cities', 'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
@@ -25,7 +26,7 @@ function HomeScreen() {
   const { i18n, t } = useTranslation();
   const isUrdu = i18n.language === 'ur';
   const navigation = useNavigation();
-
+  const [selectedStockFilter, setSelectedStockFilter] = useState('all');
   // State
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
@@ -46,6 +47,7 @@ function HomeScreen() {
     { label: t('homeScreen.newestFirst'), value: 'created_at' },
     { label: t('homeScreen.priceLowToHigh'), value: 'price_asc' },
     { label: t('homeScreen.priceHighToLow'), value: 'price_desc' },
+    { label: 'Stock Available', value: 'stock_available' }, 
   ];
 
   useEffect(() => {
@@ -63,7 +65,7 @@ function HomeScreen() {
 
     setSearchTimer(timer);
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedCategory, selectedCity, selectedSort]);
+  }, [searchQuery, selectedCategory, selectedCity, selectedSort,selectedStockFilter]);
 
   const fetchListings = async (isRefresh = false) => {
     try {
@@ -95,8 +97,12 @@ function HomeScreen() {
       if (selectedSort !== 'created_at') {
         filters.sort = selectedSort;
       }
+       if (selectedStockFilter !== 'all') {
+        filters.stock_status = selectedStockFilter;
+      }
 
-      const hasFilters = selectedCategory !== 'All' || selectedCity !== 'All Cities' || selectedSort !== 'created_at';
+
+      const hasFilters = selectedCategory !== 'All' || selectedCity !== 'All Cities' || selectedSort !== 'created_at' || selectedStockFilter !== 'all';
       const result = hasFilters
         ? await searchListings(filters)
         : await getAllListings(filters);
@@ -115,6 +121,7 @@ function HomeScreen() {
       setRefreshing(false);
     }
   };
+  
 
   const handleRefresh = () => {
     fetchListings(true);
@@ -126,22 +133,49 @@ function HomeScreen() {
     setSelectedCity('All Cities');
     setSelectedSort('created_at');
     setShowFilters(false);
+    setSelectedStockFilter('all');
   };
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const addToCart = (product) => {
+    const addToCart = (product) => {
+    // Block out-of-stock products
+    if (product.track_inventory && product.stock_quantity <= (product.reserved_quantity || 0)) {
+      Alert.alert(
+        'Out of Stock', 
+        'This product is currently unavailable.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Check available quantity
+    const available = product.stock_quantity - (product.reserved_quantity || 0);
+    const maxQuantity = available || 999; // Unlimited if not tracking
+
     const existing = cart.find(item => item.listing_id === product.listing_id);
+    let newQuantity = existing ? existing.quantity + 1 : 1;
+
+    if (newQuantity > maxQuantity) {
+      Alert.alert(
+        'Stock Limit', 
+        `Only ${maxQuantity} items available.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     if (existing) {
       setCart(cart.map(item =>
         item.listing_id === product.listing_id
-          ? { ...item, quantity: item.quantity + 1 }
+          ? { ...item, quantity: newQuantity }
           : item
       ));
     } else {
       setCart([...cart, { ...product, quantity: 1 }]);
     }
+    
     const productName = isUrdu && product.title_ur ? product.title_ur : product.title_en;
     Alert.alert(t('homeScreen.addedToCart'), `${productName} ${t('homeScreen.cartMessage')}`);
   };
@@ -161,7 +195,8 @@ function HomeScreen() {
   const activeFiltersCount =
     (selectedCategory !== 'All' ? 1 : 0) +
     (selectedCity !== 'All Cities' ? 1 : 0) +
-    (selectedSort !== 'created_at' ? 1 : 0);
+    (selectedSort !== 'created_at' ? 1 : 0)+
+    (selectedStockFilter !== 'all' ? 1 : 0);
 
   return (
     <View style={styles.container}>
@@ -270,6 +305,21 @@ function HomeScreen() {
               </Text>
             </TouchableOpacity>
           ))}
+          {/* ✅ STOCK FILTER */}
+<Text style={styles.filterLabel}>Stock Status</Text>
+<View style={styles.pickerWrapper}>
+  <Picker
+    selectedValue={selectedStockFilter}
+    onValueChange={setSelectedStockFilter}
+    style={styles.picker}
+  >
+    <Picker.Item label="All Products" value="all" />
+    <Picker.Item label="In Stock" value="in_stock" />
+    <Picker.Item label="Low Stock" value="low_stock" />
+    <Picker.Item label="Out of Stock" value="out_of_stock" />
+  </Picker>
+</View>
+
         </ScrollView>
 
         {/* Loading Indicator */}
@@ -312,68 +362,98 @@ function HomeScreen() {
             )}
 
             {/* Grid layout with 2 columns */}
-            <View style={styles.productsGrid}>
-              {products.map(product => (
-                <TouchableOpacity
-                  key={product.listing_id}
-                  style={styles.productCard}
-                  onPress={() => navigateToProductDetail(product.listing_id)}
-                >
-                  <Image
-                    source={{
-                      uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
-                    }}
-                    style={styles.productImage}
-                  />
+           // REPLACE this entire productsGrid section:
+<View style={styles.productsGrid}>
+  {products.map(product => (
+    <TouchableOpacity
+      key={product.listing_id}
+      style={[
+        styles.productCard,
+        // ✅ STOCK: Visual stock status
+        product.track_inventory && product.stock_quantity === 0 && styles.outOfStockCard
+      ]}
+      onPress={() => navigateToProductDetail(product.listing_id)}
+      disabled={product.track_inventory && product.stock_quantity === 0}  // ✅ Block OOS
+    >
+      <Image
+        source={{
+          uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
+        }}
+        style={styles.productImage}
+      />
 
-                  <Text style={styles.productName} numberOfLines={2}>
-                    {isUrdu && product.title_ur ? product.title_ur : product.title_en}
-                  </Text>
+      {/* ✅ STOCK BADGE - ADD THIS */}
+      {product.track_inventory && (
+        <StockIndicator
+          stockQuantity={product.stock_quantity}
+          reservedQuantity={product.reserved_quantity || 0}
+          trackInventory={true}
+          style={styles.stockBadge}
+        />
+      )}
 
-                  <Text style={styles.productPrice}>
-                    {product.currency} {product.price?.toLocaleString()}
-                  </Text>
+      <Text style={styles.productName} numberOfLines={2}>
+        {isUrdu && product.title_ur ? product.title_ur : product.title_en}
+      </Text>
 
-                  <Text
-                    style={{ fontSize: 11, color: '#666', marginBottom: 8 }}
-                    numberOfLines={1}
-                  >
-                    {product.Vendor?.business_name_en || 'Unknown'}
-                  </Text>
+      <Text style={styles.productPrice}>
+        {product.currency} {product.price?.toLocaleString()}
+      </Text>
 
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TouchableOpacity
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        addToCart(product);
-                      }}
-                      style={{
-                        backgroundColor: '#036c5f',
-                        paddingHorizontal: 12,
-                        paddingVertical: 6,
-                        borderRadius: 8
-                      }}
-                    >
-                      <Ionicons name="cart-outline" size={16} color="#fff" />
-                    </TouchableOpacity>
+      <Text style={{ fontSize: 11, color: '#666', marginBottom: 8 }} numberOfLines={1}>
+        {product.Vendor?.business_name_en || 'Unknown'}
+      </Text>
 
-                    <TouchableOpacity
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        toggleWishlist(product);
-                      }}
-                      style={{ marginLeft: 8 }}
-                    >
-                      <Ionicons
-                        name={wishlist.find(i => i.listing_id === product.listing_id) ? "heart" : "heart-outline"}
-                        size={24}
-                        color={wishlist.find(i => i.listing_id === product.listing_id) ? "#036c5f" : "#8CBFC5"}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
+      {/* ✅ STOCK: Add to Cart - DISABLED for OOS */}
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            // ✅ STOCK: Block OOS products
+            if (product.track_inventory && product.stock_quantity === 0) {
+              Alert.alert('Out of Stock', 'This product is currently unavailable.');
+              return;
+            }
+            addToCart(product);
+          }}
+          style={[
+            {
+              backgroundColor: '#036c5f',
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 8
+            },
+            (product.track_inventory && product.stock_quantity === 0) && {
+              backgroundColor: '#ccc'
+            }
+          ]}
+          disabled={product.track_inventory && product.stock_quantity === 0}
+        >
+          <Ionicons 
+            name="cart-outline" 
+            size={16} 
+            color={product.track_inventory && product.stock_quantity === 0 ? '#999' : "#fff"} 
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            toggleWishlist(product);
+          }}
+          style={{ marginLeft: 8 }}
+        >
+          <Ionicons
+            name={wishlist.find(i => i.listing_id === product.listing_id) ? "heart" : "heart-outline"}
+            size={24}
+            color={wishlist.find(i => i.listing_id === product.listing_id) ? "#036c5f" : "#8CBFC5"}
+          />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  ))}
+</View>
+
           </>
         )}
 
@@ -469,6 +549,20 @@ function HomeScreen() {
                     ))}
                   </Picker>
                 </View>
+                // ADD after Sort Filter in modalBody:
+<Text style={styles.filterLabel}>Stock Status</Text>
+<View style={styles.pickerWrapper}>
+  <Picker
+    selectedValue={selectedStockFilter || 'all'}
+    onValueChange={(value) => setSelectedStockFilter(value)}
+    style={styles.picker}
+  >
+    <Picker.Item label="All Products" value="all" />
+    <Picker.Item label="In Stock" value="in_stock" />
+    <Picker.Item label="Low Stock" value="low_stock" />
+    <Picker.Item label="Out of Stock" value="out_of_stock" />
+  </Picker>
+</View>
               </ScrollView>
 
               <View style={styles.modalFooter}>
@@ -769,6 +863,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  outOfStockCard: {
+  opacity: 0.6,
+  backgroundColor: '#f8f9fa',
+},
+stockBadge: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  width: 60,
+},
 });
 
 export default HomeScreen;

@@ -20,6 +20,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '../constants/colors';
 import { getVendorListings, deleteListing } from '../api/VendorService';
+import StockIndicator from '../components/StockIndicator';  // ✅ NEW
+
 
 const MyProductsScreen = ({ route, navigation }) => {
   const { i18n, t } = useTranslation();
@@ -90,69 +92,82 @@ const MyProductsScreen = ({ route, navigation }) => {
   };
 
   const renderProductCard = ({ item }) => {
-    const productTitle = isUrdu && item.title_ur ? item.title_ur : item.title_en;
-    const productDescription = isUrdu && item.description_ur ? item.description_ur : item.description_en;
+  const productTitle = isUrdu && item.title_ur ? item.title_ur : item.title_en;
+  const productDescription = isUrdu && item.description_ur ? item.description_ur : item.title_en;
+  
+  // ✅ STOCK: Calculate availability
+  const availableStock = item.track_inventory 
+    ? Math.max(0, (item.stock_quantity || 0) - (item.reserved_quantity || 0))
+    : null;
+  const isLowStock = availableStock !== null && availableStock <= 5 && availableStock > 0;
+  const isOutOfStock = availableStock === 0 && item.track_inventory;
 
-    return (
-      <TouchableOpacity
-        style={styles.productCard}
-        onPress={() => navigation.navigate('VendorProductDetail', { product: item })}
-      >
-        <View style={styles.productImageContainer}>
-          {item.media && item.media.length > 0 && item.media[0].image_url ? (
-            <Image
-              source={{ uri: item.media[0].image_url }}
-              style={styles.productImage}
-            />
-          ) : (
-            <View style={styles.productImagePlaceholder}>
-              <Ionicons name="image-outline" size={40} color="#ccc" />
-            </View>
-          )}
+  return (
+    <TouchableOpacity
+      style={[
+        styles.productCard,
+        isOutOfStock && styles.outOfStockCard  // ✅ Visual OOS
+      ]}
+      onPress={() => navigation.navigate('VendorProductDetail', { product: item })}
+    >
+      <View style={styles.productImageContainer}>
+        {/* Your existing image code */}
+        {item.media && item.media.length > 0 && item.media[0].image_url ? (
+          <Image source={{ uri: item.media[0].image_url }} style={styles.productImage} />
+        ) : (
+          <View style={styles.productImagePlaceholder}>
+            <Ionicons name="image-outline" size={40} color="#ccc" />
+          </View>
+        )}
 
-          <View style={[styles.badge, styles.activeBadge]}>
-            <Text style={styles.badgeText}>{t('vendorOrders.confirmed')}</Text>
+        {/* ✅ REPLACE activeBadge with StockIndicator */}
+        <StockIndicator
+          stockQuantity={item.stock_quantity}
+          reservedQuantity={item.reserved_quantity || 0}
+          trackInventory={item.track_inventory || false}
+          style={styles.stockBadge}
+        />
+
+        {/* ✅ LOW STOCK WARNING */}
+        {isLowStock && (
+          <View style={styles.lowStockWarning}>
+            <Text style={styles.lowStockText}>Low Stock!</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Your existing productInfo */}
+      <View style={styles.productInfo}>
+        <Text style={styles.productTitle}>{productTitle}</Text>
+        <Text style={styles.productDescription} numberOfLines={2}>
+          {productDescription || t('addProduct.productDescription')}
+        </Text>
+
+        <View style={styles.productFooter}>
+          <View>
+            <Text style={styles.productPrice}>Rs {item.price?.toLocaleString()}</Text>
+            <Text style={styles.productType}>
+              {item.listing_type === 'product' ? t('businessReg.product') : t('businessReg.service')}
+            </Text>
+          </View>
+
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('VendorProductDetail', { product: item })}
+            >
+              <Ionicons name="create-outline" size={20} color="#111" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={() => handleDeleteProduct(item)}>
+              <Ionicons name="trash-outline" size={20} color="#ef4444" />
+            </TouchableOpacity>
           </View>
         </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
-        <View style={styles.productInfo}>
-          <Text style={styles.productTitle}>{productTitle}</Text>
-          <Text style={styles.productDescription} numberOfLines={2}>
-            {productDescription || t('addProduct.productDescription')}
-          </Text>
-
-          <View style={styles.productFooter}>
-            <View>
-              <Text style={styles.productPrice}>
-                Rs {item.price?.toLocaleString()}
-              </Text>
-              <Text style={styles.productType}>
-                {item.listing_type === 'product' ? t('businessReg.product') : t('businessReg.service')}
-              </Text>
-            </View>
-
-            <View style={styles.actions}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() =>
-                  navigation.navigate('ProductDetail', { product: item })
-                }
-              >
-                <Ionicons name="create-outline" size={20} color="#111" />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => handleDeleteProduct(item)}
-              >
-                <Ionicons name="trash-outline" size={20} color="#ef4444" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -400,6 +415,32 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
+  outOfStockCard: {
+  opacity: 0.7,
+  borderColor: '#fee2e2',
+  borderWidth: 1,
+},
+lowStockWarning: {
+  position: 'absolute',
+  top: 8,
+  left: 8,
+  backgroundColor: '#fef3c7',
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+  borderRadius: 12,
+},
+lowStockText: {
+  color: '#d97706',
+  fontSize: 11,
+  fontWeight: 'bold',
+},
+stockBadge: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+},
+
+
 });
 
 export default MyProductsScreen;
