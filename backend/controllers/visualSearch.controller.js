@@ -1,9 +1,154 @@
+// // import axios from 'axios';
+// // import { Listing, VendorProfile } from '../models/index.js';
+// // import { successResponse, errorResponse } from '../utils/responseBuilder.js';
+// // import { Op } from 'sequelize';
+
+// // const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+
+// // export const visualSearch = async (req, res) => {
+// //   try {
+// //     if (!req.file) {
+// //       return errorResponse(res, 400, 'Image file required');
+// //     }
+
+// //     // 1. Call ML service
+// //     const mlForm = new FormData();
+// //     const imageBlob = new Blob([req.file.buffer], { type: req.file.mimetype });
+// // mlForm.append('file', imageBlob, req.file.originalname);
+// //     mlForm.append('top_k', '20'); // Get extra for filtering
+
+// //     const mlResponse = await axios.post(`${ML_SERVICE_URL}/visual-search`, mlForm, {
+// //       headers: { 'Content-Type': 'multipart/form-data' }
+// //     });
+
+// //     const listingIds = mlResponse.data.results
+// //       .filter(r => r.listing_id) // Valid IDs only
+// //       .map(r => r.listing_id);
+
+// //     if (listingIds.length === 0) {
+// //       return successResponse(res, 200, 'No matching listings', {
+// //         total: 0,
+// //         listings: [],
+// //         pagination: { limit: 0, offset: 0, hasMore: false }
+// //       });
+// //     }
+
+// //     // 2. Enrich with DB (same query as text search)
+// //     const isFemale = await canViewFemaleOnly(req.userId); // Reuse your helper
+
+// //     const listings = await Listing.findAll({
+// //       where: {
+// //         listing_id: { [Op.in]: listingIds },
+// //         is_active: true,
+// //         ...(isFemale ? {} : { is_female_only: false })
+// //       },
+// //       include: [{
+// //         association: 'Vendor',
+// //         model: VendorProfile,
+// //         where: { is_active: true },
+// //         attributes: ['vendor_id', 'business_name_en', 'business_name_ur', 'city', 'area', 'media'],
+// //         required: true
+// //       }],
+// //       order: [['ai_metadata', 'similarity_score', 'DESC']], // If you store scores
+// //       limit: 10
+// //     });
+
+// //     return successResponse(res, 200, 'Visual search results', {
+// //       total: listings.length,
+// //       listings,
+// //       pagination: { limit: 10, offset: 0, hasMore: false }
+// //     });
+
+// //   } catch (error) {
+// //     console.error('Visual search error:', error);
+// //     return errorResponse(res, 500, 'Visual search failed', error.message);
+// //   }
+// // };
+
+// // // Reuse your existing female-only helper from catalog.controller.js
+// // const canViewFemaleOnly = async (userId) => {
+// //   // ... your existing code
+// // };
+
+// // controllers/visualSearch.controller.js - 100% WORKING
+// import axios from 'axios';
+// import FormData from 'form-data';
+// import { Listing, VendorProfile, User } from '../models/index.js';
+// import { successResponse, errorResponse } from '../utils/responseBuilder.js';
+// import { Op } from 'sequelize';
+
+// const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+
+// export const visualSearch = async (req, res) => {
+//   try {
+//     if (!req.file) return errorResponse(res, 400, 'Image required');
+
+//     const formData = new FormData();
+//     formData.append('file', req.file.buffer, {
+//       filename: req.file.originalname,
+//       contentType: req.file.mimetype || 'image/jpeg'
+//     });
+//     formData.append('top_k', '20');
+
+//     console.log('🔍 Visual search:', req.file.originalname);
+
+//     const mlResp = await axios.post(`${ML_SERVICE_URL}/visual-search`, formData, {
+//       headers: formData.getHeaders(),
+//       timeout: 20000
+//     });
+
+//     const listingIds = (mlResp.data.results || [])
+//       .filter(r => r.listing_id)
+//       .map(r => parseInt(r.listing_id))
+//       .slice(0, 10);
+
+//     if (listingIds.length === 0) {
+//       return successResponse(res, 200, 'No matches', {
+//         total: 0, listings: [], pagination: {}
+//       });
+//     }
+
+//     const listings = await Listing.findAll({
+//       where: { listing_id: listingIds, is_active: true },
+//       include: [{
+//         model: VendorProfile, as: 'Vendor',
+//         where: { is_active: true }, required: true
+//       }],
+//       limit: 10
+//     });
+
+//     return successResponse(res, 200, 'Visual matches', {
+//       total: listings.length,
+//       listings,
+//       pagination: { limit: 10 }
+//     });
+
+//   } catch (error) {
+//     console.error('Visual error:', error.message, error.response?.data);
+//     return errorResponse(res, 500, error.message);
+//   }
+// };
+
+// controllers/visualSearch.controller.js - COMPLETE FIXED VERSION
 import axios from 'axios';
-import { Listing, VendorProfile } from '../models/index.js';
+import FormData from 'form-data'; // npm install form-data
+import { Listing, VendorProfile, User } from '../models/index.js';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 import { Op } from 'sequelize';
 
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+
+// Helper function from catalog.controller.js
+const canViewFemaleOnly = async (userId) => {
+  if (!userId) return false;
+  try {
+    const user = await User.findByPk(userId);
+    return user && user.gender && user.gender.toLowerCase() === 'female';
+  } catch (error) {
+    console.error('Error checking user gender:', error);
+    return false;
+  }
+};
 
 export const visualSearch = async (req, res) => {
   try {
@@ -11,20 +156,43 @@ export const visualSearch = async (req, res) => {
       return errorResponse(res, 400, 'Image file required');
     }
 
-    // 1. Call ML service
-    const mlForm = new FormData();
-    mlForm.append('file', req.file.buffer, req.file.originalname);
-    mlForm.append('top_k', '20'); // Get extra for filtering
+    console.log('🔍 Visual search - file:', req.file.originalname, req.file.mimetype);
 
-    const mlResponse = await axios.post(`${ML_SERVICE_URL}/visual-search`, mlForm, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    // 1. Check ML service health
+    try {
+      const health = await axios.get(`${ML_SERVICE_URL}/health`, { timeout: 5000 });
+      console.log('✅ ML service healthy:', health.data);
+      
+      if (health.data.vectors_indexed === 0) {
+        return errorResponse(res, 503, 'Index empty - run: node scripts/index-listings-ml.js');
+      }
+    } catch (healthErr) {
+      console.error('❌ ML service DOWN:', healthErr.message);
+      return errorResponse(res, 503, 'ML service unavailable at ' + ML_SERVICE_URL);
+    }
+
+    // 2. Call visual search - FIXED FormData
+    const formData = new FormData();
+    formData.append('file', req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype || 'image/jpeg'
+    });
+    formData.append('top_k', '20');
+
+    console.log('🚀 Calling ML visual-search...');
+    const mlResponse = await axios.post(`${ML_SERVICE_URL}/visual-search`, formData, {
+      headers: formData.getHeaders(),
+      timeout: 20000,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity
     });
 
-    const listingIds = mlResponse.data.results
-      .filter(r => r.listing_id) // Valid IDs only
-      .map(r => r.listing_id);
+    console.log('✅ ML response:', JSON.stringify(mlResponse.data, null, 2));
 
-    if (listingIds.length === 0) {
+    const validResults = mlResponse.data.results?.filter(r => r.listing_id) || [];
+    console.log(`📊 ${validResults.length} valid listing_ids`);
+
+    if (validResults.length === 0) {
       return successResponse(res, 200, 'No matching listings', {
         total: 0,
         listings: [],
@@ -32,8 +200,9 @@ export const visualSearch = async (req, res) => {
       });
     }
 
-    // 2. Enrich with DB (same query as text search)
-    const isFemale = await canViewFemaleOnly(req.userId); // Reuse your helper
+    // 3. Enrich with DB data
+    const listingIds = validResults.map(r => parseInt(r.listing_id));
+    const isFemale = await canViewFemaleOnly(req.user?.user_id);
 
     const listings = await Listing.findAll({
       where: {
@@ -42,15 +211,16 @@ export const visualSearch = async (req, res) => {
         ...(isFemale ? {} : { is_female_only: false })
       },
       include: [{
-        association: 'Vendor',
         model: VendorProfile,
+        as: 'Vendor',
         where: { is_active: true },
         attributes: ['vendor_id', 'business_name_en', 'business_name_ur', 'city', 'area', 'media'],
         required: true
       }],
-      order: [['ai_metadata', 'similarity_score', 'DESC']], // If you store scores
       limit: 10
     });
+
+    console.log(`✅ Found ${listings.length} enriched listings`);
 
     return successResponse(res, 200, 'Visual search results', {
       total: listings.length,
@@ -59,12 +229,17 @@ export const visualSearch = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Visual search error:', error);
-    return errorResponse(res, 500, 'Visual search failed', error.message);
+    console.error('🔥 Visual search FULL ERROR:');
+    console.error('- message:', error.message);
+    console.error('- code:', error.code);
+    console.error('- status:', error.response?.status);
+    console.error('- data:', JSON.stringify(error.response?.data));
+    console.error('- ML_URL:', ML_SERVICE_URL);
+    
+    if (error.code === 'ECONNREFUSED') {
+      return errorResponse(res, 503, 'ML service not running on ' + ML_SERVICE_URL);
+    }
+    
+    return errorResponse(res, 500, 'Visual search failed: ' + error.message);
   }
-};
-
-// Reuse your existing female-only helper from catalog.controller.js
-const canViewFemaleOnly = async (userId) => {
-  // ... your existing code
 };
