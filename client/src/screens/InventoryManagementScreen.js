@@ -15,14 +15,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import StockIndicator from '../../components/StockIndicator';
-import CustomButton from '../../components/common/CustomButton';
+import StockIndicator from '../components/StockIndicator';
+import CustomButton from '../components/common/CustomButton';
 import { 
   getInventoryReport, 
   bulkStockUpload,
   exportInventoryCSV,
   getLowStockHistory 
-} from '../../api/inventoryService';
+} from '../api/inventoryService';
 
 const { width } = Dimensions.get('window');
 const TEAL = '#036c5f';
