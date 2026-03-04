@@ -3,7 +3,7 @@
  * Profile-style layout for vendors
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,26 +13,36 @@ import {
   Image,
   RefreshControl,
   Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useTranslation } from 'react-i18next';
-import * as ImagePicker from 'expo-image-picker';
-import { COLORS } from '../constants/colors';
-import { getVendorListings, getVendorProfile, updateVendorProfile } from '../api/VendorService';
-import { useAuth } from '../context/AuthContext';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
+import * as ImagePicker from "expo-image-picker";
+import { COLORS } from "../constants/colors";
+import { useAppDispatch } from "../redux/hooks";
+
+import { getVendorListings, getVendorProfile, updateVendorProfile } from "../api/VendorService";
+import { useAuth } from "../context/AuthContext";
+import { getVendorOrders } from "../api/vendorOrderService";
+import { setOrders } from "../redux/slices/orderSlice";
+import { setListings } from "../redux/slices/productSlice";
 
 const VendorDashboardScreen = ({ route, navigation }) => {
-  const { vendorProfile: initialProfile, businessData, userId, userRole } = route.params || {};
-  const [profile, setProfile] = useState(initialProfile || businessData || {});
+  const { vendorProfile: initialProfile, businessData, userId, userRole } =
+    route.params || {};
+  const [profile, setProfile] = useState(
+    initialProfile || businessData || {}
+  );
   const { i18n, t } = useTranslation();
-  const isUrdu = i18n.language === 'ur';
+  const isUrdu = i18n.language === "ur";
+
+  const dispatch = useAppDispatch();
 
   const handleBack = () => {
     if (navigation.canGoBack()) {
       navigation.goBack();
     } else {
-      navigation.navigate('Home');
+      navigation.navigate("Home");
     }
   };
 
@@ -47,33 +57,73 @@ const VendorDashboardScreen = ({ route, navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [lowStockProducts, setLowStockProducts] = useState([]);
 
   const loadDashboardData = async () => {
     try {
-      console.log('📊 Loading vendor data...');
+      console.log("📊 Loading vendor data...");
 
-      // Load vendor profile
+      // 1. Load vendor profile
       const profileResult = await getVendorProfile();
       if (profileResult.success) {
-        const profileData = profileResult.data.data?.profile || profileResult.data.profile;
+        const profileData =
+          profileResult.data.data?.profile || profileResult.data.profile;
         setProfile(profileData);
-        console.log('✅ Profile loaded:', profileData);
+        console.log("✅ Profile loaded:", profileData);
       }
 
-      // Load listings
+      // 2. Load listings + low‑stock + recent products
       const listingsResult = await getVendorListings();
       if (listingsResult.success) {
-        const listings = listingsResult.data.data?.listings || listingsResult.data.listings || [];
-        console.log('✅ Loaded listings:', listings.length);
+        const listings =
+          listingsResult.data.data?.listings ||
+          listingsResult.data.listings ||
+          [];
 
+        // Low‑stock filter
+        const lowStock = listings
+          .filter(
+            (p) =>
+              p.stock_quantity != null && p.stock_quantity <= 5
+          )
+          .slice(0, 5);
+
+        setLowStockProducts(lowStock);
         setRecentProducts(listings.slice(0, 5));
-        setStats(prev => ({
+
+        dispatch(setListings(listings));
+        setStats((prev) => ({
           ...prev,
           totalProducts: listings.length,
         }));
       }
+
+      // 3. Load orders for stats
+      const ordersResult = await getVendorOrders();
+      if (ordersResult.success) {
+        const orders = ordersResult.data.orders || [];
+
+        dispatch(setOrders(orders));
+
+        const pending = orders.filter(
+          (o) => o.status === "pending"
+        ).length;
+        const confirmed = orders.filter(
+          (o) => o.status === "confirmed"
+        ).length;
+        const delivered = orders.filter(
+          (o) => o.status === "delivered"
+        ).length;
+
+        setStats((prev) => ({
+          ...prev,
+          activeOrders: pending + confirmed,
+          pendingOrders: pending,
+          deliveredOrders: delivered,
+        }));
+      }
     } catch (error) {
-      console.error('❌ Error loading dashboard data:', error);
+      console.error("❌ Error loading dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -85,7 +135,7 @@ const VendorDashboardScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     if (route?.params?.refreshListings) {
-      console.log('🔄 Refresh flag detected, reloading...');
+      console.log("🔄 Refresh flag detected, reloading...");
       loadDashboardData();
       navigation.setParams({ refreshListings: false });
     }
@@ -101,21 +151,21 @@ const VendorDashboardScreen = ({ route, navigation }) => {
 
   const handleLogout = async () => {
     Alert.alert(
-      t('profile.logout'),
-      t('profile.logoutConfirm'),
+      t("profile.logout"),
+      t("profile.logoutConfirm"),
       [
         {
-          text: t('common.cancel'),
-          style: 'cancel',
+          text: t("common.cancel"),
+          style: "cancel",
         },
         {
-          text: t('profile.logout'),
-          style: 'destructive',
+          text: t("profile.logout"),
+          style: "destructive",
           onPress: async () => {
             await logout();
             navigation.reset({
               index: 0,
-              routes: [{ name: 'Profile' }],
+              routes: [{ name: "Profile" }],
             });
           },
         },
@@ -127,18 +177,19 @@ const VendorDashboardScreen = ({ route, navigation }) => {
     await logout();
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Profile' }],
+      routes: [{ name: "Profile" }],
     });
   };
 
   const handleEditLogo = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-      if (status !== 'granted') {
+      if (status !== "granted") {
         Alert.alert(
-          t('businessReg.alerts.permissionDenied'),
-          t('businessReg.alerts.permissionMessage')
+          t("businessReg.alerts.permissionDenied"),
+          t("businessReg.alerts.permissionMessage")
         );
         return;
       }
@@ -150,7 +201,11 @@ const VendorDashboardScreen = ({ route, navigation }) => {
         quality: 0.8,
       });
 
-      if (!result.canceled && result.assets && result.assets.length > 0) {
+      if (
+        !result.canceled &&
+        result.assets &&
+        result.assets.length > 0
+      ) {
         setUploadingLogo(true);
 
         const updateResult = await updateVendorProfile({
@@ -160,81 +215,142 @@ const VendorDashboardScreen = ({ route, navigation }) => {
         });
 
         if (updateResult.success) {
-          setProfile(prev => ({
+          setProfile((prev) => ({
             ...prev,
             media: {
               ...prev.media,
               logo_url: result.assets[0].uri,
             },
           }));
-          Alert.alert(t('common.success'), t('vendorInfo.updateSuccess'));
+          Alert.alert(
+            t("common.success"),
+            t("vendorInfo.updateSuccess")
+          );
         } else {
-          Alert.alert(t('common.error'), updateResult.error || t('vendorInfo.updateFailed'));
+          Alert.alert(
+            t("common.error"),
+            updateResult.error ||
+              t("vendorInfo.updateFailed")
+          );
         }
       }
     } catch (error) {
-      console.error('Error updating logo:', error);
-      Alert.alert(t('common.error'), t('vendorInfo.updateFailed'));
+      console.error("Error updating logo:", error);
+      Alert.alert(
+        t("common.error"),
+        t("vendorInfo.updateFailed")
+      );
     } finally {
       setUploadingLogo(false);
     }
   };
 
-  const MenuItem = ({ icon, title, value, onPress, showArrow = true, color = "#333" }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+  const MenuItem = ({
+    icon,
+    title,
+    value,
+    onPress,
+    showArrow = true,
+    color = "#333",
+  }) => (
+    <TouchableOpacity
+      style={styles.menuItem}
+      onPress={onPress}>
       <View style={styles.menuLeft}>
         <Ionicons name={icon} size={22} color={color} />
-        <Text style={[styles.menuTitle, { color }]}>{title}</Text>
+        <Text style={[styles.menuTitle, { color }]}>
+          {title}
+        </Text>
       </View>
       <View style={styles.menuRight}>
-        {value && <Text style={styles.menuValue}>{value}</Text>}
-        {showArrow && <Ionicons name="chevron-forward" size={20} color="#999" />}
+        {value && (
+          <Text style={styles.menuValue}>{value}</Text>
+        )}
+        {showArrow && (
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            color="#999"
+          />
+        )}
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView
+      style={styles.container}
+      edges={["top"]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
-        }
-      >
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLORS.primary]}
+          />
+        }>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBack}>
             <Ionicons name="arrow-back" size={24} color="#333" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('vendorDashboard.title')}</Text>
-          <TouchableOpacity onPress={() => Alert.alert(t('common.success'), 'Coming Soon!')}>
-            <Ionicons name="notifications-outline" size={24} color="#333" />
+          <Text style={styles.headerTitle}>
+            {t("vendorDashboard.title")}
+          </Text>
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(t("common.success"), "Coming Soon!")
+            }>
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color="#333"
+            />
           </TouchableOpacity>
         </View>
 
         {/* Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.avatarContainer}>
-            {(profile?.media?.logo_url || businessData?.logo) ? (
+            {profile?.media?.logo_url ||
+            businessData?.logo ? (
               <Image
-                source={{ uri: profile?.media?.logo_url || businessData?.logo }}
+                source={{
+                  uri:
+                    profile?.media?.logo_url ||
+                    businessData?.logo,
+                }}
                 style={styles.avatar}
               />
             ) : (
               <View style={styles.avatarPlaceholder}>
-                <Ionicons name="business" size={40} color={COLORS.primary} />
+                <Ionicons
+                  name="business"
+                  size={40}
+                  color={COLORS.primary}
+                />
               </View>
             )}
             <TouchableOpacity
               style={styles.editBadge}
               onPress={handleEditLogo}
-              disabled={uploadingLogo}
-            >
+              disabled={uploadingLogo}>
               {uploadingLogo ? (
-                <Text style={{ color: '#fff', fontSize: 10 }}>...</Text>
+                <Text
+                  style={{
+                    color: "#fff",
+                    fontSize: 10,
+                  }}>
+                  ...
+                </Text>
               ) : (
-                <Ionicons name="pencil" size={16} color="#fff" />
+                <Ionicons
+                  name="pencil"
+                  size={16}
+                  color="#fff"
+                />
               )}
             </TouchableOpacity>
           </View>
@@ -242,24 +358,38 @@ const VendorDashboardScreen = ({ route, navigation }) => {
           <Text style={styles.businessName}>
             {isUrdu && profile?.business_name_ur
               ? profile.business_name_ur
-              : profile?.business_name_en || businessData?.businessName || t('vendorDashboard.title')}
+              : profile?.business_name_en ||
+                businessData?.businessName ||
+                t("vendorDashboard.title")}
           </Text>
 
           {/* Stats Row */}
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{stats.totalProducts}</Text>
-              <Text style={styles.statLabel}>{t('vendorDashboard.totalProducts')}</Text>
+              <Text style={styles.statValue}>
+                {stats.totalProducts}
+              </Text>
+              <Text style={styles.statLabel}>
+                {t("vendorDashboard.totalProducts")}
+              </Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{stats.activeOrders}</Text>
-              <Text style={styles.statLabel}>{t('vendorDashboard.totalOrders')}</Text>
+              <Text style={styles.statValue}>
+                {stats.activeOrders}
+              </Text>
+              <Text style={styles.statLabel}>
+                {t("vendorDashboard.totalOrders")}
+              </Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>Rs {stats.totalRevenue}</Text>
-              <Text style={styles.statLabel}>{t('vendorDashboard.revenue')}</Text>
+              <Text style={styles.statValue}>
+                Rs {stats.totalRevenue}
+              </Text>
+              <Text style={styles.statLabel}>
+                {t("vendorDashboard.revenue")}
+              </Text>
             </View>
           </View>
         </View>
@@ -268,23 +398,33 @@ const VendorDashboardScreen = ({ route, navigation }) => {
         <View style={styles.menuSection}>
           <MenuItem
             icon="cube-outline"
-            title={t('vendorDashboard.myProducts')}
-            value={`${stats.totalProducts} ${t('myProducts.loadingProducts')}`}
-            onPress={() => navigation.navigate('MyProducts', {
-              businessId: profile?.vendor_id || businessData?.id,
-              vendorProfile: profile,
-              userId: userId,
-            })}
+            title={t("vendorDashboard.myProducts")}
+            value={`${stats.totalProducts} ${t(
+              "myProducts.loadingProducts"
+            )}`}
+            onPress={() =>
+              navigation.navigate("MyProducts", {
+                businessId:
+                  profile?.vendor_id ||
+                  businessData?.id,
+                vendorProfile: profile,
+                userId: userId,
+              })
+            }
           />
           <MenuItem
             icon="add-circle-outline"
-            title={t('vendorDashboard.addProduct')}
-            value={t('addProduct.title')}
-            onPress={() => navigation.navigate('AddProduct', {
-              businessId: profile?.vendor_id || businessData?.id,
-              vendorProfile: profile,
-              userId: userId,
-            })}
+            title={t("vendorDashboard.addProduct")}
+            value={t("addProduct.title")}
+            onPress={() =>
+              navigation.navigate("AddProduct", {
+                businessId:
+                  profile?.vendor_id ||
+                  businessData?.id,
+                vendorProfile: profile,
+                userId: userId,
+              })
+            }
           />
         </View>
 
@@ -292,22 +432,38 @@ const VendorDashboardScreen = ({ route, navigation }) => {
         <View style={styles.menuSection}>
           <MenuItem
             icon="receipt-outline"
-            title={t('vendorOrders.title')}
-            value={stats.activeOrders > 0 ? `${stats.activeOrders} ${t('vendorOrders.all')}` : t('vendorDashboard.viewAll')}
-            onPress={() => navigation.navigate('VendorOrders')}
+            title={t("vendorOrders.title")}
+            value={
+              stats.activeOrders > 0
+                ? `${stats.activeOrders} ${t("vendorOrders.all")}`
+                : t("vendorDashboard.viewAll")
+            }
+            onPress={() => navigation.navigate("VendorOrders")}
           />
           <MenuItem
             icon="time-outline"
-            title={t('vendorOrders.pending')}
-            value={stats.pendingOrders > 0 ? stats.pendingOrders.toString() : '0'}
+            title={t("vendorOrders.pending")}
+            value={
+              stats.pendingOrders > 0
+                ? stats.pendingOrders.toString()
+                : "0"
+            }
             color="#f59e0b"
-            onPress={() => navigation.navigate('VendorOrders', { initialFilter: 'pending' })}
+            onPress={() =>
+              navigation.navigate("VendorOrders", {
+                initialFilter: "pending",
+              })
+            }
           />
           <MenuItem
             icon="checkmark-circle-outline"
-            title={t('vendorOrders.confirmed')}
+            title={t("vendorOrders.confirmed")}
             color="#10b981"
-            onPress={() => navigation.navigate('VendorOrders', { initialFilter: 'confirmed' })}
+            onPress={() =>
+              navigation.navigate("VendorOrders", {
+                initialFilter: "confirmed",
+              })
+            }
           />
         </View>
 
@@ -315,11 +471,13 @@ const VendorDashboardScreen = ({ route, navigation }) => {
         <View style={styles.menuSection}>
           <MenuItem
             icon="information-circle-outline"
-            title={t('vendorInfo.title')}
-            onPress={() => navigation.navigate('VendorInfo', {
-              profile: profile,
-              businessData: businessData,
-            })}
+            title={t("vendorInfo.title")}
+            onPress={() =>
+              navigation.navigate("VendorInfo", {
+                profile: profile,
+                businessData: businessData,
+              })
+            }
           />
         </View>
 
@@ -327,18 +485,30 @@ const VendorDashboardScreen = ({ route, navigation }) => {
         <View style={styles.menuSection}>
           <MenuItem
             icon="help-circle-outline"
-            title={t('supportInfo.helpCenter')}
-            onPress={() => navigation.navigate('SupportInfo', { initialTab: 'help' })}
+            title={t("supportInfo.helpCenter")}
+            onPress={() =>
+              navigation.navigate("SupportInfo", {
+                initialTab: "help",
+              })
+            }
           />
           <MenuItem
             icon="mail-outline"
-            title={t('supportInfo.contactUs')}
-            onPress={() => navigation.navigate('SupportInfo', { initialTab: 'contact' })}
+            title={t("supportInfo.contactUs")}
+            onPress={() =>
+              navigation.navigate("SupportInfo", {
+                initialTab: "contact",
+              })
+            }
           />
           <MenuItem
             icon="document-text-outline"
-            title={t('supportInfo.feedback')}
-            onPress={() => navigation.navigate('SupportInfo', { initialTab: 'privacy' })}
+            title={t("supportInfo.feedback")}
+            onPress={() =>
+              navigation.navigate("SupportInfo", {
+                initialTab: "privacy",
+              })
+            }
           />
         </View>
 
@@ -346,40 +516,50 @@ const VendorDashboardScreen = ({ route, navigation }) => {
         <View style={styles.menuSection}>
           <View style={styles.menuItem}>
             <View style={styles.menuLeft}>
-              <Ionicons name="language-outline" size={22} color="#333" />
-              <Text style={styles.menuTitle}>{t('profile.language')}</Text>
+              <Ionicons
+                name="language-outline"
+                size={22}
+                color="#333"
+              />
+              <Text style={styles.menuTitle}>
+                {t("profile.language")}
+              </Text>
             </View>
             <View style={styles.languageButtons}>
               <TouchableOpacity
                 style={[
                   styles.langButton,
-                  i18n.language === 'en' && styles.langButtonActive,
+                  i18n.language === "en" &&
+                    styles.langButtonActive,
                 ]}
-                onPress={() => i18n.changeLanguage('en')}
-              >
+                onPress={() =>
+                  i18n.changeLanguage("en")
+                }>
                 <Text
                   style={[
                     styles.langButtonText,
-                    i18n.language === 'en' && styles.langButtonTextActive,
-                  ]}
-                >
-                  {t('profile.english')}
+                    i18n.language === "en" &&
+                      styles.langButtonTextActive,
+                  ]}>
+                  {t("profile.english")}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.langButton,
-                  i18n.language === 'ur' && styles.langButtonActive,
+                  i18n.language === "ur" &&
+                    styles.langButtonActive,
                 ]}
-                onPress={() => i18n.changeLanguage('ur')}
-              >
+                onPress={() =>
+                  i18n.changeLanguage("ur")
+                }>
                 <Text
                   style={[
                     styles.langButtonText,
-                    i18n.language === 'ur' && styles.langButtonTextActive,
-                  ]}
-                >
-                  {t('profile.urdu')}
+                    i18n.language === "ur" &&
+                      styles.langButtonTextActive,
+                  ]}>
+                  {t("profile.urdu")}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -390,12 +570,12 @@ const VendorDashboardScreen = ({ route, navigation }) => {
         <View style={styles.menuSection}>
           <MenuItem
             icon="swap-horizontal-outline"
-            title={t('profile.editProfile')}
+            title={t("profile.editProfile")}
             onPress={handleSwitchAccount}
           />
           <MenuItem
             icon="log-out-outline"
-            title={t('profile.logout')}
+            title={t("profile.logout")}
             color="#EF4444"
             onPress={handleLogout}
             showArrow={false}
@@ -406,104 +586,166 @@ const VendorDashboardScreen = ({ route, navigation }) => {
         {recentProducts.length > 0 && (
           <View style={styles.recentSection}>
             <View style={styles.recentHeader}>
-              <Text style={styles.sectionTitle}>{t('vendorDashboard.recentOrders')}</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('MyProducts', {
-                businessId: profile?.vendor_id || businessData?.id,
-                vendorProfile: profile,
-                userId: userId,
-              })}>
-                <Text style={styles.viewAllText}>{t('vendorDashboard.viewAll')}</Text>
+              <Text style={styles.sectionTitle}>
+                {t("vendorDashboard.recentOrders")}
+              </Text>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("MyProducts", {
+                    businessId:
+                      profile?.vendor_id ||
+                      businessData?.id,
+                    vendorProfile: profile,
+                    userId: userId,
+                  })
+                }>
+                <Text style={styles.viewAllText}>
+                  {t("vendorDashboard.viewAll")}
+                </Text>
               </TouchableOpacity>
             </View>
             {recentProducts.map((product) => (
-              <View key={product.listing_id} style={styles.productRow}>
-                {product.media && product.media.length > 0 && product.media[0].image_url ? (
+              <View
+                key={product.listing_id}
+                style={styles.productRow}>
+                {product.media &&
+                product.media.length > 0 &&
+                product.media[0].image_url ? (
                   <Image
-                    source={{ uri: product.media[0].image_url }}
+                    source={{
+                      uri:
+                        product.media[0].image_url,
+                    }}
                     style={styles.productThumb}
                   />
                 ) : (
-                  <View style={styles.productThumbPlaceholder}>
-                    <Ionicons name="image-outline" size={20} color="#999" />
+                  <View
+                    style={styles.productThumbPlaceholder}>
+                    <Ionicons
+                      name="image-outline"
+                      size={20}
+                      color="#999"
+                    />
                   </View>
                 )}
                 <View style={styles.productDetails}>
                   <Text style={styles.productTitle}>
-                    {isUrdu && product.title_ur ? product.title_ur : product.title_en}
+                    {isUrdu && product.title_ur
+                      ? product.title_ur
+                      : product.title_en}
                   </Text>
-                  <Text style={styles.productPrice}>Rs {product.price?.toLocaleString()}</Text>
+                  <Text style={styles.productPrice}>
+                    Rs {product.price?.toLocaleString()}
+                  </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={20} color="#999" />
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color="#999"
+                />
               </View>
             ))}
           </View>
         )}
 
         {/* App Version */}
-        <Text style={styles.versionText}>{t('profile.version')} 1.0.0</Text>
+        <Text style={styles.versionText}>
+          {t("profile.version")} 1.0.0
+        </Text>
       </ScrollView>
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
-          <Ionicons name="home-outline" size={24} color="#999" />
-          <Text style={styles.navLabel}>{t('homeScreen.home')}</Text>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate("Home")}>
+          <Ionicons
+            name="home-outline"
+            size={24}
+            color="#999"
+          />
+          <Text style={styles.navLabel}>
+            {t("homeScreen.home")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="cart-outline" size={24} color="#999" />
-          <Text style={styles.navLabel}>{t('homeScreen.orders')}</Text>
+          <Ionicons
+            name="cart-outline"
+            size={24}
+            color="#999"
+          />
+          <Text style={styles.navLabel}>
+            {t("homeScreen.orders")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="heart-outline" size={24} color="#999" />
-          <Text style={styles.navLabel}>{t('homeScreen.wishlist')}</Text>
+          <Ionicons
+            name="heart-outline"
+            size={24}
+            color="#999"
+          />
+          <Text style={styles.navLabel}>
+            {t("homeScreen.wishlist")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="person" size={24} color={COLORS.primary} />
-          <Text style={[styles.navLabel, styles.navLabelActive]}>{t('homeScreen.profile')}</Text>
+          <Ionicons
+            name="person"
+            size={24}
+            color={COLORS.primary}
+          />
+          <Text
+            style={[
+              styles.navLabel,
+              styles.navLabelActive,
+            ]}>
+            {t("homeScreen.profile")}
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
   },
   scrollContent: {
     paddingBottom: 80,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 16,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   profileCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     marginHorizontal: 20,
     marginBottom: 20,
     borderRadius: 20,
     padding: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 3,
   },
   avatarContainer: {
-    position: 'relative',
+    position: "relative",
     marginBottom: 16,
   },
   avatar: {
@@ -515,86 +757,86 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#E0F2FE',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E0F2FE",
+    justifyContent: "center",
+    alignItems: "center",
   },
   editBadge: {
-    position: 'absolute',
+    position: "absolute",
     right: 0,
     bottom: 0,
     backgroundColor: COLORS.primary,
     width: 32,
     height: 32,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 3,
-    borderColor: '#fff',
+    borderColor: "#fff",
   },
   businessName: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: "#F0F0F0",
   },
   statItem: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   statValue: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
+    color: "#999",
+    textAlign: "center",
   },
   statDivider: {
     width: 1,
     height: 30,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: "#F0F0F0",
   },
   menuSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     marginHorizontal: 20,
     marginBottom: 12,
     borderRadius: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    borderBottomColor: "#F5F5F5",
   },
   menuLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   menuTitle: {
     fontSize: 15,
-    color: '#333',
+    color: "#333",
     marginLeft: 12,
   },
   menuRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   menuValue: {
     fontSize: 14,
@@ -602,7 +844,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   languageButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   langButton: {
@@ -610,8 +852,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#fff',
+    borderColor: "#e0e0e0",
+    backgroundColor: "#fff",
   },
   langButtonActive: {
     backgroundColor: COLORS.primary,
@@ -619,41 +861,41 @@ const styles = StyleSheet.create({
   },
   langButtonText: {
     fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    color: "#666",
+    fontWeight: "500",
   },
   langButtonTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   recentSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     marginHorizontal: 20,
     marginBottom: 12,
     borderRadius: 16,
     padding: 16,
   },
   recentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   viewAllText: {
     fontSize: 14,
     color: COLORS.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   productRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    borderBottomColor: "#F5F5F5",
   },
   productThumb: {
     width: 50,
@@ -665,9 +907,9 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 10,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#F5F5F5",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
   },
   productDetails: {
@@ -675,46 +917,46 @@ const styles = StyleSheet.create({
   },
   productTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 4,
   },
   productPrice: {
     fontSize: 13,
     color: COLORS.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   versionText: {
     fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
+    color: "#999",
+    textAlign: "center",
     paddingVertical: 20,
   },
   bottomNav: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: "#F0F0F0",
     paddingVertical: 8,
     paddingBottom: 20,
   },
   navItem: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   navLabel: {
     fontSize: 11,
-    color: '#999',
+    color: "#999",
     marginTop: 4,
   },
   navLabelActive: {
     color: COLORS.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 

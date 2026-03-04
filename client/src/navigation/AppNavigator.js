@@ -135,6 +135,7 @@ import VendorInfo from '../screens/VendorInfo';
 import SupportInfo from '../screens/SupportInfo';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import VendorOrdersScreen from '../screens/VendorOrdersScreen';
+import VendorOrderDetailScreen from '../screens/VendorOrderDetailScreen'; // ya jahan tumne banaya ho
 
 // Customer Screens
 import CustomerProductScreen from '../screens/customer/CustomerProductScreen';
@@ -183,6 +184,8 @@ const AppNavigator = () => {
         <Stack.Screen name="SupportInfo" component={SupportInfo} />
         <Stack.Screen name="VendorProductDetail" component={ProductDetailScreen} />
         <Stack.Screen name="VendorOrders" component={VendorOrdersScreen} />
+        <Stack.Screen name="VendorOrderDetail" component={VendorOrderDetailScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
