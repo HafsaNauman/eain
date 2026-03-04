@@ -18,6 +18,7 @@ import orderRoutes from './routes/order.routes.js';
 import catalogRoutes from './routes/catalog.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import aiDescriptionRoutes from './routes/aiDescription.routes.js';
+import visualSearchRoutes from './routes/visualSearch.routes.js';
 
 console.log('🔄 Starting application...');
 
@@ -74,6 +75,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/ai', aiDescriptionRoutes);
 app.use('/api/orders', orderRoutes); // Order management (protected)
 app.use('/api/catalog', catalogRoutes); // Public catalog browse
+app.use('/api/catalog', visualSearchRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
