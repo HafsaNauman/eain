@@ -1108,9 +1108,13 @@ function HomeScreen() {
                   onPress={() => navigateToProductDetail(product.listing_id)}
                 >
                   <Image
+                    // source={{
+                    //   uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
+                    // }}
                     source={{
-                      uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
+                        uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image'
                     }}
+
                     style={styles.productImage}
                   />
 
@@ -1175,9 +1179,12 @@ function HomeScreen() {
               onPress={() => navigateToProductDetail(product.listing_id)}
             >
               <Image
+                // source={{
+                //   uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
+                // }}
                 source={{
-                  uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
-                }}
+  uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image'
+}}
                 style={styles.productImage}
               />
 
