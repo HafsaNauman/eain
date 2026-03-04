@@ -362,6 +362,38 @@ const VendorDashboardScreen = ({ route, navigation }) => {
                 businessData?.businessName ||
                 t("vendorDashboard.title")}
           </Text>
+              {/* ✅ LOW STOCK ALERT */}
+{lowStockProducts.length > 0 && (
+  <View style={[styles.menuSection, styles.lowStockAlert]}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+      <Ionicons name="warning-outline" size={24} color="#F59E0B" />
+      <Text style={styles.lowStockTitle}>
+        {lowStockProducts.length} {t('vendorDashboard.lowStockAlert')}
+      </Text>
+    </View>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ maxHeight: 80 }}>
+      {lowStockProducts.map(product => (
+        <TouchableOpacity
+          key={product.listing_id}
+          style={styles.lowStockItem}
+          onPress={() => navigation.navigate('EditProduct', { listingId: product.listing_id })}
+        >
+          <Image 
+            source={{ uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/50?text=No+Img' }} 
+            style={styles.lowStockThumb}
+          />
+          <View style={{ flex: 1, marginLeft: 8 }}>
+            <Text style={styles.lowStockName} numberOfLines={1}>
+              {isUrdu && product.title_ur ? product.title_ur : product.title_en}
+            </Text>
+            <Text style={styles.lowStockQty}>Stock: {product.stock_quantity || 0}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color="#999" />
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  </View>
+)}
 
           {/* Stats Row */}
           <View style={styles.statsRow}>
@@ -412,6 +444,17 @@ const VendorDashboardScreen = ({ route, navigation }) => {
               })
             }
           />
+          {/* ✅ ADD MANAGE STOCK BUTTON */}
+<MenuItem
+  icon="archive-outline"
+  title="Manage Stock"
+  value={`${lowStockProducts.length} low stock`}
+  color={lowStockProducts.length > 0 ? '#F59E0B' : '#666'}
+  onPress={() => navigation.navigate('ManageListings', {
+    vendorId: profile?.vendor_id || businessData?.id
+  })}
+/>
+
           <MenuItem
             icon="add-circle-outline"
             title={t("vendorDashboard.addProduct")}
@@ -587,7 +630,7 @@ const VendorDashboardScreen = ({ route, navigation }) => {
           <View style={styles.recentSection}>
             <View style={styles.recentHeader}>
               <Text style={styles.sectionTitle}>
-                {t("vendorDashboard.recentOrders")}
+               Recent Products ({recentProducts.length})
               </Text>
               <TouchableOpacity
                 onPress={() =>
@@ -634,6 +677,14 @@ const VendorDashboardScreen = ({ route, navigation }) => {
                       ? product.title_ur
                       : product.title_en}
                   </Text>
+                  <Text style={[
+                  styles.productStock, 
+                product.stock_quantity <= 5 && styles.lowStockTag
+              ]}>
+              Stock: {product.stock_quantity || 0} {product.stock_quantity <= 5 && '⚠️'}
+            </Text>
+            <Text style={styles.productPrice}>Rs {product.price?.toLocaleString()}</Text>
+
                   <Text style={styles.productPrice}>
                     Rs {product.price?.toLocaleString()}
                   </Text>
@@ -958,6 +1009,51 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: "600",
   },
+  lowStockAlert: {
+  borderWidth: 2,
+  borderColor: '#FEF3C7',
+  backgroundColor: '#FFF8E1',
+},
+lowStockTitle: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  color: '#92400E',
+  marginLeft: 8,
+},
+lowStockItem: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#fff',
+  padding: 12,
+  borderRadius: 12,
+  marginRight: 12,
+  minWidth: 200,
+},
+lowStockThumb: {
+  width: 40,
+  height: 40,
+  borderRadius: 8,
+},
+lowStockName: {
+  fontSize: 13,
+  fontWeight: '600',
+  color: '#333',
+},
+lowStockQty: {
+  fontSize: 12,
+  color: '#F59E0B',
+  fontWeight: 'bold',
+},
+productStock: {
+  fontSize: 12,
+  color: '#666',
+  marginBottom: 2,
+},
+lowStockTag: {
+  color: '#F59E0B',
+  fontWeight: 'bold',
+},
+
 });
 
 export default VendorDashboardScreen;

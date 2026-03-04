@@ -320,9 +320,24 @@ const CustomerProductScreen = ({ route, navigation }) => {
                     )}
                 </View>
             </ScrollView>
-
+                    
             {/* Bottom CTA */}
             <View style={styles.bottomBar}>
+                <CustomButton
+                title={`Add to Cart (${quantity})`}
+                onPress={() => {
+                  // Add to Redux cart
+                 dispatch(addToCart({ 
+                  ...product, 
+                  quantity,
+                     image_url: product.media?.[0]?.image_url 
+                    }));
+      Alert.alert('✅ Added!', `${quantity}x ${title} added to cart`);
+      navigation.navigate('Cart');  // 👈 LINK TO CART
+    }}
+    style={styles.addToCartButton}
+    disabled={isOutOfStock}
+  />
                 <CustomButton
                     title={
                         isOutOfStock 
@@ -610,6 +625,43 @@ const styles = StyleSheet.create({
     disabledButton: {
         backgroundColor: '#ccc',
     },
+    addToCartButton: {
+  backgroundColor: '#10B981', // Green
+  marginBottom: 12,
+},
+floatingCart: {
+  position: 'absolute',
+  bottom: 20,
+  right: 20,
+  width: 56,
+  height: 56,
+  borderRadius: 28,
+  backgroundColor: '#036c5f',
+  alignItems: 'center',
+  justifyContent: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.3,
+  shadowRadius: 8,
+  elevation: 8,
+},
+cartBadge: {
+  position: 'absolute',
+  top: -4,
+  right: -4,
+  backgroundColor: '#EF4444',
+  borderRadius: 10,
+  minWidth: 20,
+  height: 20,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+cartBadgeText: {
+  color: '#fff',
+  fontSize: 12,
+  fontWeight: 'bold',
+},
+
 });
 
 export default CustomerProductScreen;
