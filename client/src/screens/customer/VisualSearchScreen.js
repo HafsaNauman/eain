@@ -98,7 +98,9 @@ const VisualSearchScreen = ({ navigation }) => {
       isUrdu && item.Vendor?.business_name_ur
         ? item.Vendor.business_name_ur
         : item.Vendor?.business_name_en;
-    const imageUrl = item.media?.[0]?.image_url;
+    // const imageUrl = item.media?.[0]?.image_url;
+    const imageUrl = item.media?.images?.[0];
+
 
     return (
       <TouchableOpacity

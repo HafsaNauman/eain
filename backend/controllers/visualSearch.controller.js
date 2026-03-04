@@ -5,7 +5,9 @@ import { Listing, VendorProfile, User } from '../models/index.js';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 import { Op } from 'sequelize';
 
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+// const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL;
+console.log('🚀 ML_SERVICE_URL:', ML_SERVICE_URL);
 
 // Helper function from catalog.controller.js
 const canViewFemaleOnly = async (userId) => {
