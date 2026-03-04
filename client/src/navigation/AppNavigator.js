@@ -136,6 +136,9 @@ import SupportInfo from '../screens/SupportInfo';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import VendorOrdersScreen from '../screens/VendorOrdersScreen';
 import VendorOrderDetailScreen from '../screens/VendorOrderDetailScreen'; // ya jahan tumne banaya ho
+import CartScreen from '../screens/customer/CartScreen';
+import ManageListingsScreen from '../screens/ManageListingsScreen';
+import InventoryManagementScreen from '../screens/InventoryManagementScreen';
 
 // Customer Screens
 import CustomerProductScreen from '../screens/customer/CustomerProductScreen';
@@ -175,6 +178,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Checkout" component={CheckoutScreen} />
         <Stack.Screen name="MyOrders" component={MyOrdersScreen} />
         <Stack.Screen name="OrderDetails" component={OrderDetailsScreen} />
+        <Stack.Screen name="Cart" component={CartScreen} />
 
         <Stack.Screen name="BusinessRegistration" component={BusinessRegistration} />
         <Stack.Screen name="VendorDashboard" component={VendorDashboard} />
@@ -185,6 +189,8 @@ const AppNavigator = () => {
         <Stack.Screen name="VendorProductDetail" component={ProductDetailScreen} />
         <Stack.Screen name="VendorOrders" component={VendorOrdersScreen} />
         <Stack.Screen name="VendorOrderDetail" component={VendorOrderDetailScreen} />
+        <Stack.Screen name="ManageListings" component={ManageListingsScreen} />
+        <Stack.Screen name="InventoryManagement" component={InventoryManagementScreen} />
 
       </Stack.Navigator>
     </NavigationContainer>

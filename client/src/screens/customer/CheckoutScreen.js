@@ -1,8 +1,8 @@
 /**
- * Checkout Screen
- * Handle order placement with delivery info
+ * Checkout Screen - FULL STOCK VALIDATION
+ * Handle order placement with real-time stock checks
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -18,31 +18,53 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useTranslation } from 'react-i18next';
-import { placeOrder } from '../../api/orderService';
+import { useAppSelector } from '../../redux/hooks';  // ✅ STOCK: Redux
+// import { placeOrder } from '../../api/orderService';
 import CustomButton from '../../components/common/CustomButton';
+import StockIndicator from '../../components/StockIndicator';  // ✅ STOCK: Import
+import QuantityPicker from '../../components/common/QuantityPicker';  // ✅ STOCK: Import
+
 
 const cities = ['Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
 
 const CheckoutScreen = ({ route, navigation }) => {
-    const { product } = route.params;
+    const { product, quantity: initialQuantity = 1 } = route.params || {};  // ✅ STOCK: From ProductScreen
     const { i18n, t } = useTranslation();
-    const isUrdu = i18n.language === 'ur';
-
+    const { user } = useAppSelector(state => state.auth);  // ✅ STOCK: Auth check
+    
     const [formData, setFormData] = useState({
         customerName: '',
         customerPhone: '',
         shippingAddress: '',
         city: '',
         paymentMethod: 'cod',
-        quantity: 1,
+        quantity: initialQuantity,  // ✅ STOCK: Pre-filled from ProductScreen
     });
 
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [stockError, setStockError] = useState('');  // ✅ STOCK: Stock validation
 
-    const deliveryCharges = 200;
-    const subtotal = product.price * formData.quantity;
+    // ✅ STOCK: Real-time stock calculation
+    const availableStock = product?.track_inventory 
+        ? Math.max(0, (product.stock_quantity || 0) - (product.reserved_quantity || 0))
+        : null;
+    const isOutOfStock = availableStock === 0 && product?.track_inventory;
+    const maxQuantity = availableStock !== null ? availableStock : 999;
+    const hasStockError = formData.quantity > maxQuantity && availableStock !== null;
+
+    const deliveryCharges = 0;  // ✅ Backend config: 0
+    const subtotal = product?.price * formData.quantity || 0;
     const total = subtotal + deliveryCharges;
+
+    // ✅ STOCK: Validate stock before checkout
+    useEffect(() => {
+        if (availableStock !== null && formData.quantity > availableStock) {
+            setStockError(`Only ${availableStock} items available`);
+        } else {
+            setStockError('');
+        }
+    }, [formData.quantity, availableStock]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -50,15 +72,12 @@ const CheckoutScreen = ({ route, navigation }) => {
         if (!formData.customerName.trim()) {
             newErrors.customerName = t('checkout.errors.nameRequired');
         }
-
         if (!formData.customerPhone.trim()) {
             newErrors.customerPhone = t('checkout.errors.phoneRequired');
         }
-
         if (!formData.shippingAddress.trim()) {
             newErrors.shippingAddress = t('checkout.errors.addressRequired');
         }
-
         if (!formData.city) {
             newErrors.city = t('checkout.errors.cityRequired');
         }
@@ -67,53 +86,70 @@ const CheckoutScreen = ({ route, navigation }) => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handlePlaceOrder = async () => {
-        if (!validateForm()) {
-            return;
-        }
+const handlePlaceOrder = async () => {
+    // ✅ STOCK: Final stock validation
+    if (isOutOfStock) {
+        Alert.alert('Out of Stock', 'This product is no longer available.');
+        return;
+    }
+    if (hasStockError) {
+        Alert.alert('Stock Limit', `Only ${availableStock} items available.`);
+        return;
+    }
 
-        setLoading(true);
+    if (!validateForm()) {
+        return;
+    }
 
-        try {
-            const orderData = {
-                listing_id: product.listing_id,
-                vendor_id: product.vendor_id,
-                quantity: formData.quantity,
-                customer_name: formData.customerName,
-                customer_phone: formData.customerPhone,
-                shipping_address: formData.shippingAddress,
-                city: formData.city,
-                payment_method: formData.paymentMethod,
-                total_amount: total,
-            };
+    setLoading(true);
 
-            const result = await placeOrder(orderData);
+    navigation.navigate('PaymentScreen', {
+        product,  // Single product from CustomerProductScreen
+        quantity: formData.quantity,
+        subtotal: total,
+        shipping_address: formData.shippingAddress,
+        city: formData.city,
+        customer_phone: formData.customerPhone,
+        paymentMethod: formData.paymentMethod,  // Pre-selected
+    });
+    //     try {
+    //         const orderData = {
+    //             listing_id: product.listing_id,
+    //             quantity: formData.quantity,
+    //             payment_method: formData.paymentMethod,
+    //             shipping_address: formData.shippingAddress,
+    //             city: formData.city,
+    //             customer_phone: formData.customerPhone,
+    //             // ✅ Backend auto-calculates: price_per_item, total_amount, vendor_id
+    //         };
 
-            if (result.success) {
-                Alert.alert(
-                    t('checkout.orderPlaced'),
-                    t('checkout.orderSuccess'),
-                    [
-                        {
-                            text: t('checkout.viewOrders'),
-                            onPress: () => navigation.navigate('MyOrders'),
-                        },
-                        {
-                            text: t('checkout.continueShopping'),
-                            onPress: () => navigation.navigate('Home'),
-                        },
-                    ]
-                );
-            } else {
-                Alert.alert(t('common.error'), result.error || t('checkout.errors.orderFailed'));
-            }
-        } catch (err) {
-            console.error('❌ Place Order Error:', err);
-            Alert.alert(t('common.error'), t('checkout.errors.orderFailed'));
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         const result = await placeOrder(orderData);
+
+    //         if (result.success) {
+    //             Alert.alert(
+    //                 t('checkout.orderPlaced'),
+    //                 t('checkout.orderSuccess'),
+    //                 [
+    //                     {
+    //                         text: t('checkout.viewOrders'),
+    //                         onPress: () => navigation.navigate('MyOrders'),
+    //                     },
+    //                     {
+    //                         text: t('checkout.continueShopping'),
+    //                         onPress: () => navigation.navigate('Home'),
+    //                     },
+    //                 ]
+    //             );
+    //         } else {
+    //             Alert.alert(t('common.error'), result.error || t('checkout.errors.orderFailed'));
+    //         }
+    //     } catch (err) {
+    //         console.error('❌ Place Order Error:', err);
+    //         Alert.alert(t('common.error'), t('checkout.errors.orderFailed'));
+    //     } finally {
+    //         setLoading(false);
+    //     }
+};
 
     const updateField = (field, value) => {
         setFormData({ ...formData, [field]: value });
@@ -121,9 +157,20 @@ const CheckoutScreen = ({ route, navigation }) => {
             setErrors({ ...errors, [field]: '' });
         }
     };
+    const isUrdu = i18n.language === 'ur';
+    const productTitle = product && (isUrdu && product.title_ur ? product.title_ur : product.title_en);
+    const imageUrl = product?.media?.[0]?.image_url || 'https://via.placeholder.com/80?text=No+Image';
 
-    const productTitle = isUrdu && product.title_ur ? product.title_ur : product.title_en;
-    const imageUrl = product.media?.[0]?.image_url || 'https://via.placeholder.com/80?text=No+Image';
+    if (!product) {
+        return (
+            <View style={styles.errorContainer}>
+                <Text>Product not found</Text>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Text>Go Back</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
@@ -137,7 +184,7 @@ const CheckoutScreen = ({ route, navigation }) => {
             </View>
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                {/* Product Summary */}
+                {/* ✅ STOCK: Product Summary with StockIndicator */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>{t('checkout.productSummary')}</Text>
                     <View style={styles.productCard}>
@@ -147,26 +194,40 @@ const CheckoutScreen = ({ route, navigation }) => {
                                 {productTitle}
                             </Text>
                             <Text style={styles.productPrice}>
-                                {product.currency} {product.price?.toLocaleString()}
+                                PKR {product.price?.toLocaleString()}
                             </Text>
+                            
+                            {/* ✅ STOCK: Stock Indicator */}
+                            {product.track_inventory && (
+                                <StockIndicator
+                                    stockQuantity={product.stock_quantity}
+                                    reservedQuantity={product.reserved_quantity}
+                                    trackInventory={true}
+                                />
+                            )}
+
+                            {/* ✅ STOCK: Quantity Picker */}
                             <View style={styles.quantityRow}>
                                 <Text style={styles.quantityLabel}>{t('checkout.quantity')}:</Text>
-                                <View style={styles.quantityControls}>
-                                    <TouchableOpacity
-                                        onPress={() => formData.quantity > 1 && updateField('quantity', formData.quantity - 1)}
-                                        style={styles.quantityButton}
-                                    >
-                                        <Ionicons name="remove" size={20} color="#036c5f" />
-                                    </TouchableOpacity>
-                                    <Text style={styles.quantityValue}>{formData.quantity}</Text>
-                                    <TouchableOpacity
-                                        onPress={() => updateField('quantity', formData.quantity + 1)}
-                                        style={styles.quantityButton}
-                                    >
-                                        <Ionicons name="add" size={20} color="#036c5f" />
-                                    </TouchableOpacity>
-                                </View>
+                                <QuantityPicker
+                                    value={formData.quantity}
+                                    onChange={(q) => updateField('quantity', q)}
+                                    max={maxQuantity}
+                                    min={1}
+                                />
                             </View>
+
+                            {/* ✅ STOCK: Stock Warning */}
+                            {stockError ? (
+                                <View style={styles.stockErrorContainer}>
+                                    <Ionicons name="alert-circle" size={16} color="#ff6b6b" />
+                                    <Text style={styles.stockErrorText}>{stockError}</Text>
+                                </View>
+                            ) : availableStock !== null && (
+                                <Text style={styles.stockInfo}>
+                                    📦 {availableStock} available
+                                </Text>
+                            )}
                         </View>
                     </View>
                 </View>
@@ -285,7 +346,7 @@ const CheckoutScreen = ({ route, navigation }) => {
                         </View>
                         <View style={styles.summaryRow}>
                             <Text style={styles.summaryLabel}>{t('checkout.deliveryCharges')}</Text>
-                            <Text style={styles.summaryValue}>PKR {deliveryCharges.toLocaleString()}</Text>
+                            <Text style={styles.summaryValue}>PKR 0</Text>
                         </View>
                         <View style={[styles.summaryRow, styles.totalRow]}>
                             <Text style={styles.totalLabel}>{t('checkout.totalAmount')}</Text>
@@ -298,16 +359,24 @@ const CheckoutScreen = ({ route, navigation }) => {
             {/* Bottom Button */}
             <View style={styles.bottomBar}>
                 <CustomButton
-                    title={loading ? t('common.loading') : t('checkout.placeOrder')}
+                    title={
+                        loading 
+                            ? t('common.loading') 
+                            : isOutOfStock 
+                                ? 'Out of Stock' 
+                                : t('checkout.placeOrder')
+                    }
                     onPress={handlePlaceOrder}
-                    disabled={loading}
-                    style={styles.placeOrderButton}
+                    disabled={isOutOfStock || hasStockError}
+                    style={[
+                        styles.placeOrderButton,
+                        (isOutOfStock || hasStockError) && styles.disabledButton
+                    ]}
                 />
             </View>
         </SafeAreaView>
     );
-};
-
+}
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -513,6 +582,35 @@ const styles = StyleSheet.create({
     },
     placeOrderButton: {
         backgroundColor: '#036c5f',
+    },
+    // ✅ NEW STOCK STYLES
+    stockErrorContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#fff3e0',
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    stockErrorText: {
+        fontSize: 13,
+        color: '#ff9800',
+        marginLeft: 8,
+        flex: 1,
+    },
+    stockInfo: {
+        fontSize: 13,
+        color: '#666',
+        marginTop: 4,
+    },
+    disabledButton: {
+        backgroundColor: '#ccc',
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
     },
 });
 

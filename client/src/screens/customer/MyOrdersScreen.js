@@ -1,6 +1,6 @@
 /**
- * My Orders Screen
- * Shows customer's order history with status
+ * My Orders Screen - FULL STOCK STATUS + 24HR CANCEL
+ * Shows customer's order history with cancel button (pending only)
  */
 import React, { useState, useEffect } from 'react';
 import {
@@ -17,7 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { getMyOrders } from '../../api/orderService';
+import { getMyOrders, cancelOrder } from '../../api/orderService';  // ✅ CANCEL: Import
 
 const MyOrdersScreen = ({ navigation }) => {
     const { i18n, t } = useTranslation();
@@ -27,6 +27,7 @@ const MyOrdersScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState('');
+    const [cancellingOrderId, setCancellingOrderId] = useState(null);  // ✅ CANCEL: Loading state
 
     useEffect(() => {
         fetchMyOrders();
@@ -61,37 +62,72 @@ const MyOrdersScreen = ({ navigation }) => {
         }
     };
 
+    // ✅ CANCEL: Check if order is cancellable (pending + <24hrs)
+    const isCancellable = (order) => {
+        if (order.status?.toLowerCase() !== 'pending') return false;
+        
+        const orderDate = new Date(order.created_at);
+        const now = new Date();
+        const hoursDiff = (now - orderDate) / (1000 * 60 * 60);
+        
+        return hoursDiff < 24;  // ✅ 24hr cancel window
+    };
+
+    // ✅ CANCEL: Handle order cancellation
+    const handleCancelOrder = async (orderId) => {
+        Alert.alert(
+            t('myOrders.cancelOrder'),
+            t('myOrders.cancelConfirm'),
+            [
+                { text: t('common.cancel'), style: 'cancel' },
+                {
+                    text: t('common.confirm'),
+                    style: 'destructive',
+                    onPress: async () => {
+                        setCancellingOrderId(orderId);
+                        try {
+                            const result = await cancelOrder(orderId);
+                            if (result.success) {
+                                Alert.alert(t('myOrders.cancelled'), t('myOrders.cancelSuccess'));
+                                fetchMyOrders(true);  // Refresh list
+                            } else {
+                                Alert.alert(t('common.error'), result.error);
+                            }
+                        } catch (err) {
+                            console.error('❌ Cancel Order Error:', err);
+                            Alert.alert(t('common.error'), t('myOrders.cancelError'));
+                        } finally {
+                            setCancellingOrderId(null);
+                        }
+                    },
+                },
+            ]
+        );
+    };
+
     const onRefresh = () => {
         fetchMyOrders(true);
     };
 
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
-            case 'pending':
-                return '#FFA500';
-            case 'confirmed':
-                return '#4CAF50';
-            case 'completed':
-                return '#2196F3';
-            case 'cancelled':
-                return '#F44336';
-            default:
-                return '#999';
+            case 'pending':      return '#FFA500';
+            case 'confirmed':    return '#4CAF50';
+            case 'completed':    return '#2196F3';
+            case 'cancelled':    return '#F44336';
+            case 'stock_issue':  return '#FF5722';  // ✅ STOCK: New status
+            default:             return '#999';
         }
     };
 
     const getStatusIcon = (status) => {
         switch (status?.toLowerCase()) {
-            case 'pending':
-                return 'time-outline';
-            case 'confirmed':
-                return 'checkmark-circle-outline';
-            case 'completed':
-                return 'checkmark-done-circle-outline';
-            case 'cancelled':
-                return 'close-circle-outline';
-            default:
-                return 'help-circle-outline';
+            case 'pending':       return 'time-outline';
+            case 'confirmed':     return 'checkmark-circle-outline';
+            case 'completed':     return 'checkmark-done-circle-outline';
+            case 'cancelled':     return 'close-circle-outline';
+            case 'stock_issue':   return 'alert-circle-outline';  // ✅ STOCK: New status
+            default:              return 'help-circle-outline';
         }
     };
 
@@ -105,14 +141,16 @@ const MyOrdersScreen = ({ navigation }) => {
             ? order.vendor.business_name_ur
             : order.vendor?.business_name_en || 'Vendor';
 
-        // Extract image URL correctly from media array
         const imageUrl = order.listing?.media?.[0]?.image_url || 'https://via.placeholder.com/80?text=No+Image';
+        const canCancel = isCancellable(order);  // ✅ CANCEL: Check eligibility
+        const isCancelling = cancellingOrderId === order.order_id;
 
         return (
             <TouchableOpacity
                 style={styles.orderCard}
                 onPress={() => navigation.navigate('OrderDetails', { orderId: order.order_id })}
                 activeOpacity={0.7}
+                disabled={isCancelling}  // ✅ Disable tap during cancel
             >
                 {/* Order Header */}
                 <View style={styles.orderHeader}>
@@ -178,6 +216,24 @@ const MyOrdersScreen = ({ navigation }) => {
                         </View>
                     </View>
                 </View>
+
+                {/* ✅ CANCEL: Cancel Button (24hr window only) */}
+                {canCancel && (
+                    <TouchableOpacity
+                        style={styles.cancelButton}
+                        onPress={() => handleCancelOrder(order.order_id)}
+                        disabled={isCancelling}
+                    >
+                        {isCancelling ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                            <>
+                                <Ionicons name="close-circle-outline" size={16} color="#fff" />
+                                <Text style={styles.cancelButtonText}>Cancel Order</Text>
+                            </>
+                        )}
+                    </TouchableOpacity>
+                )}
 
                 {/* View Details Arrow */}
                 <View style={styles.viewDetailsRow}>
@@ -463,6 +519,23 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+     cancelButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F44336',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        marginTop: 12,
+        marginBottom: 8,
+    },
+    cancelButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
+        marginLeft: 6,
     },
 });
 

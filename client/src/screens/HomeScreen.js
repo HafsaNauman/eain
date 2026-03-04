@@ -362,7 +362,7 @@ function HomeScreen() {
             )}
 
             {/* Grid layout with 2 columns */}
-           // REPLACE this entire productsGrid section:
+           
 <View style={styles.productsGrid}>
   {products.map(product => (
     <TouchableOpacity
