@@ -128,7 +128,7 @@ export const signup = async (req, res) => {
       phone_number,
       email,
       password,
-      role,  // customer or vendor
+      role,  // customer or vendor or admin
       gender,
       preferred_language,
     } = req.body;
@@ -140,7 +140,7 @@ export const signup = async (req, res) => {
     }
 
     // Validate role value
-    const validRoles = ['customer', 'vendor'];
+    const validRoles = ['customer', 'vendor', 'admin'];
     if (!validRoles.includes(role)) {
       await transaction.rollback();
       return errorResponse(

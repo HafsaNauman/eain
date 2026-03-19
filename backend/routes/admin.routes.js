@@ -48,7 +48,7 @@ import {
   getAllUsers, getUserById, updateUserStatus,
   changeUserRole, deleteUser,
   getAllVendors, updateVendorStatus,
-  getAllListings, removeListings, toggleFeatureListing,
+  getAllListings,
   getAllOrders, updateDisputeStatus,
   getAnalytics
 } from '../controllers/admin.controller.js';
