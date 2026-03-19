@@ -140,7 +140,7 @@ export const getAllVendors = async (req, res) => {
       include: [{
         model: User,
         as: 'User',
-        attributes: ['user_id', 'full_name', 'email', 'phone', 'created_at']
+        attributes: ['user_id', 'full_name', 'email', 'phone_number', 'created_at']
       }],
       limit: Math.min(parseInt(limit), 100),
       offset: parseInt(offset),
@@ -268,12 +268,12 @@ export const getAllOrders = async (req, res) => {
       include: [
         {
           model: User,
-          as: 'Customer',
-          attributes: ['user_id', 'full_name', 'email', 'phone']
+          as: 'customer',
+          attributes: ['user_id', 'full_name', 'email', 'phone_number']
         },
         {
           model: VendorProfile,
-          as: 'Vendor',
+          as: 'vendor',
           attributes: ['vendor_id', 'business_name_en']
         }
       ],
@@ -328,7 +328,6 @@ export const getAnalytics = async (req, res) => {
       totalVendors,
       totalListings,
       totalOrders,
-      activeUsers,
       activeVendors,
       activeListings,
       revenueData
@@ -337,7 +336,6 @@ export const getAnalytics = async (req, res) => {
       VendorProfile.count(),
       Listing.count(),
       Order.count(),
-      User.count({ where: { is_active: true } }),
       VendorProfile.count({ where: { is_active: true } }),
       Listing.count({ where: { is_active: true } }),
       Order.findAll({
@@ -380,7 +378,6 @@ export const getAnalytics = async (req, res) => {
     return successResponse(res, 200, 'Analytics retrieved', {
       overview: {
         total_users: totalUsers,
-        active_users: activeUsers,
         total_vendors: totalVendors,
         active_vendors: activeVendors,
         total_listings: totalListings,
