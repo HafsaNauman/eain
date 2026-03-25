@@ -44,6 +44,7 @@ export const verifyJWT = async (req, res, next) => {
     
     req.userId = decoded.user_id;
     req.userRole = decoded.role;
+    req.userGender = decoded.gender;
 
     next();
   } catch (error) {
@@ -58,13 +59,7 @@ export const verifyJWT = async (req, res, next) => {
 
 export const isAdmin = async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.userId);
-    
-    if (!user) {
-      return errorResponse(res, 404, 'User not found');
-    }
-
-    if (user.role === 'admin') {
+    if (req.userRole === 'admin') {
       next();
     } else {
       return errorResponse(res, 403, 'Require Admin Role');
@@ -76,13 +71,7 @@ export const isAdmin = async (req, res, next) => {
 // Check if user is moderator
 export const isModerator = async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.userId);
-    
-    if (!user) {
-      return errorResponse(res, 404, 'User not found');
-    }
-
-    if (user.role === 'moderator' || user.role === 'admin') {
+    if (req.userRole === 'moderator' || req.userRole === 'admin') {
       next();
     } else {
       return errorResponse(res, 403, 'Require Moderator Role');
@@ -120,12 +109,14 @@ export const verifyJWTOptional = async (req, res, next) => {
       const decoded = verifyToken(token);
       req.userId = decoded.user_id;
       req.userRole = decoded.role;
+      req.userGender = decoded.gender;
       console.log(' Authenticated user:', req.userId);
     } catch (err) {
       // Token invalid - continue anyway for public endpoints
       console.log('Invalid token, continuing as anonymous');
       req.userId = null;
       req.userRole = null;
+      req.userGender = null;
     }
 
     next();
@@ -133,6 +124,7 @@ export const verifyJWTOptional = async (req, res, next) => {
     // Don't fail - just continue without authentication
     req.userId = null;
     req.userRole = null;
+    req.userGender = null;
     next();
   }
 };
