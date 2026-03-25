@@ -2,19 +2,6 @@ import { Listing, VendorProfile, User } from '../models/index.js';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 import { Op } from 'sequelize';
 
-// Helper to check if user is female
-const canViewFemaleOnly = async (userId) => {
-    if (!userId) return false;
-    try {
-        const user = await User.findByPk(userId);
-        // Check for 'female' (case insensitive)
-        return user && user.gender && user.gender.toLowerCase() === 'female';
-    } catch (error) {
-        console.error('Error checking user gender:', error);
-        return false;
-    }
-};
-
 /**
  * GET /api/catalog/listings
  * Browse all active listings with search and pagination
@@ -25,7 +12,7 @@ export const getAllListings = async (req, res) => {
         const { q, city, limit = 20, offset = 0 } = req.query;
 
         // Check user gender
-        const isFemale = await canViewFemaleOnly(req.userId);
+        const isFemale = req.userGender && req.userGender.toLowerCase() === 'female';
 
         // Build where clause for Listing
         const listingWhere = {
@@ -137,7 +124,7 @@ export const getListingDetails = async (req, res) => {
 
         // Check access for female-only items
         if (listing.is_female_only) {
-            const isFemale = await canViewFemaleOnly(req.userId);
+            const isFemale = req.userGender && req.userGender.toLowerCase() === 'female';
             if (!isFemale) {
                 return errorResponse(res, 403, 'Access denied. This listing is for female customers only.');
             }
@@ -184,7 +171,7 @@ export const getVendorListingsPublic = async (req, res) => {
         const maxLimit = Math.min(parseInt(limit) || 20, 100);
         const skip = parseInt(offset) || 0;
 
-        const isFemale = await canViewFemaleOnly(req.userId);
+        const isFemale = req.userGender && req.userGender.toLowerCase() === 'female';
         const listingWhere = {
             vendor_id,
             is_active: true, // Only active listings
@@ -248,7 +235,7 @@ export const searchListings = async (req, res) => {
         } = req.query;
 
         // Check user gender
-        const isFemale = await canViewFemaleOnly(req.userId);
+        const isFemale = req.userGender && req.userGender.toLowerCase() === 'female';
 
         // Build listing filters
         const listingWhere = { is_active: true };

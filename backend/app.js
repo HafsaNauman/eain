@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { sequelize } from './models/index.js';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
 
 // Load environment variables
 dotenv.config();
@@ -61,7 +63,31 @@ connectDB()
   .catch((err) => {
     console.error('❌ Database setup failed:', err);
   });
+// Compress all responses (~70% smaller)
+app.use(compression());
 
+// Rate limiting (prevent abuse)
+app.use('/api/', rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 10,                   // 200 requests per IP
+  message: { success: false, message: 'Too many requests, try again later' }
+}));
+
+// ── RATE LIMITING ── ← ADD HERE
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Too many login attempts, try again later' }
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  message: { success: false, message: 'Too many requests, try again later' }
+});
+
+app.use('/api/auth', authLimiter);  // strict - login/signup only
+app.use('/api/', apiLimiter);       // normal - everything else
 // Routes
 console.log('🔄 Setting up routes...');
 app.use('/api/auth', authRoutes);

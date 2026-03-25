@@ -9,18 +9,6 @@ import { Op } from 'sequelize';
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL;
 console.log('🚀 ML_SERVICE_URL:', ML_SERVICE_URL);
 
-// Helper function from catalog.controller.js
-const canViewFemaleOnly = async (userId) => {
-  if (!userId) return false;
-  try {
-    const user = await User.findByPk(userId);
-    return user && user.gender && user.gender.toLowerCase() === 'female';
-  } catch (error) {
-    console.error('Error checking user gender:', error);
-    return false;
-  }
-};
-
 export const visualSearch = async (req, res) => {
   try {
     if (!req.file) {
@@ -73,7 +61,7 @@ export const visualSearch = async (req, res) => {
 
     // 3. Enrich with DB data
     const listingIds = validResults.map(r => parseInt(r.listing_id));
-    const isFemale = await canViewFemaleOnly(req.user?.user_id);
+    const isFemale = req.userGender && req.userGender.toLowerCase() === 'female';
 
     const listings = await Listing.findAll({
       where: {

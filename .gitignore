@@ -23,3 +23,4 @@ visualSearch/venv/
 *.log
 backend/scripts/
 visualSearch/model/
+tests/

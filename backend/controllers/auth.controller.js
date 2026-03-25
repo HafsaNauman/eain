@@ -205,7 +205,8 @@ export const signup = async (req, res) => {
     const accessToken = generateAccessToken({
       user_id: newUser.user_id,
       phone_number: newUser.phone_number,
-      role: newUser.role
+      role: newUser.role,
+      gender: newUser.gender
     });
 
     const refreshToken = generateRefreshToken({
@@ -270,7 +271,8 @@ export const login = async (req, res) => {
     const accessToken = generateAccessToken({
       user_id: user.user_id,
       phone_number: user.phone_number,
-      role: user.role
+      role: user.role,
+      gender: user.gender
     });
 
     const refreshToken = generateRefreshToken({
