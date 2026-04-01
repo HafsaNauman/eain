@@ -444,5 +444,20 @@
       "resendFailed": "Failed to resend OTP. Please try again.",
       "voiceInputFailed": "Could not extract valid OTP from voice input"
     }
-  }
+  },
+  "visualSearch": {
+  "title": "Search by Image",
+  "promptTitle": "Find Similar Products",
+  "promptSubtitle": "Upload a photo to find matching items",
+  "searchingFor": "Searching for...",
+  "searching": "Finding similar products...",
+  "noResults": "No similar products found",
+  "tryAgain": "Try Another Image",
+  "resultsFound": "matches found",
+  "gallery": "Gallery",
+  "camera": "Camera",
+  "galleryPermission": "Gallery access is needed to search by photo",
+  "cameraPermission": "Camera access is needed to take a photo"
+}
+
 }

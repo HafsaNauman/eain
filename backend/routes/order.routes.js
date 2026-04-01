@@ -45,8 +45,7 @@ import {
   getVendorOrderStats,
   getLowStockListings,
 } from '../controllers/order.controller.js';
-// import { verifyToken } from '../middlewares/authJwt.js';
-import { verifyToken } from '../services/token.service.js';
+import { verifyJWT } from '../middlewares/authJwt.js';
 
 
 const router = express.Router();
@@ -61,35 +60,35 @@ const router = express.Router();
  * Auth: Customer
  * Body: { listing_id, quantity, payment_method, shipping_address, city, customer_phone }
  */
-router.post('/', [verifyToken], placeOrder);
+router.post('/', [verifyJWT], placeOrder);
 
 /**
  * GET /api/orders/my
  * Get all orders for logged-in customer
  * Auth: Customer
  */
-router.get('/my', [verifyToken], getMyOrders);
+router.get('/my', [verifyJWT], getMyOrders);
 
 /**
  * GET /api/orders/:order_id
  * Get single order details
  * Auth: Customer/Vendor/Admin (ownership validated in controller)
  */
-router.get('/:order_id', [verifyToken], getOrderDetails);
+router.get('/:order_id', [verifyJWT], getOrderDetails);
 
 /**
  * GET /api/orders/:order_id/history
  * Get order status change history (audit trail)
  * Auth: Customer/Vendor/Admin
  */
-router.get('/:order_id/history', [verifyToken], getOrderHistory);
+router.get('/:order_id/history', [verifyJWT], getOrderHistory);
 
 /**
  * GET /api/orders/:order_id/available-actions
  * Get available status transitions for current user role
  * Auth: Any authenticated user
  */
-router.get('/:order_id/available-actions', [verifyToken], getAvailableActions);
+router.get('/:order_id/available-actions', [verifyJWT], getAvailableActions);
 
 /**
  * POST /api/orders/:order_id/cancel
@@ -97,7 +96,7 @@ router.get('/:order_id/available-actions', [verifyToken], getAvailableActions);
  * Auth: Customer/Vendor/Admin
  * Body: { reason: string }
  */
-router.post('/:order_id/cancel', [verifyToken], cancelOrder);
+router.post('/:order_id/cancel', [verifyJWT], cancelOrder);
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // VENDOR ROUTES (Protected)
@@ -108,14 +107,14 @@ router.post('/:order_id/cancel', [verifyToken], cancelOrder);
  * Get all orders for vendor's shop
  * Auth: Vendor
  */
-router.get('/vendor/orders', [verifyToken], getVendorOrders);
+router.get('/vendor/orders', [verifyJWT], getVendorOrders);
 
 /**
  * GET /api/vendor/orders/stats
  * Get order statistics (counts by status, revenue)
  * Auth: Vendor
  */
-router.get('/vendor/orders/stats', [verifyToken], getVendorOrderStats);
+router.get('/vendor/orders/stats', [verifyJWT], getVendorOrderStats);
 
 /**
  * PUT /api/orders/:order_id/status
@@ -129,13 +128,13 @@ router.get('/vendor/orders/stats', [verifyToken], getVendorOrderStats);
  *   estimated_delivery_date?: string
  * }
  */
-router.put('/:order_id/status', [verifyToken], updateOrderStatus);
+router.put('/:order_id/status', [verifyJWT], updateOrderStatus);
 
 /**
  * GET /api/vendor/inventory/low-stock
  * Get listings with low stock alerts
  * Auth: Vendor
  */
-router.get('/vendor/inventory/low-stock', [verifyToken], getLowStockListings);
+router.get('/vendor/inventory/low-stock', [verifyJWT], getLowStockListings);
 
 export default router;
