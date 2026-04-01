@@ -1,13 +1,103 @@
-/**
- * Auth Context
- * 
- * Global authentication state management
- * Provides auth state and methods to all components
- * 
- * Usage:
- * const { user, isAuthenticated, login, logout } = useAuth();
- */
+// /**
+//  * Auth Context
+//  * 
+//  * Global authentication state management
+//  * Provides auth state and methods to all components
+//  * 
+//  * Usage:
+//  * const { user, isAuthenticated, login, logout } = useAuth();
+//  */
 
+// import React, { createContext, useState, useContext, useEffect } from 'react';
+// import { getAccessToken, getUserData, clearAuthData, saveTokens, saveUserData } from '../utils/storage';
+
+// const AuthContext = createContext({});
+
+// export const AuthProvider = ({ children }) => {
+//   const [user, setUser] = useState(null);
+//   const [isAuthenticated, setIsAuthenticated] = useState(false);
+//   const [isLoading, setIsLoading] = useState(true);
+
+//   // Check authentication status on mount
+//   useEffect(() => {
+//     checkAuthStatus();
+//   }, []);
+
+//   const checkAuthStatus = async () => {
+//     try {
+//       const token = await getAccessToken();
+//       const userData = await getUserData();
+
+//       if (token && userData) {
+//         setUser(userData);
+//         setIsAuthenticated(true);
+//       }
+//     } catch (error) {
+//       console.error('Error checking auth status:', error);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const login = async (accessToken, refreshToken, userData) => {
+//     try {
+//       await saveTokens(accessToken, refreshToken);
+//       await saveUserData(userData);
+//       setUser(userData);
+//       setIsAuthenticated(true);
+//     } catch (error) {
+//       console.error('Error during login:', error);
+//       throw error;
+//     }
+//   };
+
+//   const logout = async () => {
+//     try {
+//       await clearAuthData();
+//       setUser(null);
+//       setIsAuthenticated(false);
+//     } catch (error) {
+//       console.error('Error during logout:', error);
+//       throw error;
+//     }
+//   };
+
+//   const updateUser = async (updatedUserData) => {
+//     try {
+//       await saveUserData(updatedUserData);
+//       setUser(updatedUserData);
+//     } catch (error) {
+//       console.error('Error updating user:', error);
+//       throw error;
+//     }
+//   };
+
+//   return (
+//     <AuthContext.Provider
+//       value={{
+//         user,
+//         isAuthenticated,
+//         isLoading,
+//         login,
+//         logout,
+//         updateUser,
+//       }}
+//     >
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+// // Custom hook to use auth context
+// export const useAuth = () => {
+//   const context = useContext(AuthContext);
+//   if (!context) {
+//     throw new Error('useAuth must be used within AuthProvider');
+//   }
+//   return context;
+// };
+
+// export default AuthContext;
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getAccessToken, getUserData, clearAuthData, saveTokens, saveUserData } from '../utils/storage';
 
@@ -18,7 +108,6 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication status on mount
   useEffect(() => {
     checkAuthStatus();
   }, []);
@@ -33,44 +122,34 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      console.error('Auth check error:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const login = async (accessToken, refreshToken, userData) => {
-    try {
-      await saveTokens(accessToken, refreshToken);
-      await saveUserData(userData);
-      setUser(userData);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Error during login:', error);
-      throw error;
-    }
+    await saveTokens(accessToken, refreshToken);
+    await saveUserData(userData);
+    setUser(userData);
+    setIsAuthenticated(true);
   };
 
   const logout = async () => {
-    try {
-      await clearAuthData();
-      setUser(null);
-      setIsAuthenticated(false);
-    } catch (error) {
-      console.error('Error during logout:', error);
-      throw error;
-    }
+    await clearAuthData();
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   const updateUser = async (updatedUserData) => {
-    try {
-      await saveUserData(updatedUserData);
-      setUser(updatedUserData);
-    } catch (error) {
-      console.error('Error updating user:', error);
-      throw error;
-    }
+    await saveUserData(updatedUserData);
+    setUser(updatedUserData);
   };
+
+  // ✅ ROLE FLAGS
+  const isAdmin = user?.role === 'admin';
+  const isVendor = user?.role === 'vendor';
+  const isCustomer = user?.role === 'customer';
 
   return (
     <AuthContext.Provider
@@ -78,6 +157,9 @@ export const AuthProvider = ({ children }) => {
         user,
         isAuthenticated,
         isLoading,
+        isAdmin,
+        isVendor,
+        isCustomer,
         login,
         logout,
         updateUser,
@@ -88,13 +170,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
 
 export default AuthContext;
