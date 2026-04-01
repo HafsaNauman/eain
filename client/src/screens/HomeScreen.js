@@ -877,16 +877,11 @@ function HomeScreen() {
         filters.stock_status = selectedStockFilter;
       }
 
-<<<<<<< HEAD
-
-      const hasFilters = selectedCategory !== 'All' || selectedCity !== 'All Cities' || selectedSort !== 'created_at' || selectedStockFilter !== 'all';
-=======
       const hasFilters =
         selectedCategory !== 'All' ||
         selectedCity !== 'All Cities' ||
         selectedSort !== 'created_at';
 
->>>>>>> main
       const result = hasFilters
         ? await searchListings(filters)
         : await getAllListings(filters);
@@ -1154,27 +1149,6 @@ function HomeScreen() {
             )}
 
             {/* Grid layout with 2 columns */}
-<<<<<<< HEAD
-           
-<View style={styles.productsGrid}>
-  {products.map(product => (
-    <TouchableOpacity
-      key={product.listing_id}
-      style={[
-        styles.productCard,
-        // ✅ STOCK: Visual stock status
-        product.track_inventory && product.stock_quantity === 0 && styles.outOfStockCard
-      ]}
-      onPress={() => navigateToProductDetail(product.listing_id)}
-      disabled={product.track_inventory && product.stock_quantity === 0}  // ✅ Block OOS
-    >
-      <Image
-        source={{
-          uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
-        }}
-        style={styles.productImage}
-      />
-=======
             <View style={styles.productsGrid}>
               {products.map(product => (
                 <TouchableOpacity
@@ -1192,7 +1166,6 @@ function HomeScreen() {
 
                     style={styles.productImage}
                   />
->>>>>>> main
 
       {/* ✅ STOCK BADGE - ADD THIS */}
       {product.track_inventory && (
