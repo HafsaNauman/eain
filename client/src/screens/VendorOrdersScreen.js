@@ -1,9 +1,9 @@
 /**
- * Vendor Orders Screen
- * Shows all orders for the vendor's shop with status management
+ * Vendor / Admin Orders Screen
+ * Shows all orders for vendor's shop or all orders for admin
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -19,18 +19,21 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
 import { getVendorOrders, updateOrderStatus as apiUpdateOrderStatus } from "../api/vendorOrderService";
+import { getAllOrders, updateOrderStatus as adminUpdateOrderStatus, resolveDispute } from "../api/adminService";
 
-import { useAppDispatch, useAppSelector} from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { selectOrders, setOrders, updateOrderStatus } from "../redux/slices/orderSlice";
+import { AuthContext } from "../context/AuthContext";
 
 const VendorOrdersScreen = ({ navigation, route }) => {
   const { i18n, t } = useTranslation();
   const isUrdu = i18n.language === "ur";
   const { initialFilter } = route.params || {};
 
-  const dispatch = useAppDispatch();
+  const { user } = useContext(AuthContext);
+  const isAdmin = user?.role === "admin";
 
-  // Redux se orders
+  const dispatch = useAppDispatch();
   const reduxOrders = useAppSelector(selectOrders);
 
   const [orders, setOrdersState] = useState(reduxOrders);
@@ -41,32 +44,25 @@ const VendorOrdersScreen = ({ navigation, route }) => {
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
 
   useEffect(() => {
-    fetchVendorOrders();
+    fetchOrders();
   }, []);
 
-  const fetchVendorOrders = async (isRefresh = false) => {
+  const fetchOrders = async (isRefresh = false) => {
     try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
       setError("");
 
-      const result = await getVendorOrders();
+      const result = isAdmin ? await getAllOrders() : await getVendorOrders();
 
       if (result.success) {
         const backendOrders = result.data.orders || [];
-
         setOrdersState(backendOrders);
-        dispatch(setOrders(backendOrders)); // Redux
-
+        dispatch(setOrders(backendOrders));
         console.log(`✅ Loaded ${backendOrders.length} orders`);
       } else {
         setError(result.error);
-        if (!isRefresh) {
-          Alert.alert(t("common.error"), result.error);
-        }
+        if (!isRefresh) Alert.alert(t("common.error"), result.error);
       }
     } catch (err) {
       console.error("❌ Fetch Orders Error:", err);
@@ -80,9 +76,7 @@ const VendorOrdersScreen = ({ navigation, route }) => {
   const handleStatusChange = async (orderId, newStatus) => {
     Alert.alert(
       t("vendorOrders.confirmAction"),
-      `${t("vendorOrders.confirmMessage")} ${t(
-        `vendorOrders.${newStatus}`
-      )} ${t("vendorOrders.thisOrder")}`,
+      `${t("vendorOrders.confirmMessage")} ${t(`vendorOrders.${newStatus}`)} ${t("vendorOrders.thisOrder")}`,
       [
         { text: t("common.cancel"), style: "cancel" },
         {
@@ -90,19 +84,17 @@ const VendorOrdersScreen = ({ navigation, route }) => {
           onPress: async () => {
             setUpdatingOrderId(orderId);
             try {
-              const result = await apiUpdateOrderStatus(orderId, newStatus);
+              const result = isAdmin
+                ? await adminUpdateOrderStatus(orderId, newStatus)
+                : await apiUpdateOrderStatus(orderId, newStatus);
 
               if (result.success) {
                 Alert.alert(
                   t("vendorOrders.success"),
-                  `${t(
-                    "orderDetails.orderNumber"
-                  )} ${t(
-                    `vendorOrders.${newStatus}`
-                  )} ${t("vendorOrders.orderStatusUpdated")}`
+                  `${t("orderDetails.orderNumber")} ${t(`vendorOrders.${newStatus}`)} ${t(
+                    "vendorOrders.orderStatusUpdated"
+                  )}`
                 );
-
-                // Update Redux (global state)
                 dispatch(
                   updateOrderStatus({
                     orderId,
@@ -110,9 +102,6 @@ const VendorOrdersScreen = ({ navigation, route }) => {
                     updated_at: new Date().toISOString(),
                   })
                 );
-
-                // Optional: backend se phir fetch
-                // fetchVendorOrders(true);
               } else {
                 Alert.alert(t("common.error"), result.error);
               }
@@ -127,9 +116,36 @@ const VendorOrdersScreen = ({ navigation, route }) => {
     );
   };
 
-  const onRefresh = () => {
-    fetchVendorOrders(true);
+  const handleResolveDispute = async (orderId) => {
+    Alert.alert(
+      t("admin.resolveDispute"),
+      t("admin.confirmResolveDispute"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.yes"),
+          onPress: async () => {
+            setUpdatingOrderId(orderId);
+            try {
+              const result = await resolveDispute(orderId);
+              if (result.success) {
+                Alert.alert(t("admin.disputeResolved"));
+                fetchOrders(true);
+              } else {
+                Alert.alert(t("common.error"), result.error);
+              }
+            } catch (err) {
+              Alert.alert(t("common.error"), t("errors.serverError"));
+            } finally {
+              setUpdatingOrderId(null);
+            }
+          },
+        },
+      ]
+    );
   };
+
+  const onRefresh = () => fetchOrders(true);
 
   const filteredOrders = orders.filter((order) => {
     if (filter === "all") return true;
@@ -138,82 +154,57 @@ const VendorOrdersScreen = ({ navigation, route }) => {
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
-      case "pending":
-        return "#FFA500";
-      case "confirmed":
-        return "#4CAF50";
-      case "completed":
-        return "#2196F3";
-      case "cancelled":
-        return "#F44336";
-      default:
-        return "#999";
+      case "pending": return "#FFA500";
+      case "confirmed": return "#4CAF50";
+      case "completed": return "#2196F3";
+      case "cancelled": return "#F44336";
+      case "disputed": return "#9C27B0";
+      default: return "#999";
     }
   };
 
   const renderOrderCard = ({ item: order }) => {
     const statusColor = getStatusColor(order.status);
     const isUpdating = updatingOrderId === order.order_id;
-    const productTitle =
-      isUrdu && order.listing?.title_ur
-        ? order.listing.title_ur
-        : order.listing?.title_en || t("vendorOrders.product");
+    const productTitle = isUrdu && order.listing?.title_ur
+      ? order.listing.title_ur
+      : order.listing?.title_en || t("vendorOrders.product");
 
     return (
       <View style={styles.orderCard}>
-        {/* Order Header */}
+        {/* Header */}
         <View style={styles.orderHeader}>
           <View style={styles.orderIdRow}>
             <Ionicons name="receipt-outline" size={16} color="#666" />
-            <Text style={styles.orderId}>
-              {t("orderDetails.orderNumber")} #{order.order_id}
-            </Text>
+            <Text style={styles.orderId}>{t("orderDetails.orderNumber")} #{order.order_id}</Text>
           </View>
-          <View
-            style={[styles.statusBadge, { backgroundColor: statusColor }]}>
-            <Text style={styles.statusText}>
-              {t(
-                `vendorOrders.${order.status?.toLowerCase()}`
-              ).toUpperCase()}
-            </Text>
+          <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
+            <Text style={styles.statusText}>{t(`vendorOrders.${order.status?.toLowerCase()}`).toUpperCase()}</Text>
           </View>
         </View>
 
         {/* Product Info */}
         <View style={styles.productSection}>
           <Text style={styles.sectionLabel}>{t("vendorOrders.product")}</Text>
-          <Text style={styles.productTitle} numberOfLines={2}>
-            {productTitle}
-          </Text>
-          <Text style={styles.productQuantity}>
-            {t("orderDetails.quantity")}: {order.quantity}
-          </Text>
-          {/* ✅ STOCK CHECK - WARN if low stock */}
-{order.listing?.track_inventory && order.listing.stock_quantity != null && (
-  <Text 
-    style={[
-      styles.stockWarning, 
-      order.listing.stock_quantity < order.quantity && styles.stockCritical
-    ]}
-  >
-    📦 Stock: {order.listing.stock_quantity || 0} 
-    {order.listing.stock_quantity < order.quantity && ' ⚠️ INSUFFICIENT'}
-  </Text>
-)}
+          <Text style={styles.productTitle} numberOfLines={2}>{productTitle}</Text>
+          <Text style={styles.productQuantity}>{t("orderDetails.quantity")}: {order.quantity}</Text>
+          {order.listing?.track_inventory && order.listing.stock_quantity != null && (
+            <Text style={[
+              styles.stockWarning,
+              order.listing.stock_quantity < order.quantity && styles.stockCritical
+            ]}>
+              📦 Stock: {order.listing.stock_quantity || 0}
+              {order.listing.stock_quantity < order.quantity && ' ⚠️ INSUFFICIENT'}
+            </Text>
+          )}
         </View>
 
         {/* Customer Info */}
         <View style={styles.customerSection}>
-          <Text style={styles.sectionLabel}>
-            {t("vendorOrders.customerDetails")}
-          </Text>
+          <Text style={styles.sectionLabel}>{t("vendorOrders.customerDetails")}</Text>
           <View style={styles.infoRow}>
             <Ionicons name="person-outline" size={14} color="#666" />
-            <Text style={styles.infoText}>
-              {order.customer?.full_name ||
-                order.customer_name ||
-                t("vendorOrders.customerDetails")}
-            </Text>
+            <Text style={styles.infoText}>{order.customer?.full_name || order.customer_name || t("vendorOrders.customerDetails")}</Text>
           </View>
           <View style={styles.infoRow}>
             <Ionicons name="call-outline" size={14} color="#666" />
@@ -221,113 +212,70 @@ const VendorOrdersScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.infoRow}>
             <Ionicons name="location-outline" size={14} color="#666" />
-            <Text style={styles.infoText} numberOfLines={2}>
-              {order.shipping_address}, {order.city}
-            </Text>
+            <Text style={styles.infoText} numberOfLines={2}>{order.shipping_address}, {order.city}</Text>
           </View>
           <View style={styles.infoRow}>
             <Ionicons name="card-outline" size={14} color="#666" />
             <Text style={styles.infoText}>
-              {order.payment_method === "cod"
-                ? t("vendorOrders.cashOnDelivery")
-                : t("vendorOrders.bankTransfer")}
+              {order.payment_method === "cod" ? t("vendorOrders.cashOnDelivery") : t("vendorOrders.bankTransfer")}
             </Text>
           </View>
         </View>
 
-        {/* Total Amount */}
+        {/* Amount */}
         <View style={styles.amountSection}>
-          <Text style={styles.amountLabel}>
-            {t("vendorOrders.totalAmount")}
-          </Text>
-          <Text style={styles.amount}>
-            PKR {order.total_amount?.toLocaleString()}
-          </Text>
+          <Text style={styles.amountLabel}>{t("vendorOrders.totalAmount")}</Text>
+          <Text style={styles.amount}>PKR {order.total_amount?.toLocaleString()}</Text>
         </View>
 
-        {/* Action Buttons */}
-        {order.status === "pending" && (
+        {/* Actions */}
+        {order.status === "pending" && !isAdmin && (
           <View style={styles.actionButtons}>
             <TouchableOpacity
               style={[styles.actionButton, styles.confirmButton]}
               onPress={() => {
-  // ✅ STOCK CHECK BEFORE CONFIRM
-  if (order.listing?.track_inventory && order.listing.stock_quantity != null) {
-    const available = order.listing.stock_quantity - (order.listing.reserved_quantity || 0);
-    if (available < order.quantity) {
-      Alert.alert(
-        'Low Stock Warning ⚠️',
-        `Only ${available} items available, but order needs ${order.quantity}. 
-         Add stock or cancel order.`,
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-  }
-  handleStatusChange(order.order_id, "confirmed");
-}}
-
-              disabled={isUpdating}>
-              {isUpdating ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <>
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={18}
-                    color="#fff"
-                  />
-                  <Text style={styles.confirmButtonText}>
-                    {t("vendorOrders.confirm")}
-                  </Text>
-                </>
-              )}
+                if (order.listing?.track_inventory && order.listing.stock_quantity != null) {
+                  const available = order.listing.stock_quantity - (order.listing.reserved_quantity || 0);
+                  if (available < order.quantity) {
+                    Alert.alert('Low Stock Warning ⚠️', `Only ${available} items available, but order needs ${order.quantity}. Add stock or cancel order.`, [{ text: 'OK' }]);
+                    return;
+                  }
+                }
+                handleStatusChange(order.order_id, "confirmed");
+              }}
+              disabled={isUpdating}
+            >
+              {isUpdating ? <ActivityIndicator size="small" color="#fff" /> : <>
+                <Ionicons name="checkmark-circle" size={18} color="#fff" />
+                <Text style={styles.confirmButtonText}>{t("vendorOrders.confirm")}</Text>
+              </>}
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.actionButton, styles.cancelButton]}
               onPress={() => handleStatusChange(order.order_id, "cancelled")}
-              disabled={isUpdating}>
-              <Ionicons
-                name="close-circle"
-                size={18}
-                color="#fff"
-              />
-              <Text style={styles.cancelButtonText}>
-                {t("vendorOrders.cancel")}
-              </Text>
+              disabled={isUpdating}
+            >
+              <Ionicons name="close-circle" size={18} color="#fff" />
+              <Text style={styles.cancelButtonText}>{t("vendorOrders.cancel")}</Text>
             </TouchableOpacity>
           </View>
         )}
 
-        {order.status === "confirmed" && (
-          <View style={styles.statusMessage}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.confirmedText}>
-              {t("vendorOrders.orderConfirmed")}
-            </Text>
-          </View>
-        )}
-
-        {order.status === "cancelled" && (
-          <View style={styles.statusMessage}>
-            <Ionicons name="close-circle" size={20} color="#F44336" />
-            <Text style={styles.cancelledText}>
-              {t("vendorOrders.orderCancelled")}
-            </Text>
+        {isAdmin && order.status === "disputed" && (
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.confirmButton]}
+              onPress={() => handleResolveDispute(order.order_id)}
+              disabled={isUpdating}
+            >
+              {isUpdating ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.confirmButtonText}>{t("admin.resolveDispute")}</Text>}
+            </TouchableOpacity>
           </View>
         )}
 
         {/* Order Date */}
-        <Text style={styles.orderDate}>
-          {new Date(order.created_at).toLocaleDateString("en-US", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </Text>
+        <Text style={styles.orderDate}>{new Date(order.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</Text>
       </View>
     );
   };
@@ -337,11 +285,7 @@ const VendorOrdersScreen = ({ navigation, route }) => {
       <Ionicons name="receipt-outline" size={80} color="#ccc" />
       <Text style={styles.emptyTitle}>{t("vendorOrders.noOrders")}</Text>
       <Text style={styles.emptySubtitle}>
-        {filter === "all"
-          ? t("vendorOrders.noOrdersMessage")
-          : `${t("vendorOrders.noFilteredOrders")} ${t(
-              `vendorOrders.${filter}`
-            )}`}
+        {filter === "all" ? t("vendorOrders.noOrdersMessage") : `${t("vendorOrders.noFilteredOrders")} ${t(`vendorOrders.${filter}`)}`}
       </Text>
     </View>
   );
@@ -350,27 +294,19 @@ const VendorOrdersScreen = ({ navigation, route }) => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#036c5f" />
-        <Text style={styles.loadingText}>
-          {t("vendorOrders.loadingOrders")}
-        </Text>
+        <Text style={styles.loadingText}>{t("vendorOrders.loadingOrders")}</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView
-      style={styles.container}
-      edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#036c5f" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {t("vendorOrders.title")}
-        </Text>
+        <Text style={styles.headerTitle}>{t("vendorOrders.title")}</Text>
         <TouchableOpacity onPress={onRefresh}>
           <Ionicons name="refresh" size={24} color="#036c5f" />
         </TouchableOpacity>
@@ -378,55 +314,33 @@ const VendorOrdersScreen = ({ navigation, route }) => {
 
       {/* Filter Tabs */}
       <View style={styles.filterTabs}>
-        {["all", "pending", "confirmed", "cancelled"].map((status) => (
-          <TouchableOpacity
-            key={status}
-            onPress={() => setFilter(status)}
-            style={[
-              styles.filterTab,
-              filter === status && styles.filterTabActive,
-            ]}>
-            <Text
-              style={[
-                styles.filterTabText,
-                filter === status && styles.filterTabTextActive,
-              ]}>
+        {["all", "pending", "confirmed", "cancelled", ...(isAdmin ? ["disputed"] : [])].map((status) => (
+          <TouchableOpacity key={status} onPress={() => setFilter(status)} style={[styles.filterTab, filter === status && styles.filterTabActive]}>
+            <Text style={[styles.filterTabText, filter === status && styles.filterTabTextActive]}>
               {t(`vendorOrders.${status}`)}
             </Text>
-            {filter === status && (
-              <View style={styles.filterTabIndicator} />
-            )}
+            {filter === status && <View style={styles.filterTabIndicator} />}
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Error Banner */}
+      {/* Error */}
       {error && (
         <View style={styles.errorBanner}>
           <Ionicons name="alert-circle" size={20} color="#ff6b6b" />
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={() => fetchVendorOrders()}>
+          <TouchableOpacity onPress={() => fetchOrders()}>
             <Text style={styles.retryText}>{t("myOrders.retry")}</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Orders List */}
       <FlatList
         data={filteredOrders}
         renderItem={renderOrderCard}
-        keyExtractor={(item) => `vendor-order-${item.order_id}`}
-        contentContainerStyle={[
-          styles.listContent,
-          filteredOrders.length === 0 && styles.emptyListContent,
-        ]}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={["#036c5f"]}
-          />
-        }
+        keyExtractor={(item) => `order-${item.order_id}`}
+        contentContainerStyle={[styles.listContent, filteredOrders.length === 0 && styles.emptyListContent]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#036c5f"]} />}
         ListEmptyComponent={renderEmpty}
         showsVerticalScrollIndicator={false}
       />

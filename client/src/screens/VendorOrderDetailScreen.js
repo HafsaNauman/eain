@@ -206,9 +206,10 @@ const VendorOrderDetailScreen = ({ route, navigation }) => {
           <Text style={styles.sectionTitle}>{t("orderDetails.statusTimeline")}</Text>
           <View style={styles.timeline}>
             {["pending", "confirmed", "shipped", "delivered"].map((key, index) => {
-              const isDone = order.status === key || reduxOrder?.status === key;
-              const isCurrent = order.status === key;
-              const isActive = isDone;
+              const statusOrder = ["pending", "confirmed", "shipped", "delivered"];
+              const currentIndex = statusOrder.indexOf(order.status?.toLowerCase());
+              const isDone = index <= currentIndex;
+              const isCurrent = index === currentIndex;
 
               return (
                 <View key={key} style={styles.timelineItem}>
