@@ -17,7 +17,13 @@ const sequelize = new Sequelize(
         rejectUnauthorized: false  // Required for Neon
       }
     },
-    logging: false  // Set to console.log to see SQL queries
+    pool: {
+      max: 10,
+      min: 2,
+      acquire: 30000,
+      idle: 10000
+    },
+    logging: false
   }
 );
 

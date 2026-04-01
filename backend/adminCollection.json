@@ -1,0 +1,304 @@
+{
+  "info": {
+    "name": "EAIN Admin Routes",
+    "_postman_id": "eain-admin-collection-v1",
+    "description": "Full admin API collection for the EAIN backend. Set the `baseUrl` and `token` environment variables before running.\n\n**Setup:**\n1. POST /api/auth/login → copy the token\n2. Create a Postman Environment with:\n   - `baseUrl` = `http://localhost:3000`\n   - `token` = your JWT from login",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (get token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"your_password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login as an admin user. Copy the returned token into your environment variable `token`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                { "key": "limit", "value": "20", "description": "Max 100" },
+                { "key": "offset", "value": "0" },
+                { "key": "role", "value": "", "description": "vendor | customer | admin", "disabled": true },
+                { "key": "is_active", "value": "", "description": "true | false", "disabled": true }
+              ]
+            },
+            "description": "Returns a paginated list of all users. Toggle query params to filter."
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", ":userId"],
+              "variable": [
+                { "key": "userId", "value": "1", "description": "The user's primary key" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User Status (activate/deactivate)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/:userId/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", ":userId", "status"],
+              "variable": [
+                { "key": "userId", "value": "1" }
+              ]
+            },
+            "description": "Set is_active to true to activate or false to deactivate. Cannot change your own status."
+          }
+        },
+        {
+          "name": "Change User Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"vendor\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/:userId/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", ":userId", "role"],
+              "variable": [
+                { "key": "userId", "value": "1" }
+              ]
+            },
+            "description": "Valid roles: vendor | customer | admin. Cannot change your own role."
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", ":userId"],
+              "variable": [
+                { "key": "userId", "value": "1" }
+              ]
+            },
+            "description": "Permanently deletes the user. Cannot delete yourself."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏪 Vendor Management",
+      "item": [
+        {
+          "name": "Get All Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/vendors?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "vendors"],
+              "query": [
+                { "key": "limit", "value": "20" },
+                { "key": "offset", "value": "0" },
+                { "key": "is_active", "value": "", "description": "true | false", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Vendor Status (approve/reject)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": true,\n  \"reason\": \"Documents verified successfully\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/vendors/:vendorId/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "vendors", ":vendorId", "status"],
+              "variable": [
+                { "key": "vendorId", "value": "1" }
+              ]
+            },
+            "description": "is_active: true = approve/activate. false = reject/deactivate. reason is optional."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listing Management",
+      "item": [
+        {
+          "name": "Get All Listings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/listings?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "listings"],
+              "query": [
+                { "key": "limit", "value": "20" },
+                { "key": "offset", "value": "0" },
+                { "key": "is_active", "value": "", "description": "true | false", "disabled": true },
+                { "key": "category", "value": "", "description": "e.g. electronics", "disabled": true },
+                { "key": "is_featured", "value": "", "description": "true | false", "disabled": true }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order Management",
+      "item": [
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "orders"],
+              "query": [
+                { "key": "limit", "value": "20" },
+                { "key": "offset", "value": "0" },
+                { "key": "status", "value": "", "description": "pending | confirmed | delivered | cancelled", "disabled": true },
+                { "key": "has_dispute", "value": "", "description": "true — only disputed orders", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Dispute Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dispute_status\": \"resolved\",\n  \"resolution_note\": \"Refund issued to the buyer.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders/:orderId/dispute",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "orders", ":orderId", "dispute"],
+              "variable": [
+                { "key": "orderId", "value": "1" }
+              ]
+            },
+            "description": "Valid dispute_status values: resolved | rejected | under_review"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Get Platform Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "analytics"]
+            },
+            "description": "Returns overview stats: total users, vendors, listings, orders, revenue, top categories, orders by status, new users in last 30 days."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

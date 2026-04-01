@@ -1,5 +1,5 @@
-.env
-.idea
+.env/
+.idea/
 client/.env
 client/node_modules/
 backend/.env
@@ -15,3 +15,12 @@ ai_descriptions/venv/
 ai_descriptions/.env
 ai_descriptions/uploads/
 ai_descriptions/__pycache__/
+visualSearch/.venv/
+visualSearch/__pycache__/
+visualSearch/venv/
+.vscode/
+.DS_Store
+*.log
+backend/scripts/
+visualSearch/model/
+tests/
