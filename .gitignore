@@ -16,7 +16,7 @@ ai_descriptions/.env
 ai_descriptions/uploads/
 ai_descriptions/__pycache__/
 visualSearch/.venv/
-visualSearch/__pycache__/
+visualSearch/__pycache__
 visualSearch/venv/
 .vscode/
 .DS_Store
