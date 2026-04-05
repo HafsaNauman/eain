@@ -38,7 +38,7 @@
 // export default API_CONFIG;
 
 const API_CONFIG = {
-  BASE_URL: "https://mightiest-unextolled-valeri.ngrok-free.dev",
+  BASE_URL: "https://c850-39-50-213-216.ngrok-free.app",
   TIMEOUT: 30000,
 
   ENDPOINTS: {
