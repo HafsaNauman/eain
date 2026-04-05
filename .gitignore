@@ -9,6 +9,7 @@ stt-service/.env
 stt-service/credentials.json
 stt-service/venv/
 stt-service/app/__pycache__/
+stt-service/app/venv/
 client/.expo/
 backend/uploads/
 ai_descriptions/venv/
