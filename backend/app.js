@@ -25,6 +25,7 @@ import visualSearchRoutes from './routes/visualSearch.routes.js';
 console.log('🔄 Starting application...');
 
 const app = express();
+app.set('trust proxy', 1); 
 
 console.log('🔄 Express app created');
 
