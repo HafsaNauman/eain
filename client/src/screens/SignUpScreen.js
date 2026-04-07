@@ -132,18 +132,24 @@ const SignUpScreen = ({ route, navigation }) => {
 
 // ✅ Route based on role
       if (formData.role === 'vendor') {
-      // Vendor goes to Business Registration
-       navigation.navigate('BusinessRegistration', {
-       userId: user.user_id,
-        userRole: 'vendor',
-  });
-} else {
-  // Customer goes to Home
-      navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' }],
-  });
-}
+        // Vendor goes to Business Registration
+        navigation.navigate('BusinessRegistration', {
+          userId: user.user_id,
+          userRole: 'vendor',
+        });
+      } else if (formData.role === 'service_provider') {
+        // Service Provider goes to Business Registration (service type)
+        navigation.navigate('BusinessRegistration', {
+          userId: user.user_id,
+          userRole: 'service_provider',
+        });
+      } else {
+        // Customer goes to Home
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
+      }
 
 
       } else {
@@ -343,6 +349,7 @@ const SignUpScreen = ({ route, navigation }) => {
                 <Picker.Item label={t('signUp.rolePlaceholder')} value="" color={COLORS.placeholder} />
                 <Picker.Item label={t('signUp.customer')} value="customer" />
                 <Picker.Item label={t('signUp.vendor')} value="vendor" />
+                <Picker.Item label={t('signUp.serviceProvider')} value="service_provider" />
               </Picker>
             </View>
             {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}

@@ -27,7 +27,7 @@ import { login as apiLogin } from '../api/authService';
 import { startRecording, stopRecording } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
 import { useAuth } from '../context/AuthContext';
-import { getVendorProfile } from '../api/VendorService'; 
+import { getVendorProfile } from '../api/VendorService';
 
 const LoginScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -41,79 +41,101 @@ const LoginScreen = ({ navigation }) => {
 
   const { login: contextLogin } = useAuth();
 
- const handleLogin = async () => {
-  setError('');
+  const handleLogin = async () => {
+    setError('');
 
-  const fullPhoneNumber = `+92${phoneNumber.replace(/\s/g, '')}`;
+    const fullPhoneNumber = `+92${phoneNumber.replace(/\s/g, '')}`;
 
-  if (!validatePhoneNumber(fullPhoneNumber)) {
-    setError(t('errors.invalidPhone'));
-    return;
-  }
+    if (!validatePhoneNumber(fullPhoneNumber)) {
+      setError(t('errors.invalidPhone'));
+      return;
+    }
 
-  if (!password) {
-    setError(t('errors.passwordRequired'));
-    return;
-  }
+    if (!password) {
+      setError(t('errors.passwordRequired'));
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const result = await apiLogin(fullPhoneNumber, password);
-    if (result.success) {
-      const { accessToken, refreshToken, user } = result.data.data;
-      await contextLogin(accessToken, refreshToken, user);
-      
-      // ✅ FIXED ROLE-BASED NAVIGATION
-      if (user.role === 'admin') {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'AdminDashboard' }],
-        });
-      } else if (user.role === 'vendor') {
-        // Check if vendor has profile (your existing logic)
-        try {
-          const profileCheck = await getVendorProfile();
-          if (profileCheck.success) {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'VendorDashboard', params: { userId: user.user_id } }],
-            });
-          } else {
-            navigation.reset({
-              index: 0,
-              routes: [{ 
-                name: 'BusinessRegistration', 
-                params: { userId: user.user_id, userRole: 'vendor' } 
-              }],
-            });
-          }
-        } catch (error) {
+    try {
+      const result = await apiLogin(fullPhoneNumber, password);
+
+      if (result.success) {
+        const { accessToken, refreshToken, user } = result.data.data;
+        await contextLogin(accessToken, refreshToken, user);
+
+        if (user.role === 'admin') {
+          // ── Admin ──────────────────────────────────────────────
           navigation.reset({
             index: 0,
-            routes: [{ 
-              name: 'BusinessRegistration', 
-              params: { userId: user.user_id, userRole: 'vendor' } 
-            }],
+            routes: [{ name: 'AdminDashboard' }],
+          });
+
+        } else if (user.role === 'vendor') {
+          // ── Vendor — branch on vendor_type ────────────────────
+          if (user.vendor_type === 'service') {
+            // Service vendor → service dashboard (no profile pre-check needed;
+            // ServiceDashboard fetches its own profile on mount)
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'ServiceDashboard' }],
+            });
+          } else {
+            // Product vendor → existing profile-check flow (unchanged)
+            try {
+              const profileCheck = await getVendorProfile();
+              if (profileCheck.success) {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'VendorDashboard', params: { userId: user.user_id } }],
+                });
+              } else {
+                navigation.reset({
+                  index: 0,
+                  routes: [{
+                    name: 'BusinessRegistration',
+                    params: { userId: user.user_id, userRole: 'vendor' },
+                  }],
+                });
+              }
+            } catch {
+              navigation.reset({
+                index: 0,
+                routes: [{
+                  name: 'BusinessRegistration',
+                  params: { userId: user.user_id, userRole: 'vendor' },
+                }],
+              });
+            }
+          }
+
+        } else if (user.role === 'service_provider') {
+          // ── Service Provider ───────────────────────────────────
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'ServiceDashboard' }],
+          });
+
+        } else {
+          // ── Customer ───────────────────────────────────────────
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
           });
         }
+
       } else {
-        // Customer
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
+        setError(result.error);
       }
-    } else {
-      setError(result.error);
+
+    } catch (err) {
+      setError(t('errors.loginFailed'));
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError(t('errors.loginFailed'));
-    console.error('Login error:', err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   const handleVoiceInput = async (field) => {
     if (recordingField === field) {
       await stopVoiceRecording(field);
@@ -216,7 +238,7 @@ const LoginScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.micIcon}
               onPress={() => handleVoiceInput('phoneNumber')}
-              // style={styles.micIcon}
+            // style={styles.micIcon}
             >
               <Ionicons
                 name={recordingField === 'phoneNumber' ? 'mic' : 'mic-outline'}
@@ -252,7 +274,7 @@ const LoginScreen = ({ navigation }) => {
           <TouchableOpacity
             style={styles.forgotPassword}
             onPress={() => console.log('Forgot password clicked')}
-            // style={styles.forgotPassword}
+          // style={styles.forgotPassword}
           >
             <Text style={styles.forgotPasswordText}>{t('login.forgotPassword')}</Text>
           </TouchableOpacity>

@@ -29,6 +29,10 @@ console.log('🔄 Starting application...');
 
 const app = express();
 
+// Trust the first proxy (ngrok, nginx, etc.) so express-rate-limit
+// can read the real client IP from the X-Forwarded-For header
+app.set('trust proxy', 1);
+
 console.log('🔄 Express app created');
 
 // Middleware
@@ -72,14 +76,14 @@ app.use(compression());
 // Rate limiting (prevent abuse)
 app.use('/api/', rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 10,                   // 200 requests per IP
+  max: 1000,                 // generous limit for development
   message: { success: false, message: 'Too many requests, try again later' }
 }));
 
 // ── RATE LIMITING ── ← ADD HERE
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 50,   // 50 login/signup attempts per 15 min
   message: { success: false, message: 'Too many login attempts, try again later' }
 });
 

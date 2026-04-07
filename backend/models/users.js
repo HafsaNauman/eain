@@ -17,7 +17,7 @@ role: {
   allowNull: false,
   defaultValue: 'customer',  // Default role
   validate: {
-    isIn: [['customer', 'vendor', 'admin']] // vendor or customer 
+    isIn: [['customer', 'vendor', 'admin', 'service_provider']]
   }
 },
   created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
