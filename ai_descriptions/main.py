@@ -79,6 +79,9 @@ UPLOAD_DIR = os.path.join("uploads", "images")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
+# Base URL for self-referencing static files like images
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
+
 
 # ============================================================================
 # ROOT ENDPOINT
@@ -212,7 +215,7 @@ async def create_service_description_from_image(file: UploadFile = File(...)):
         
         # Include public image URL in response
         if "image_filename" in result:
-            result["image_url"] = f"http://localhost:8000/uploads/images/{result['image_filename']}"
+            result["image_url"] = f"{BASE_URL}/uploads/images/{result['image_filename']}"
         
         return {
             "success": True,
@@ -248,7 +251,7 @@ async def create_product_description_from_image(file: UploadFile = File(...)):
         
         # Include public image URL
         if "image_filename" in result:
-            result["image_url"] = f"http://localhost:8000/uploads/images/{result['image_filename']}"
+            result["image_url"] = f"{BASE_URL}/uploads/images/{result['image_filename']}"
         
         return {
             "success": True,
