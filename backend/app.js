@@ -6,6 +6,7 @@ import { sequelize } from './models/index.js';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 
+
 // Load environment variables
 dotenv.config();
 
@@ -21,6 +22,8 @@ import catalogRoutes from './routes/catalog.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import aiDescriptionRoutes from './routes/aiDescription.routes.js';
 import visualSearchRoutes from './routes/visualSearch.routes.js';
+import serviceRoutes from './routes/service.routes.js';
+import bookingRoutes from './routes/booking.routes.js';
 
 console.log('🔄 Starting application...');
 
@@ -102,6 +105,9 @@ app.use('/api/ai', aiDescriptionRoutes);
 app.use('/api/orders', orderRoutes); // Order management (protected)
 app.use('/api/catalog', catalogRoutes); // Public catalog browse
 app.use('/api/catalog', visualSearchRoutes);
+
+app.use('/api/service', serviceRoutes);    // service provider routes
+app.use('/api/bookings', bookingRoutes);   // customer booking routes
 
 // Health check route
 app.get('/health', (req, res) => {

@@ -6,6 +6,8 @@ import Listing from './listing.js';
 import Order from './order.js';
 import OrderHistory from './orderHistory.js';
 import { Payout, VendorCommissionRate, PayoutBatch, PayoutBatchItem } from './payout.js';
+import Booking from './booking.js';
+import ServiceAvailability from './serviceAvailability.js';
 
 //====== Associations ======
 
@@ -57,7 +59,23 @@ PayoutBatchItem.belongsTo(PayoutBatch, { foreignKey: 'batch_id' });
 Payout.hasMany(PayoutBatchItem, { foreignKey: 'payout_id', as: 'batch_items' });
 PayoutBatchItem.belongsTo(Payout, { foreignKey: 'payout_id' });
 
-export { sequelize, User, UserVerification, VendorProfile, Listing, Order 
-, OrderHistory, Payout, VendorCommissionRate, PayoutBatch, PayoutBatchItem
+// ── Booking Associations ──
+Booking.belongsTo(User, { foreignKey: 'customer_id', as: 'customer' });
+User.hasMany(Booking, { foreignKey: 'customer_id', as: 'bookings_as_customer' });
+
+Booking.belongsTo(VendorProfile, { foreignKey: 'vendor_id', as: 'serviceProvider' });
+VendorProfile.hasMany(Booking, { foreignKey: 'vendor_id', as: 'bookings' });
+
+Booking.belongsTo(Listing, { foreignKey: 'listing_id', as: 'serviceListing' });
+Listing.hasMany(Booking, { foreignKey: 'listing_id', as: 'bookings' });
+
+// ── ServiceAvailability Associations ──
+ServiceAvailability.belongsTo(VendorProfile, { foreignKey: 'vendor_id' });
+VendorProfile.hasMany(ServiceAvailability, { foreignKey: 'vendor_id', as: 'availability' });
+
+
+export {
+    sequelize, User, UserVerification, VendorProfile, Listing, Order
+    , OrderHistory, Payout, VendorCommissionRate, PayoutBatch, PayoutBatchItem, Booking, ServiceAvailability
 };
 
