@@ -794,7 +794,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { getAllListings, searchListings } from '../api/catalogService';
 import { useTranslation } from 'react-i18next';
-import StockIndicator from '../components/StockIndicator';  // ✅ NEW
+import { getFirstImage } from '../utils/imageHelper';
+import StockIndicator from '../components/StockIndicator';
 
 const categories = ['All', 'Electronics', 'Fashion & Apparel', 'Home & Garden', 'Health & Beauty', 'Sports & Fitness', 'Food & Beverage'];
 const cities = ['All Cities', 'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
@@ -1157,13 +1158,9 @@ function HomeScreen() {
                   onPress={() => navigateToProductDetail(product.listing_id)}
                 >
                   <Image
-                    // source={{
-                    //   uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
-                    // }}
                     source={{
-                        uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image'
+                        uri: getFirstImage(product.media)
                     }}
-
                     style={styles.productImage}
                   />
 
@@ -1252,12 +1249,9 @@ function HomeScreen() {
               onPress={() => navigateToProductDetail(product.listing_id)}
             >
               <Image
-                // source={{
-                //   uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/150?text=No+Image'
-                // }}
                 source={{
-  uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image'
-}}
+                  uri: getFirstImage(product.media)
+                }}
                 style={styles.productImage}
               />
 

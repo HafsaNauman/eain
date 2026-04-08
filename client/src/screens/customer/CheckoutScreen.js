@@ -23,6 +23,7 @@ import { useAppSelector } from '../../redux/hooks';  // ✅ STOCK: Redux
 import CustomButton from '../../components/common/CustomButton';
 import StockIndicator from '../../components/StockIndicator';  // ✅ STOCK: Import
 import QuantityPicker from '../../components/common/QuantityPicker';  // ✅ STOCK: Import
+import { getFirstImage } from '../../utils/imageHelper';
 
 
 const cities = ['Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
@@ -159,7 +160,7 @@ const handlePlaceOrder = async () => {
     };
     const isUrdu = i18n.language === 'ur';
     const productTitle = product && (isUrdu && product.title_ur ? product.title_ur : product.title_en);
-    const imageUrl = product?.media?.[0]?.image_url || 'https://via.placeholder.com/80?text=No+Image';
+    const imageUrl = getFirstImage(product?.media, 'https://via.placeholder.com/80?text=No+Image');
 
     if (!product) {
         return (

@@ -22,6 +22,7 @@ import { getListingDetails } from '../../api/catalogService';
 import CustomButton from '../../components/common/CustomButton';
 import StockIndicator from '../../components/StockIndicator';  // ✅ STOCK: Import
 import QuantityPicker from '../../components/common/QuantityPicker';  // ✅ STOCK: Import
+import { getFirstImage, getAllImages } from '../../utils/imageHelper';
 
 const { width } = Dimensions.get('window');
 
@@ -119,10 +120,8 @@ const CustomerProductScreen = ({ route, navigation }) => {
         );
     }
 
-    // Extract images correctly from media array
-    const images = product.media && product.media.length > 0
-        ? product.media.map(item => item.image_url)
-        : ['https://via.placeholder.com/400?text=No+Image'];
+    // Extract images using helper function to handle both array and object formats
+    const images = getAllImages(product.media);
 
     const title = isUrdu && product.title_ur ? product.title_ur : product.title_en;
     const description = isUrdu && product.description_ur ? product.description_ur : product.description_en;
@@ -330,7 +329,7 @@ const CustomerProductScreen = ({ route, navigation }) => {
                  dispatch(addToCart({ 
                   ...product, 
                   quantity,
-                     image_url: product.media?.[0]?.image_url 
+                     image_url: getFirstImage(product.media) 
                     }));
       Alert.alert('✅ Added!', `${quantity}x ${title} added to cart`);
       navigation.navigate('Cart');  // 👈 LINK TO CART

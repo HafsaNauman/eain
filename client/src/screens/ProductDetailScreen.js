@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { updateListing, deleteListing } from '../api/VendorService';
 import StockBadge from '../components/StockIndicator';
+import { getFirstImage } from '../utils/imageHelper';
 
 const TEAL = '#036c5f';
 const PEACH_BG = '#f9f5f1ff';
@@ -68,10 +69,7 @@ const ProductDetailScreen = () => {
     product.low_stock_threshold != null ? String(product.low_stock_threshold) : ''
   );
 
-  const initialImage =
-    product.media && product.media.length > 0 && product.media[0].image_url
-      ? product.media[0].image_url
-      : null;
+  const initialImage = getFirstImage(product.media, null);
   const [imageUri, setImageUri] = useState(initialImage);
 
   const [saving, setSaving] = useState(false);
