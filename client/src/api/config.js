@@ -38,7 +38,7 @@
 // export default API_CONFIG;
 
 const API_CONFIG = {
-  BASE_URL: "https://d219-119-73-98-217.ngrok-free.app",
+  BASE_URL: "https://5097-59-103-88-155.ngrok-free.app",
   //BASE_URL: "https://localhost:3000",
   TIMEOUT: 30000,
 

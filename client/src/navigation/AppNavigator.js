@@ -38,6 +38,13 @@ import ServiceBookingsScreen from '../screens/ServiceBookingsScreen';
 import ServiceAvailabilityScreen from '../screens/ServiceAvailabilityScreen';
 import ServiceProfileScreen from '../screens/ServiceProfileScreen';
 
+
+
+import ServiceBrowse from '../screens/service/ServiceBrowse';
+import ServiceProviderDetail from '../screens/service/ServiceProviderDetail';
+import ServiceBookingForm from '../screens/service/ServiceBookingForm';
+import MyBookings from '../screens/service/MyBookings';
+
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -90,6 +97,11 @@ const AppNavigator = () => {
         <Stack.Screen name="ServiceBookings" component={ServiceBookingsScreen} />
         <Stack.Screen name="ServiceAvailability" component={ServiceAvailabilityScreen} />
         <Stack.Screen name="ServiceProfile" component={ServiceProfileScreen} />
+
+        <Stack.Screen name="ServiceBrowse" component={ServiceBrowse} />
+        <Stack.Screen name="ServiceProviderDetail" component={ServiceProviderDetail} />
+        <Stack.Screen name="ServiceBookingForm" component={ServiceBookingForm} />
+        <Stack.Screen name="MyBookings" component={MyBookings} />
 
       </Stack.Navigator>
     </NavigationContainer>
