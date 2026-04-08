@@ -17,7 +17,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { getMyOrders, cancelOrder } from '../../api/orderService';  // ✅ CANCEL: Import
+import { getMyOrders, cancelOrder } from '../../api/orderService';
+import { getFirstImage } from '../../utils/imageHelper';  // ✅ CANCEL: Import
 
 const MyOrdersScreen = ({ navigation }) => {
     const { i18n, t } = useTranslation();
@@ -141,7 +142,7 @@ const MyOrdersScreen = ({ navigation }) => {
             ? order.vendor.business_name_ur
             : order.vendor?.business_name_en || 'Vendor';
 
-        const imageUrl = order.listing?.media?.[0]?.image_url || 'https://via.placeholder.com/80?text=No+Image';
+        const imageUrl = getFirstImage(order.listing?.media, 'https://via.placeholder.com/80?text=No+Image');
         const canCancel = isCancellable(order);  // ✅ CANCEL: Check eligibility
         const isCancelling = cancellingOrderId === order.order_id;
 

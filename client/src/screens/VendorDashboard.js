@@ -26,6 +26,7 @@ import { useAuth } from "../context/AuthContext";
 import { getVendorOrders } from "../api/vendorOrderService";
 import { setOrders } from "../redux/slices/orderSlice";
 import { setListings } from "../redux/slices/productSlice";
+import { getFirstImage } from "../utils/imageHelper";
 
 const VendorDashboardScreen = ({ route, navigation }) => {
   const { vendorProfile: initialProfile, businessData, userId, userRole } =
@@ -379,7 +380,7 @@ const VendorDashboardScreen = ({ route, navigation }) => {
           onPress={() => navigation.navigate('EditProduct', { listingId: product.listing_id })}
         >
           <Image 
-            source={{ uri: product.media?.[0]?.image_url || 'https://via.placeholder.com/50?text=No+Img' }} 
+            source={{ uri: getFirstImage(product.media, 'https://via.placeholder.com/50?text=No+Img') }} 
             style={styles.lowStockThumb}
           />
           <View style={{ flex: 1, marginLeft: 8 }}>
@@ -651,26 +652,12 @@ const VendorDashboardScreen = ({ route, navigation }) => {
               <View
                 key={product.listing_id}
                 style={styles.productRow}>
-                {product.media &&
-                product.media.length > 0 &&
-                product.media[0].image_url ? (
-                  <Image
-                    source={{
-                      uri:
-                        product.media[0].image_url,
-                    }}
-                    style={styles.productThumb}
-                  />
-                ) : (
-                  <View
-                    style={styles.productThumbPlaceholder}>
-                    <Ionicons
-                      name="image-outline"
-                      size={20}
-                      color="#999"
-                    />
-                  </View>
-                )}
+                <Image
+                  source={{
+                    uri: getFirstImage(product.media)
+                  }}
+                  style={styles.productThumb}
+                />
                 <View style={styles.productDetails}>
                   <Text style={styles.productTitle}>
                     {isUrdu && product.title_ur

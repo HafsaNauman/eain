@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import StockIndicator from '../components/StockIndicator';
 import { getVendorListings, bulkUpdateStock } from '../api/VendorService';
+import { getFirstImage } from '../utils/imageHelper';
 const TEAL = '#036c5f';
 const ManageListingsScreen = ({ navigation , route }) => {
   const [listings, setListings] = useState([]);
@@ -113,9 +114,8 @@ const ManageListingsScreen = ({ navigation , route }) => {
           )}
         </TouchableOpacity>
 
-        {/* Image */}
         <Image
-          source={{ uri: item.media?.[0]?.image_url || 'https://via.placeholder.com/60' }}
+          source={{ uri: getFirstImage(item.media) }}
           style={styles.rowImage}
         />
 

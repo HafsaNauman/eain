@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { getOrderDetails } from '../../api/orderService';
+import { getFirstImage } from '../../utils/imageHelper';
 
 const OrderDetailsScreen = ({ route, navigation }) => {
     const { orderId } = route.params;
@@ -139,7 +140,7 @@ const OrderDetailsScreen = ({ route, navigation }) => {
                     <View style={styles.productCard}>
                         <Image
                             source={{
-                                uri: order.listing?.media?.images?.[0] || 'https://via.placeholder.com/100',
+                                uri: getFirstImage(order.listing?.media, 'https://via.placeholder.com/100'),
                             }}
                             style={styles.productImage}
                         />

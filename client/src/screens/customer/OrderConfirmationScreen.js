@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../components/common/CustomButton';
+import { getFirstImage } from '../../utils/imageHelper';
 
 const OrderConfirmationScreen = ({ route, navigation }) => {
   const { t } = useTranslation();
@@ -47,7 +48,7 @@ const OrderConfirmationScreen = ({ route, navigation }) => {
       ? product.title_ur 
       : product.title_en
   );
-  const imageUrl = product?.media?.[0]?.image_url || 'https://via.placeholder.com/120?text=Product';
+  const imageUrl = getFirstImage(product?.media, 'https://via.placeholder.com/120?text=Product');
 
   return (
     <SafeAreaView style={styles.container}>

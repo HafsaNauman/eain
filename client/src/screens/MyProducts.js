@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { COLORS } from '../constants/colors';
 import { getVendorListings, deleteListing } from '../api/VendorService';
 import StockIndicator from '../components/StockIndicator';  // ✅ NEW
+import { getFirstImage } from '../utils/imageHelper';
 
 
 const MyProductsScreen = ({ route, navigation }) => {
@@ -112,13 +113,7 @@ const MyProductsScreen = ({ route, navigation }) => {
     >
       <View style={styles.productImageContainer}>
         {/* Your existing image code */}
-        {item.media && item.media.length > 0 && item.media[0].image_url ? (
-          <Image source={{ uri: item.media[0].image_url }} style={styles.productImage} />
-        ) : (
-          <View style={styles.productImagePlaceholder}>
-            <Ionicons name="image-outline" size={40} color="#ccc" />
-          </View>
-        )}
+        <Image source={{ uri: getFirstImage(item.media) }} style={styles.productImage} />
 
         {/* ✅ REPLACE activeBadge with StockIndicator */}
         <StockIndicator

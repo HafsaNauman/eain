@@ -23,6 +23,7 @@ import { getOrderDetails, updateOrderStatus as apiUpdateOrderStatus } from "../a
 
 import { useAppSelector, useAppDispatch } from "../redux/hooks";
 import { selectOrders, updateOrderStatus } from "../redux/slices/orderSlice";
+import { getFirstImage } from '../utils/imageHelper';
 
 const VendorOrderDetailScreen = ({ route, navigation }) => {
   const { orderId } = route.params;
@@ -216,14 +217,14 @@ const VendorOrderDetailScreen = ({ route, navigation }) => {
                   <View
                     style={[
                       styles.timelineDot,
-                      isActive && styles.timelineDotActive,
+                      isDone && styles.timelineDotActive,
                       isCurrent && styles.timelineDotCurrent,
                     ]}
                   />
                   <Text
                     style={[
                       styles.timelineLabel,
-                      isActive && styles.timelineLabelActive,
+                      isDone && styles.timelineLabelActive,
                       isCurrent && styles.timelineLabelCurrent,
                     ]}
                   >
@@ -281,16 +282,10 @@ const VendorOrderDetailScreen = ({ route, navigation }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("orderDetails.productDetails")}</Text>
           <View style={styles.productCard}>
-            {order.listing?.media?.images?.[0] ? (
-              <Image
-                source={{ uri: order.listing.media.images[0] }}
+            <Image
+                source={{ uri: getFirstImage(order.listing?.media, 'https://via.placeholder.com/60') }}
                 style={styles.productImage}
-              />
-            ) : (
-              <View style={styles.productPlaceholder}>
-                <Ionicons name="image-outline" size={24} color="#999" />
-              </View>
-            )}
+            />
             <View style={styles.productInfo}>
               <Text style={styles.productTitle}>{title}</Text>
               <Text style={styles.productPrice}>
