@@ -6,6 +6,7 @@ import json
 import io
 import os
 import threading
+import boto3
 from typing import List
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,9 +24,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-MODEL_DIR = "./model"
-INDEX_FILE = "./faiss.index"
-MAP_FILE   = "./id_map.json"
+DATA_DIR   = os.getenv("DATA_DIR", ".")
+MODEL_DIR  = os.getenv("MODEL_DIR", "./model")
+INDEX_FILE = os.path.join(DATA_DIR, "faiss.index")
+MAP_FILE   = os.path.join(DATA_DIR, "id_map.json")
 DIM        = 512
 device     = "cpu"
 _lock      = threading.Lock()
@@ -37,6 +39,54 @@ processor = CLIPProcessor.from_pretrained(MODEL_DIR)
 
 
 print("✅ Model ready")
+
+def get_s3_client():
+    key = os.getenv("DO_SPACES_KEY")
+    secret = os.getenv("DO_SPACES_SECRET")
+    region = os.getenv("DO_SPACES_REGION")
+    if not key or not secret or not region:
+        return None
+    return boto3.client('s3',
+                        region_name=region,
+                        endpoint_url=f"https://{region}.digitaloceanspaces.com",
+                        aws_access_key_id=key,
+                        aws_secret_access_key=secret)
+
+def download_from_spaces():
+    s3 = get_s3_client()
+    bucket = os.getenv("DO_SPACES_BUCKET")
+    if not s3 or not bucket:
+        return
+    
+    print("☁️ Checking DO Spaces for existing index files...")
+    # Using boto3 HeadObject to check existence, but download_file is safe with exceptions
+    try:
+        s3.download_file(bucket, "faiss.index", INDEX_FILE)
+        print("☁️ ✅ Downloaded faiss.index")
+    except Exception as e:
+        print(f"☁️ ⚠️ Could not download faiss.index (Might be first run): {e}")
+        
+    try:
+        s3.download_file(bucket, "id_map.json", MAP_FILE)
+        print("☁️ ✅ Downloaded id_map.json")
+    except Exception as e:
+        print(f"☁️ ⚠️ Could not download id_map.json: {e}")
+
+def upload_to_spaces():
+    s3 = get_s3_client()
+    bucket = os.getenv("DO_SPACES_BUCKET")
+    if not s3 or not bucket:
+        return
+        
+    try:
+        s3.upload_file(INDEX_FILE, bucket, "faiss.index")
+        s3.upload_file(MAP_FILE, bucket, "id_map.json")
+        print("☁️ ✅ Successfully backed up index to DO Spaces")
+    except Exception as e:
+        print(f"☁️ ❌ Failed to backup to DO Spaces: {e}")
+
+# Attempt to sync from cloud on startup
+download_from_spaces()
 
 if os.path.exists(INDEX_FILE):
     index = faiss.read_index(INDEX_FILE)
@@ -57,6 +107,9 @@ def _save():
     faiss.write_index(index, INDEX_FILE)
     with open(MAP_FILE, "w") as f:
         json.dump(id_map, f)
+    
+    # Upload to DO spaces in the background to not slow down the API request
+    threading.Thread(target=upload_to_spaces).start()
 
 def _embed(image: Image.Image) -> np.ndarray:
     inputs = processor(images=image, return_tensors="pt").to(device)
