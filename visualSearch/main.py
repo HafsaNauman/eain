@@ -33,13 +33,15 @@ DIM        = 512
 device     = "cpu"
 _lock      = threading.Lock()
 
-# Load from local model dir if it exists, otherwise download from HuggingFace
-if os.path.isdir(MODEL_DIR):
+# Load from local model dir only if it contains actual model files,
+# otherwise fall back to downloading from HuggingFace Hub.
+_local_model_valid = os.path.isfile(os.path.join(MODEL_DIR, "config.json"))
+if _local_model_valid:
     print(f"Loading CLIP model from local path: {MODEL_DIR}")
     model     = CLIPModel.from_pretrained(MODEL_DIR).to(device)
     processor = CLIPProcessor.from_pretrained(MODEL_DIR)
 else:
-    print(f"Local model dir not found. Downloading CLIP model from HuggingFace: {CLIP_MODEL}")
+    print(f"Downloading CLIP model from HuggingFace: {CLIP_MODEL}")
     model     = CLIPModel.from_pretrained(CLIP_MODEL).to(device)
     processor = CLIPProcessor.from_pretrained(CLIP_MODEL)
 model.eval()
