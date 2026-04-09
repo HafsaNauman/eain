@@ -25,3 +25,4 @@ visualSearch/venv/
 backend/scripts/
 visualSearch/model/
 tests/
+visualSearch/requirements-local.txt
