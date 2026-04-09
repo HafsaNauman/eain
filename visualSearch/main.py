@@ -30,20 +30,18 @@ DATA_DIR   = os.getenv("DATA_DIR", ".")
 MODEL_DIR  = os.getenv("MODEL_DIR", "./model")
 INDEX_FILE = os.path.join(DATA_DIR, "faiss.index")
 MAP_FILE   = os.path.join(DATA_DIR, "id_map.json")
-CLIP_MODEL = os.getenv("CLIP_MODEL", "openai/clip-vit-base-patch32")
 DIM        = 512
 device     = "cpu"
 _lock      = threading.Lock()
 
-# ── Global state (populated by background init thread) ──────────────────────
-model     = None
-processor = None
-index     = None
-id_map    = {}
-_ready    = False          # True once everything is loaded
-_init_error: str = None    # Set if startup fails
+print("Loading CLIP model...")
+model     = CLIPModel.from_pretrained(MODEL_DIR).to(device)
+model.eval()
+processor = CLIPProcessor.from_pretrained(MODEL_DIR)
 
-# ── S3 / DO Spaces helpers ───────────────────────────────────────────────────
+
+print("✅ Model ready")
+
 def get_s3_client():
     key    = os.getenv("DO_SPACES_KEY")
     secret = os.getenv("DO_SPACES_SECRET")
