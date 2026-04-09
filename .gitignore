@@ -1,3 +1,33 @@
+# .env/
+# .idea/
+# client/.env
+# client/node_modules/
+# backend/.env
+# backend/node_modules/
+# .vscode/
+# stt-service/.env
+# stt-service/credentials.json
+# stt-service/venv/
+# stt-service/app/__pycache__/
+# stt-service/app/venv/
+# client/.expo/
+# backend/uploads/
+# ai_descriptions/venv/
+# ai_descriptions/.env
+# ai_descriptions/uploads/
+# ai_descriptions/__pycache__/
+# visualSearch/.venv/
+# visualSearch/__pycache__
+# visualSearch/venv/
+# .vscode/
+# .DS_Store
+# *.log
+# backend/scripts/
+# visualSearch/model/
+# tests/
+# visualSearch/requirements-local.txt
+
+
 .env/
 .idea/
 client/.env
@@ -16,13 +46,44 @@ ai_descriptions/venv/
 ai_descriptions/.env
 ai_descriptions/uploads/
 ai_descriptions/__pycache__/
+
+# ── Visual Search ────────────────────────────────────────────
+# Python environments & cache
 visualSearch/.venv/
-visualSearch/__pycache__
 visualSearch/venv/
+visualSearch/__pycache__/
+visualSearch/**/__pycache__/
+visualSearch/**/*.pyc
+
+# CLIP model weights (too large for GitHub — ~600MB)
+# Downloaded automatically from HuggingFace on first boot
+visualSearch/model/pytorch_model.bin
+visualSearch/model/model.safetensors
+
+# FAISS index & id_map (runtime-generated, persisted via DO Spaces)
+visualSearch/faiss.index
+visualSearch/id_map.json
+
+# Secrets
+visualSearch/.env
+
+# Uploads / temp files
+visualSearch/uploads/
+visualSearch/tmp/
+
+# Keep these model config files (small, required for CLIPProcessor)
+!visualSearch/model/config.json
+!visualSearch/model/tokenizer.json
+!visualSearch/model/tokenizer_config.json
+!visualSearch/model/vocab.json
+!visualSearch/model/merges.txt
+!visualSearch/model/special_tokens_map.json
+!visualSearch/model/preprocessor_config.json
+!visualSearch/model/preprocessor_config.json
+# ─────────────────────────────────────────────────────────────
+
 .vscode/
 .DS_Store
 *.log
 backend/scripts/
-visualSearch/model/
 tests/
-visualSearch/requirements-local.txt
