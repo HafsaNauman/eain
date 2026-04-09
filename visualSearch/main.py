@@ -28,14 +28,21 @@ DATA_DIR   = os.getenv("DATA_DIR", ".")
 MODEL_DIR  = os.getenv("MODEL_DIR", "./model")
 INDEX_FILE = os.path.join(DATA_DIR, "faiss.index")
 MAP_FILE   = os.path.join(DATA_DIR, "id_map.json")
+CLIP_MODEL = os.getenv("CLIP_MODEL", "openai/clip-vit-base-patch32")
 DIM        = 512
 device     = "cpu"
 _lock      = threading.Lock()
 
-print("Loading CLIP model...")
-model     = CLIPModel.from_pretrained(MODEL_DIR).to(device)
+# Load from local model dir if it exists, otherwise download from HuggingFace
+if os.path.isdir(MODEL_DIR):
+    print(f"Loading CLIP model from local path: {MODEL_DIR}")
+    model     = CLIPModel.from_pretrained(MODEL_DIR).to(device)
+    processor = CLIPProcessor.from_pretrained(MODEL_DIR)
+else:
+    print(f"Local model dir not found. Downloading CLIP model from HuggingFace: {CLIP_MODEL}")
+    model     = CLIPModel.from_pretrained(CLIP_MODEL).to(device)
+    processor = CLIPProcessor.from_pretrained(CLIP_MODEL)
 model.eval()
-processor = CLIPProcessor.from_pretrained(MODEL_DIR)
 
 
 print("✅ Model ready")
