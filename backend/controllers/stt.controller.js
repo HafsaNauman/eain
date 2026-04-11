@@ -140,16 +140,6 @@ import fs from 'fs';
 import sttConfig from '../config/stt.config.js';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 
-// ── Post-processing: normalize Roman Urdu → searchable English ──────────
-function normalizeTranscript(text) {
-  if (!text) return text;
-  let normalized = text.toLowerCase().trim();
-  for (const [urdu, english] of Object.entries(sttConfig.queryNormalizations)) {
-    normalized = normalized.replace(new RegExp(urdu, 'gi'), english);
-  }
-  return normalized;
-}
-
 // Speech-to-Text endpoint
 // POST /api/stt/transcribe
 // Accepts audio file and forwards to FastAPI
@@ -222,18 +212,14 @@ export const transcribeAudio = async (req, res) => {
     fs.unlinkSync(audioFilePath);
     console.log('🗑️ Temporary file deleted');
 
-    // Normalize transcript for catalog search (Roman Urdu → English)
-    const searchQuery = normalizeTranscript(result.transcript);
-    console.log(`🔄 Normalized: "${result.transcript}" → "${searchQuery}"`);
-
     // Return result to frontend
     return successResponse(
       res,
       200,
       'Audio transcribed successfully',
       {
-        transcript: result.transcript,   // raw — for displaying to user
-        searchQuery,                        // normalized — use this for catalog search
+        transcript: result.transcript,
+        searchQuery: result.transcript,
         confidence: result.confidence,
         languageCode: audioConfig.languageCode,
       }
