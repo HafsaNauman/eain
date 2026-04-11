@@ -75,12 +75,17 @@ export const transcribeAudio = async (audioUri, config = {}) => {
 
     const backendSearchQuery = response.data?.data?.searchQuery || response.data?.searchQuery || '';
 
+    // ✅ Also clean the backend's searchQuery — it can have trailing punctuation too (e.g. "white kurta.")
+    const cleanedSearchQuery = backendSearchQuery
+      ? cleanTranscribedText(backendSearchQuery, 'search')
+      : cleanedTranscript;
+
     return {
       success: true,
       data: {
         transcript: cleanedTranscript,
         rawTranscript: rawTranscript,
-        searchQuery: backendSearchQuery || cleanedTranscript, // fallback to cleaned if backend didn't return it
+        searchQuery: cleanedSearchQuery,
         confidence,
         fullResponse: response.data,
       },

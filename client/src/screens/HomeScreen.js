@@ -924,8 +924,8 @@ function HomeScreen() {
         const result = await transcribeAudio(audioUri, {
           encoding: 'LINEAR16',
           sampleRateHertz: 44100,
-          languageCode: currentLanguage === 'en' ? 'en-US' : 'ur-PK',
-          fieldType: 'search', // ← won't lowercase/mangle names
+          languageCode: 'en-IN',
+          fieldType: 'search',
         });
 
         if (result.success) {

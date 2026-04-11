@@ -255,15 +255,18 @@ async def transcribe_audio(file: UploadFile = File(...), config: str = Form(...)
     #     audio_channel_count=channels,
     # )
 
-    
-    # OPTIMIZED — bilingual + phrase hints + best model
-    primary_lang = audio_config.get("languageCode", "ur-PK")
-    alt_langs     = audio_config.get("alternativeLanguageCodes", ["en-US"])
-    use_enhanced  = audio_config.get("useEnhanced", True)
-    model         = audio_config.get("model", "latest_long")
+    # ── Language & Model strategy ────────────────────────────────────────────
+    # Make sure we read from the passed audio_config.
+    # When en-US is used with SpeechContext phrase hints (for "kameez", "shalwar"),
+    # it correctly returns the Roman Urdu text without falling back to Urdu script.
+    primary_lang = audio_config.get("languageCode", "en-US")
+    alt_langs    = audio_config.get("alternativeLanguageCodes", [])
+    model        = audio_config.get("model", "latest_long")
+    use_enhanced = audio_config.get("useEnhanced", True)
+
+    print(f"🌐 Language: primary={primary_lang} + alt={alt_langs}, model={model}")
 
     # Build speech contexts (phrase hints) from config
-    # ✅ CORRECT — phrases are plain strings, boost is on SpeechContext not Phrase
     speech_contexts = []
     raw_contexts = audio_config.get("speechContexts", [])
     for ctx in raw_contexts:
@@ -278,37 +281,51 @@ async def transcribe_audio(file: UploadFile = File(...), config: str = Form(...)
                     boost=15.0
                 )
             )
+
     recognition_config = speech.RecognitionConfig(
         encoding=encoding,
         sample_rate_hertz=sample_rate,
         language_code=primary_lang,
-        alternative_language_codes=alt_langs,     # ← handles Urdu+English code-switching
-        model=model,                               # ← latest_long > default for Urdu
-        use_enhanced=use_enhanced,                 # ← enhanced model
+        alternative_language_codes=alt_langs,   # bilingual code-switching
+        model=model,
+        use_enhanced=use_enhanced,
         enable_automatic_punctuation=True,
         audio_channel_count=channels,
-        speech_contexts=speech_contexts,           # ← fashion phrase hints
+        speech_contexts=speech_contexts,
     )
 
     print(
-        f"🎤 Final Config → encoding={encoding_str}, "
-        f"sample_rate={sample_rate}, channels={channels}, "
-        f"lang={primary_lang} + alt={alt_langs}, model={model}"
+        f"🎤 Final Config → encoding={encoding_str}, sample_rate={sample_rate}, "
+        f"channels={channels}, lang={primary_lang}+{alt_langs}, model={model}"
     )
-
-    print(
-        f"🎤 Final Config → encoding={encoding_str}, "
-        f"sample_rate={sample_rate}, channels={channels}, lang={recognition_config.language_code}"
-    )
-    print(f"🔍 Extracted Language Code: {recognition_config.language_code}") # DEBUG LOG
 
     client = speech.SpeechClient()
 
     print("📡 Sending to Google...")
-    response = client.recognize(
-        config=recognition_config,
-        audio=speech.RecognitionAudio(content=audio_content)
-    )
+    try:
+        response = client.recognize(
+            config=recognition_config,
+            audio=speech.RecognitionAudio(content=audio_content)
+        )
+    except Exception as google_err:
+        # Fallback: if bilingual call fails, retry with en-IN only (default model)
+        print(f"⚠️ Bilingual call failed: {google_err}")
+        print("🔄 Retrying with en-IN fallback config...")
+        fallback_config = speech.RecognitionConfig(
+            encoding=encoding,
+            sample_rate_hertz=sample_rate,
+            language_code="en-IN",
+            model="latest_long",
+            use_enhanced=True,
+            enable_automatic_punctuation=True,
+            audio_channel_count=channels,
+            speech_contexts=speech_contexts,
+        )
+        response = client.recognize(
+            config=fallback_config,
+            audio=speech.RecognitionAudio(content=audio_content)
+        )
+        print("✅ Fallback transcription succeeded (en-US)")
 
     print("📨 Google Response Received")
     print(f"   Results count: {len(response.results)}")
