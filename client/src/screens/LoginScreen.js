@@ -27,7 +27,7 @@ import { login as apiLogin } from '../api/authService';
 import { startRecording, stopRecording } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
 import { useAuth } from '../context/AuthContext';
-import { getVendorProfile } from '../api/VendorService'; 
+import { getVendorProfile } from '../api/VendorService';
 
 const LoginScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -58,62 +58,60 @@ const LoginScreen = ({ navigation }) => {
 
   setLoading(true);
 
-  try {
-    const result = await apiLogin(fullPhoneNumber, password);
-    if (result.success) {
-      const { accessToken, refreshToken, user } = result.data.data;
-      await contextLogin(accessToken, refreshToken, user);
-      
-      // ✅ FIXED ROLE-BASED NAVIGATION
-      if (user.role === 'admin') {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'AdminDashboard' }],
-        });
-      } else if (user.role === 'vendor') {
-        // Check if vendor has profile (your existing logic)
-        try {
-          const profileCheck = await getVendorProfile();
-          if (profileCheck.success) {
+    try {
+      const result = await apiLogin(fullPhoneNumber, password);
+      if (result.success) {
+        const { accessToken, refreshToken, user } = result.data.data;
+        await contextLogin(accessToken, refreshToken, user);
+
+        if (user.role === 'vendor') {
+          // Check if vendor has profile
+          try {
+            const profileCheck = await getVendorProfile();
+            if (profileCheck.success) {
+              // Profile exists, go to dashboard
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'VendorDashboard', params: { userId: user.user_id } }],
+              });
+            } else {
+              // No profile, go to registration
+              navigation.reset({
+                index: 0,
+                routes: [{
+                  name: 'BusinessRegistration',
+                  params: { userId: user.user_id, userRole: 'vendor' }
+                }],
+              });
+            }
+          } catch (error) {
+            // Error or no profile, go to registration
             navigation.reset({
               index: 0,
-              routes: [{ name: 'VendorDashboard', params: { userId: user.user_id } }],
-            });
-          } else {
-            navigation.reset({
-              index: 0,
-              routes: [{ 
-                name: 'BusinessRegistration', 
-                params: { userId: user.user_id, userRole: 'vendor' } 
+              routes: [{
+                name: 'BusinessRegistration',
+                params: { userId: user.user_id, userRole: 'vendor' }
               }],
             });
           }
-        } catch (error) {
+        } else {
           navigation.reset({
             index: 0,
-            routes: [{ 
-              name: 'BusinessRegistration', 
-              params: { userId: user.user_id, userRole: 'vendor' } 
-            }],
+            routes: [{ name: 'Home' }],
           });
         }
-      } else {
-        // Customer
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
       }
-    } else {
-      setError(result.error);
+      else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError(t('errors.loginFailed'));
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError(t('errors.loginFailed'));
-    console.error('Login error:', err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
   const handleVoiceInput = async (field) => {
     if (recordingField === field) {
       await stopVoiceRecording(field);
@@ -144,11 +142,7 @@ const LoginScreen = ({ navigation }) => {
       });
 
       if (result.success) {
-        const transcribedText =
-          result.data?.data?.transcription ||
-          result.data?.transcription ||
-          result.data?.text ||
-          '';
+        const transcribedText = result.data?.transcript || '';
 
         if (transcribedText && transcribedText.trim()) {
           if (field === 'phoneNumber') {
@@ -216,7 +210,7 @@ const LoginScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.micIcon}
               onPress={() => handleVoiceInput('phoneNumber')}
-              // style={styles.micIcon}
+            // style={styles.micIcon}
             >
               <Ionicons
                 name={recordingField === 'phoneNumber' ? 'mic' : 'mic-outline'}
@@ -252,7 +246,7 @@ const LoginScreen = ({ navigation }) => {
           <TouchableOpacity
             style={styles.forgotPassword}
             onPress={() => console.log('Forgot password clicked')}
-            // style={styles.forgotPassword}
+          // style={styles.forgotPassword}
           >
             <Text style={styles.forgotPasswordText}>{t('login.forgotPassword')}</Text>
           </TouchableOpacity>
