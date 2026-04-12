@@ -794,8 +794,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { getAllListings, searchListings } from '../api/catalogService';
 import { useTranslation } from 'react-i18next';
-import { getFirstImage } from '../utils/imageHelper';
-import StockIndicator from '../components/StockIndicator';
+import { startRecording, stopRecording } from '../utils/audioRecorder';
+import { transcribeAudio } from '../api/sttService';
 
 const categories = ['All', 'Electronics', 'Fashion & Apparel', 'Home & Garden', 'Health & Beauty', 'Sports & Fitness', 'Food & Beverage'];
 const cities = ['All Cities', 'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
@@ -819,6 +819,9 @@ function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [searchTimer, setSearchTimer] = useState(null);
+  const [isVoiceRecording, setIsVoiceRecording] = useState(false);
+  const [isVoiceProcessing, setIsVoiceProcessing] = useState(false);
+  const [voiceRecordingRef, setVoiceRecordingRef] = useState(null);
 
   const sortOptions = [
     { label: t('homeScreen.newestFirst'), value: 'created_at' },
@@ -915,6 +918,58 @@ function HomeScreen() {
     setShowFilters(false);
     setSelectedStockFilter('all');
   };
+  const handleVoiceSearch = async () => {
+    // ── STOP recording ───────────────────────────────────────────────────
+    if (isVoiceRecording) {
+      setIsVoiceRecording(false);
+      setIsVoiceProcessing(true);
+      try {
+        const audioUri = await stopRecording(voiceRecordingRef);
+        const currentLanguage = i18n.language;
+
+        const result = await transcribeAudio(audioUri, {
+          encoding: 'LINEAR16',
+          sampleRateHertz: 44100,
+          languageCode: 'en-IN',
+          fieldType: 'search',
+        });
+
+        if (result.success) {
+          // searchQuery = Urdu-normalized (e.g. "jhumka" → "earrings")
+          // rawTranscript = what the user actually said — show this in bar
+          const normalized = result.data?.searchQuery || result.data?.transcript || '';
+          const displayText = result.data?.rawTranscript || result.data?.transcript || '';
+
+          if (normalized.trim()) {
+            setSearchQuery(normalized.trim());       // triggers catalog fetch
+            console.log(`🎤 Voice search: "${displayText}" → normalized: "${normalized}"`);
+          } else {
+            Alert.alert('No speech detected', 'Please try again and speak clearly.');
+          }
+        } else {
+          Alert.alert('Voice search failed', result.error || 'Could not transcribe audio.');
+        }
+      } catch (err) {
+        console.error('❌ Voice search error:', err);
+        Alert.alert('Error', 'Voice search failed. Please try again.');
+      } finally {
+        setIsVoiceProcessing(false);
+        setVoiceRecordingRef(null);
+      }
+      return;
+    }
+
+    // ── START recording ───────────────────────────────────────────────────
+    try {
+      const recording = await startRecording();
+      setVoiceRecordingRef(recording);
+      setIsVoiceRecording(true);
+    } catch (err) {
+      console.error('❌ Start recording error:', err);
+      Alert.alert('Microphone Error', err.message || 'Could not start recording.');
+    }
+  };
+
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -1023,6 +1078,26 @@ function HomeScreen() {
               <Ionicons name="close-circle" size={20} color="#036c5f" />
             </TouchableOpacity>
           )}
+          {/* Voice Search Button */}
+          <TouchableOpacity
+            onPress={handleVoiceSearch}
+            disabled={isVoiceProcessing}
+            style={[
+              styles.voiceSearchBtn,
+              isVoiceRecording && styles.voiceSearchBtnRecording,
+              isVoiceProcessing && styles.voiceSearchBtnProcessing,
+            ]}
+          >
+            {isVoiceProcessing ? (
+              <ActivityIndicator size="small" color="#036c5f" />
+            ) : (
+              <Ionicons
+                name={isVoiceRecording ? 'stop-circle' : 'mic-outline'}
+                size={22}
+                color={isVoiceRecording ? '#ff6b6b' : '#036c5f'}
+              />
+            )}
+          </TouchableOpacity>
 
           {/* Camera Button */}
           <TouchableOpacity
@@ -1159,7 +1234,7 @@ function HomeScreen() {
                 >
                   <Image
                     source={{
-                        uri: getFirstImage(product.media)
+                      uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image'
                     }}
                     style={styles.productImage}
                   />
@@ -1250,7 +1325,7 @@ function HomeScreen() {
             >
               <Image
                 source={{
-                  uri: getFirstImage(product.media)
+                  uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image'
                 }}
                 style={styles.productImage}
               />
@@ -1445,6 +1520,18 @@ const styles = StyleSheet.create({
   cameraIconBtn: {
     marginLeft: 8,
     padding: 2,
+  },
+  voiceSearchBtn: {
+    marginLeft: 8,
+    padding: 2,
+  },
+  voiceSearchBtnRecording: {
+    backgroundColor: '#ffe5e5',
+    borderRadius: 12,
+    padding: 4,
+  },
+  voiceSearchBtnProcessing: {
+    opacity: 0.6,
   },
   filterButton: {
     marginLeft: 8,

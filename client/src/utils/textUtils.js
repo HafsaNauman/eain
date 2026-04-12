@@ -26,7 +26,8 @@ export const cleanTranscribedText = (text, fieldType = 'default') => {
     // Field-specific formatting
     switch (fieldType) {
         case 'name':
-            // Capitalize first letter of each word for names
+        case 'business':
+            // Capitalize first letter of each word for names/business fields
             cleaned = cleaned
                 .toLowerCase()
                 .split(' ')
@@ -40,7 +41,7 @@ export const cleanTranscribedText = (text, fieldType = 'default') => {
             break;
 
         default:
-            // For other fields, just trim and remove trailing punctuation
+            // 'search', and any other fields: just trim and remove trailing punctuation
             break;
     }
 

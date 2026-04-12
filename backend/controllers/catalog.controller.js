@@ -2,6 +2,69 @@ import { Listing, VendorProfile, User } from '../models/index.js';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 import { Op } from 'sequelize';
 
+// ── Smart Synonym Engine ────────────────────────────────────────────────
+const SYNONYM_MAP = {
+    'hena': ['henna', 'mehndi', 'mehendi', 'mahndi'],
+    'henna': ['mehndi', 'mehendi', 'hena', 'mahndi'],
+    'mehndi': ['henna', 'mehendi', 'hena', 'mahndi'],
+    'kamiz': ['kameez', 'kurta', 'shirt'],
+    'kameez': ['kamiz', 'kurta', 'shirt'],
+    'kurta': ['kameez', 'kurti'],
+    'jora': ['suit', 'dress', 'outfit', 'clothes'],
+    'design': ['application', 'art', 'style', 'pattern'],
+    'application': ['design', 'service'],
+    'sasta': ['cheap', 'affordable', 'sale'],
+    'mehenga': ['premium', 'expensive'],
+    'nail': ['nails', 'manicure', 'pedicure'],
+    'hair': ['hairstyle', 'haircut', 'blowdry'],
+    'makeup': ['make-up', 'glam', 'bridal', 'party makeup'],
+    'bridal': ['bride', 'shaadi', 'wedding']
+};
+
+function buildSearchConditions(q) {
+    if (!q) return {};
+    
+    // Split into individual words
+    const words = q.toLowerCase().trim().split(/\s+/).filter(w => w.length > 2);
+    
+    if (words.length === 0) {
+        // Fallback for very short queries
+        const raw_q = q.toLowerCase().trim();
+        return {
+            [Op.or]: [
+                { title_en: { [Op.iLike]: `%${raw_q}%` } },
+                { title_ur: { [Op.iLike]: `%${raw_q}%` } },
+                { category: { [Op.iLike]: `%${raw_q}%` } }
+            ]
+        };
+    }
+    
+    const andConditions = [];
+    
+    // Each specific word the user searched gets grouped with its synonyms
+    words.forEach(word => {
+        let expandedTerms = new Set([word]);
+        if (SYNONYM_MAP[word]) {
+            SYNONYM_MAP[word].forEach(syn => expandedTerms.add(syn));
+        }
+
+        const wordOrConditions = [];
+        expandedTerms.forEach(term => {
+            wordOrConditions.push({ title_en: { [Op.iLike]: `%${term}%` } });
+            wordOrConditions.push({ title_ur: { [Op.iLike]: `%${term}%` } });
+            wordOrConditions.push({ category: { [Op.iLike]: `%${term}%` } });
+            wordOrConditions.push({ tags: { [Op.contains]: [term] } }); 
+        });
+
+        // The product MUST match AT LEAST ONE of these terms for this word
+        andConditions.push({ [Op.or]: wordOrConditions });
+    });
+    
+    // The product MUST satisfy ALL word clusters
+    return { [Op.and]: andConditions };
+}
+// ────────────────────────────────────────────────────────────────────────
+
 /**
  * GET /api/catalog/listings
  * Browse all active listings with search and pagination
@@ -24,14 +87,9 @@ export const getAllListings = async (req, res) => {
             listingWhere.is_female_only = false;
         }
 
-        // Search in title, category, tags
+        // Search using Smart Synonym Engine
         if (q) {
-            listingWhere[Op.or] = [
-                { title_en: { [Op.iLike]: `%${q}%` } },
-                { title_ur: { [Op.iLike]: `%${q}%` } },
-                { category: { [Op.iLike]: `%${q}%` } },
-                { tags: { [Op.contains]: [q] } }, // For JSONB arrays
-            ];
+            Object.assign(listingWhere, buildSearchConditions(q));
         }
 
         // Build where clause for VendorProfile (related model)
@@ -255,11 +313,7 @@ export const searchListings = async (req, res) => {
         }
 
         if (q) {
-            listingWhere[Op.or] = [
-                { title_en: { [Op.iLike]: `%${q}%` } },
-                { title_ur: { [Op.iLike]: `%${q}%` } },
-                { category: { [Op.iLike]: `%${q}%` } },
-            ];
+            Object.assign(listingWhere, buildSearchConditions(q));
         }
 
         // Build vendor filters
