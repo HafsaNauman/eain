@@ -1,5 +1,5 @@
-import faiss
 import torch
+import faiss
 import numpy as np
 import requests
 import json
