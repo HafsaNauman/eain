@@ -72,7 +72,7 @@ function buildSearchConditions(q) {
  */
 export const getAllListings = async (req, res) => {
     try {
-        const { q, city, limit = 20, offset = 0 } = req.query;
+        const { q, city, listing_type, limit = 20, offset = 0 } = req.query;
 
         // Check user gender
         const isFemale = req.userGender && req.userGender.toLowerCase() === 'female';
@@ -99,6 +99,13 @@ export const getAllListings = async (req, res) => {
 
         if (city) {
             vendorWhere.city = { [Op.iLike]: `%${city}%` };
+        }
+
+        // Filter by listing_type: 'service' → only service vendors; 'product' or omitted → product vendors
+        if (listing_type === 'service') {
+            vendorWhere.vendor_type = { [Op.in]: ['service', 'both'] };
+        } else if (!listing_type || listing_type === 'product') {
+            vendorWhere.vendor_type = { [Op.in]: ['product', 'both'] };
         }
 
         const maxLimit = Math.min(parseInt(limit) || 20, 100);

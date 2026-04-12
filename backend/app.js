@@ -6,6 +6,7 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
+
 // Load environment variables
 dotenv.config();
 
@@ -21,12 +22,19 @@ import catalogRoutes from './routes/catalog.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import aiDescriptionRoutes from './routes/aiDescription.routes.js';
 import visualSearchRoutes from './routes/visualSearch.routes.js';
+import serviceRoutes from './routes/service.routes.js';
+import bookingRoutes from './routes/booking.routes.js';
 
 console.log(' Starting application...');
 
 const app = express();
 app.set('trust proxy', 1); 
 
+// Trust the first proxy (ngrok, nginx, etc.) so express-rate-limit
+// can read the real client IP from the X-Forwarded-For header
+
+
+console.log('🔄 Express app created');
 
 // Middleware
 app.use(cors());
@@ -67,9 +75,17 @@ connectDB()
 app.use(compression());
 
 //rate limiting 
+// Rate limiting (prevent abuse)
+app.use('/api/', rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 1000,                 // generous limit for development
+  message: { success: false, message: 'Too many requests, try again later' }
+}));
+
+// ── RATE LIMITING ── ← ADD HERE
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 50,   // 50 login/signup attempts per 15 min
   message: { success: false, message: 'Too many login attempts, try again later' }
 });
 
@@ -96,6 +112,9 @@ app.use('/api/ai', aiDescriptionRoutes);
 app.use('/api/orders', orderRoutes); // Order management (protected)
 app.use('/api/catalog', catalogRoutes); // Public catalog browse
 app.use('/api/catalog', visualSearchRoutes);
+
+app.use('/api/service', serviceRoutes);    // service provider routes
+app.use('/api/bookings', bookingRoutes);   // customer booking routes
 
 // Health check route
 app.get('/health', (req, res) => {

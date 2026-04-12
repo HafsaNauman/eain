@@ -41,6 +41,7 @@ const LoginScreen = ({ navigation }) => {
 
   const { login: contextLogin } = useAuth();
 
+<<<<<<< HEAD
 const handleLogin = async () => {
   setError('');
   setLoading(true);
@@ -125,6 +126,103 @@ const handleLogin = async () => {
   }
 };
 
+=======
+  const handleLogin = async () => {
+    setError('');
+
+    const fullPhoneNumber = `+92${phoneNumber.replace(/\s/g, '')}`;
+
+    if (!validatePhoneNumber(fullPhoneNumber)) {
+      setError(t('errors.invalidPhone'));
+      return;
+    }
+
+    if (!password) {
+      setError(t('errors.passwordRequired'));
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await apiLogin(fullPhoneNumber, password);
+
+      if (result.success) {
+        const { accessToken, refreshToken, user } = result.data.data;
+        await contextLogin(accessToken, refreshToken, user);
+
+        if (user.role === 'admin') {
+          // ── Admin ──────────────────────────────────────────────
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'AdminDashboard' }],
+          });
+
+        } else if (user.role === 'vendor') {
+          // ── Vendor — branch on vendor_type ────────────────────
+          if (user.vendor_type === 'service') {
+            // Service vendor → service dashboard (no profile pre-check needed;
+            // ServiceDashboard fetches its own profile on mount)
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'ServiceDashboard' }],
+            });
+          } else {
+            // Product vendor → existing profile-check flow (unchanged)
+            try {
+              const profileCheck = await getVendorProfile();
+              if (profileCheck.success) {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'VendorDashboard', params: { userId: user.user_id } }],
+                });
+              } else {
+                navigation.reset({
+                  index: 0,
+                  routes: [{
+                    name: 'BusinessRegistration',
+                    params: { userId: user.user_id, userRole: 'vendor' },
+                  }],
+                });
+              }
+            } catch {
+              navigation.reset({
+                index: 0,
+                routes: [{
+                  name: 'BusinessRegistration',
+                  params: { userId: user.user_id, userRole: 'vendor' },
+                }],
+              });
+            }
+          }
+
+        } else if (user.role === 'service_provider') {
+          // ── Service Provider ───────────────────────────────────
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'ServiceDashboard' }],
+          });
+
+        } else {
+          // ── Customer ───────────────────────────────────────────
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          });
+        }
+
+      } else {
+        setError(result.error);
+      }
+
+    } catch (err) {
+      setError(t('errors.loginFailed'));
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+>>>>>>> origin/service_provider_dashboard
   const handleVoiceInput = async (field) => {
     if (recordingField === field) {
       await stopVoiceRecording(field);

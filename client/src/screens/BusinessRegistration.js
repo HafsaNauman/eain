@@ -22,6 +22,7 @@ import ErrorAlert from '../components/common/ErrorAlert';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { COLORS } from '../constants/colors';
 import { createVendorProfile } from '../api/VendorService';
+import { createServiceProfile } from '../api/serviceService';
 import { startRecording, stopRecording, getRecordingDuration } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
 import { uploadVendorImage } from '../api/uploadService';
@@ -286,36 +287,30 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
   const validateForm = () => {
     const newErrors = {};
 
-
     if (!formData.businessName.trim()) {
       newErrors.businessName = t('businessReg.errors.businessNameRequired');
     }
 
-
-    if (!formData.businessType) {
+    // businessType is only required for product vendors, not service providers
+    if (userRole !== 'service_provider' && !formData.businessType) {
       newErrors.businessType = t('businessReg.errors.businessTypeRequired');
     }
-
 
     if (!formData.city.trim()) {
       newErrors.city = t('businessReg.errors.cityRequired');
     }
 
-
     if (!formData.area.trim()) {
       newErrors.area = t('businessReg.errors.areaRequired');
     }
-
 
     if (!formData.businessCategory) {
       newErrors.businessCategory = t('businessReg.errors.businessCategoryRequired');
     }
 
-
     if (!formData.businessDescription.trim()) {
       newErrors.businessDescription = t('businessReg.errors.businessDescriptionRequired');
     }
-
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -338,33 +333,48 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
       const token = await getAccessToken();
       console.log('🔑 [BusinessRegistration] Token exists:', !!token);
 
+      let result;
 
-      const profileData = {
-        vendor_type: formData.businessType,
-        business_name_en: formData.businessName.trim(),
-        business_name_ur: null,
-        description_en: formData.businessDescription.trim(),
-        description_ur: null,
-        category: formData.businessCategory,
-        city: formData.city.trim(),
-        area: formData.area.trim(),
-        location: null,
-        is_female_only: false,
-        // media: formData.logo ? { logo_url: formData.logo.uri } : null,
-        media: formData.logo ? { logo_url: formData.logo } : null,
-      };
-
-
-      console.log('HANDLE SUBMIT📤 [BusinessRegistration] Sending profile data:', profileData.media);
-      const result = await createVendorProfile(profileData);
+      if (userRole === 'service_provider') {
+        // ── Service provider → POST /api/service/profile ──────────
+        const serviceProfileData = {
+          business_name_en: formData.businessName.trim(),
+          description_en: formData.businessDescription.trim(),
+          category: formData.businessCategory,
+          city: formData.city.trim(),
+          area: formData.area.trim(),
+          is_female_only: false,
+          media: formData.logo ? { logo_url: formData.logo } : undefined,
+        };
+        console.log('📤 [BusinessRegistration] Creating service profile:', serviceProfileData);
+        result = await createServiceProfile(serviceProfileData);
+      } else {
+        // ── Product vendor → POST /api/vendor/profile ─────────────
+        const profileData = {
+          vendor_type: formData.businessType,
+          business_name_en: formData.businessName.trim(),
+          business_name_ur: null,
+          description_en: formData.businessDescription.trim(),
+          description_ur: null,
+          category: formData.businessCategory,
+          city: formData.city.trim(),
+          area: formData.area.trim(),
+          location: null,
+          is_female_only: false,
+          media: formData.logo ? { logo_url: formData.logo } : null,
+        };
+        console.log('📤 [BusinessRegistration] Creating vendor profile:', profileData);
+        result = await createVendorProfile(profileData);
+      }
 
 
       if (result.success) {
         console.log('✅ [BusinessRegistration] Profile created successfully:', result.data);
+        const destinationScreen = userRole === 'service_provider' ? 'ServiceDashboard' : 'VendorDashboard';
         navigation.reset({
           index: 0,
           routes: [{
-            name: 'VendorDashboard',
+            name: destinationScreen,
             params: {
               vendorProfile: result.data.data?.profile || result.data.profile,
               userId: userId,
@@ -454,20 +464,24 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
           {errors.businessName && <Text style={styles.errorText}>{errors.businessName}</Text>}
 
 
-          {/* Business Type */}
-          <Text style={styles.label}>{t('businessReg.businessType')}</Text>
-          <View style={[styles.pickerWrapper, errors.businessType && styles.pickerError]}>
-            <Picker
-              selectedValue={formData.businessType}
-              onValueChange={(value) => updateField('businessType', value)}
-              style={styles.picker}
-            >
-              <Picker.Item label={t('businessReg.selectType')} value="" color="#B0B0B0" />
-              <Picker.Item label={t('businessReg.product')} value="product" />
-              <Picker.Item label={t('businessReg.service')} value="service" />
-            </Picker>
-          </View>
-          {errors.businessType && <Text style={styles.errorText}>{errors.businessType}</Text>}
+          {/* Business Type — only shown for product vendors, not service providers */}
+          {userRole !== 'service_provider' && (
+            <>
+              <Text style={styles.label}>{t('businessReg.businessType')}</Text>
+              <View style={[styles.pickerWrapper, errors.businessType && styles.pickerError]}>
+                <Picker
+                  selectedValue={formData.businessType}
+                  onValueChange={(value) => updateField('businessType', value)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label={t('businessReg.selectType')} value="" color="#B0B0B0" />
+                  <Picker.Item label={t('businessReg.product')} value="product" />
+                  <Picker.Item label={t('businessReg.service')} value="service" />
+                </Picker>
+              </View>
+              {errors.businessType && <Text style={styles.errorText}>{errors.businessType}</Text>}
+            </>
+          )}
 
 
           {/* City */}
