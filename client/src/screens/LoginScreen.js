@@ -41,76 +41,89 @@ const LoginScreen = ({ navigation }) => {
 
   const { login: contextLogin } = useAuth();
 
- const handleLogin = async () => {
+const handleLogin = async () => {
   setError('');
-
-  const fullPhoneNumber = `+92${phoneNumber.replace(/\s/g, '')}`;
-
-  if (!validatePhoneNumber(fullPhoneNumber)) {
-    setError(t('errors.invalidPhone'));
-    return;
-  }
-
-  if (!password) {
-    setError(t('errors.passwordRequired'));
-    return;
-  }
-
   setLoading(true);
 
-    try {
-      const result = await apiLogin(fullPhoneNumber, password);
-      if (result.success) {
-        const { accessToken, refreshToken, user } = result.data.data;
-        await contextLogin(accessToken, refreshToken, user);
+  try {
+    const fullPhoneNumber = `+92${phoneNumber.replace(/\s/g, '')}`;
 
-        if (user.role === 'vendor') {
-          // Check if vendor has profile
-          try {
-            const profileCheck = await getVendorProfile();
-            if (profileCheck.success) {
-              // Profile exists, go to dashboard
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'VendorDashboard', params: { userId: user.user_id } }],
-              });
-            } else {
-              // No profile, go to registration
-              navigation.reset({
-                index: 0,
-                routes: [{
-                  name: 'BusinessRegistration',
-                  params: { userId: user.user_id, userRole: 'vendor' }
-                }],
-              });
-            }
-          } catch (error) {
-            // Error or no profile, go to registration
-            navigation.reset({
-              index: 0,
-              routes: [{
-                name: 'BusinessRegistration',
-                params: { userId: user.user_id, userRole: 'vendor' }
-              }],
-            });
-          }
+    if (!validatePhoneNumber(fullPhoneNumber)) {
+      setError(t('errors.invalidPhone'));
+      return;
+    }
+
+    if (!password) {
+      setError(t('errors.passwordRequired'));
+      return;
+    }
+
+    const result = await apiLogin(fullPhoneNumber, password);
+
+    if (!result.success) {
+      setError(result.error);
+      return;
+    }
+
+    const { accessToken, refreshToken, user } = result.data.data;
+
+    // 1. SAVE USER IN GLOBAL STATE
+    await contextLogin(accessToken, refreshToken, user);
+
+    const role = user.role;
+
+    // 2. ROLE BASED REDIRECTION
+    if (role === 'admin') {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'AdminDashboard' }],
+      });
+    }
+
+    else if (role === 'vendor') {
+      // vendor special check (your existing logic)
+      try {
+        const profileCheck = await getVendorProfile();
+
+        if (profileCheck.success) {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'VendorDashboard' }],
+          });
         } else {
           navigation.reset({
             index: 0,
-            routes: [{ name: 'Home' }],
+            routes: [{
+              name: 'BusinessRegistration',
+              params: { userId: user.user_id, userRole: 'vendor' }
+            }],
           });
         }
+      } catch (err) {
+        navigation.reset({
+          index: 0,
+          routes: [{
+            name: 'BusinessRegistration',
+            params: { userId: user.user_id, userRole: 'vendor' }
+          }],
+        });
       }
-      else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError(t('errors.loginFailed'));
-      console.error('Login error:', err);
-    } finally {
-      setLoading(false);
     }
-  };
+
+    else {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+    }
+
+  } catch (err) {
+    console.log(err);
+    setError(t('errors.loginFailed'));
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleVoiceInput = async (field) => {
     if (recordingField === field) {
