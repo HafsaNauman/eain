@@ -913,14 +913,10 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { getAllListings, searchListings } from '../api/catalogService';
 import { useTranslation } from 'react-i18next';
-<<<<<<< HEAD
 import { startRecording, stopRecording } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
 import StockIndicator from '../components/StockIndicator';
-=======
-import StockIndicator from '../components/StockIndicator';
 
->>>>>>> origin/service_provider_dashboard
 const categories = ['All', 'Electronics', 'Fashion & Apparel', 'Home & Garden', 'Health & Beauty', 'Sports & Fitness', 'Food & Beverage'];
 const cities = ['All Cities', 'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
 
@@ -1153,7 +1149,6 @@ function HomeScreen() {
               <Ionicons name="close-circle" size={20} color="#036c5f" />
             </TouchableOpacity>
           )}
-<<<<<<< HEAD
           {/* Voice Search Button */}
           <TouchableOpacity
             onPress={handleVoiceSearch}
@@ -1176,13 +1171,8 @@ function HomeScreen() {
           </TouchableOpacity>
 
           {/* Camera Button */}
-          <TouchableOpacity
-            onPress={() => navigation.navigate('VisualSearch')}
-            style={styles.cameraIconBtn}
-          >
-=======
+
           <TouchableOpacity onPress={() => navigation.navigate('VisualSearch')} style={styles.cameraIconBtn}>
->>>>>>> origin/service_provider_dashboard
             <Ionicons name="camera-outline" size={22} color="#036c5f" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowFilters(true)} style={styles.filterButton}>
@@ -1314,13 +1304,7 @@ function HomeScreen() {
                   onPress={() => navigateToProductDetail(product.listing_id)}
                 >
                   <Image
-<<<<<<< HEAD
-                    source={{
-                      uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image'
-                    }}
-=======
                     source={{ uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image' }}
->>>>>>> origin/service_provider_dashboard
                     style={styles.productImage}
                   />
                   {product.track_inventory && (
@@ -1389,13 +1373,7 @@ function HomeScreen() {
               onPress={() => navigateToProductDetail(product.listing_id)}
             >
               <Image
-<<<<<<< HEAD
-                source={{
-                  uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image'
-                }}
-=======
                 source={{ uri: product.media?.images?.[0] || 'https://via.placeholder.com/150?text=No+Image' }}
->>>>>>> origin/service_provider_dashboard
                 style={styles.productImage}
               />
               <Text style={{ ...styles.productName, color: '#fff' }} numberOfLines={2}>
@@ -1512,7 +1490,6 @@ const styles = StyleSheet.create({
   scrollArea: { padding: 16 },
   searchBar: { backgroundColor: '#e0f7fa', borderRadius: 16, flexDirection: 'row', alignItems: 'center', padding: 10, marginBottom: 12 },
   searchInput: { flex: 1, fontSize: 16, color: '#036c5f', marginLeft: 8 },
-<<<<<<< HEAD
   cameraIconBtn: {
     marginLeft: 8,
     padding: 2,
@@ -1576,16 +1553,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 8,
   },
-=======
-  cameraIconBtn: { marginLeft: 8, padding: 2 },
-  filterButton: { marginLeft: 8, position: 'relative' },
-  filterBadge: { position: 'absolute', top: -5, right: -5, backgroundColor: '#ff6b6b', borderRadius: 10, width: 16, height: 16, justifyContent: 'center', alignItems: 'center' },
-  filterBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-  activeFilters: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12, alignItems: 'center' },
-  filterChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e0f7fa', borderRadius: 16, paddingVertical: 6, paddingHorizontal: 12, marginRight: 8, marginBottom: 8 },
-  filterChipText: { fontSize: 12, color: '#036c5f', marginHorizontal: 4 },
-  clearFiltersText: { fontSize: 12, color: '#ff6b6b', fontWeight: 'bold', marginLeft: 8 },
->>>>>>> origin/service_provider_dashboard
   categories: { marginBottom: 16 },
   categoryBtn: { backgroundColor: '#e0f7fa', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 30, marginRight: 10 },
   categorySelected: { backgroundColor: '#036c5f' },
