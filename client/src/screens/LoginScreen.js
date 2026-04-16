@@ -41,92 +41,6 @@ const LoginScreen = ({ navigation }) => {
 
   const { login: contextLogin } = useAuth();
 
-<<<<<<< HEAD
-const handleLogin = async () => {
-  setError('');
-  setLoading(true);
-
-  try {
-    const fullPhoneNumber = `+92${phoneNumber.replace(/\s/g, '')}`;
-
-    if (!validatePhoneNumber(fullPhoneNumber)) {
-      setError(t('errors.invalidPhone'));
-      return;
-    }
-
-    if (!password) {
-      setError(t('errors.passwordRequired'));
-      return;
-    }
-
-    const result = await apiLogin(fullPhoneNumber, password);
-
-    if (!result.success) {
-      setError(result.error);
-      return;
-    }
-
-    const { accessToken, refreshToken, user } = result.data.data;
-
-    // 1. SAVE USER IN GLOBAL STATE
-    await contextLogin(accessToken, refreshToken, user);
-
-    const role = user.role;
-
-    // 2. ROLE BASED REDIRECTION
-    if (role === 'admin') {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'AdminDashboard' }],
-      });
-    }
-
-    else if (role === 'vendor') {
-      // vendor special check (your existing logic)
-      try {
-        const profileCheck = await getVendorProfile();
-
-        if (profileCheck.success) {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'VendorDashboard' }],
-          });
-        } else {
-          navigation.reset({
-            index: 0,
-            routes: [{
-              name: 'BusinessRegistration',
-              params: { userId: user.user_id, userRole: 'vendor' }
-            }],
-          });
-        }
-      } catch (err) {
-        navigation.reset({
-          index: 0,
-          routes: [{
-            name: 'BusinessRegistration',
-            params: { userId: user.user_id, userRole: 'vendor' }
-          }],
-        });
-      }
-    }
-
-    else {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Home' }],
-      });
-    }
-
-  } catch (err) {
-    console.log(err);
-    setError(t('errors.loginFailed'));
-  } finally {
-    setLoading(false);
-  }
-};
-
-=======
   const handleLogin = async () => {
     setError('');
 
@@ -222,7 +136,6 @@ const handleLogin = async () => {
       setLoading(false);
     }
   };
->>>>>>> origin/service_provider_dashboard
   const handleVoiceInput = async (field) => {
     if (recordingField === field) {
       await stopVoiceRecording(field);
