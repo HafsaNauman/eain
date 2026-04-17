@@ -18,7 +18,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { updateListing, deleteListing } from '../api/VendorService';
-import StockBadge from '../components/StockIndicator';
+import StockIndicator from '../components/StockIndicator';
 import { getFirstImage } from '../utils/imageHelper';
 
 const TEAL = '#036c5f';
@@ -245,7 +245,7 @@ const ProductDetailScreen = () => {
           {/* StockBadge */}
           {!isEditing && (
             <View style={styles.stockBadgeRow}>
-              <StockBadge
+              <StockIndicator
                 stockQuantity={
                   product.track_inventory && product.stock_quantity != null
                     ? product.stock_quantity
