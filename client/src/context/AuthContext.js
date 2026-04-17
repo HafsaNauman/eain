@@ -98,6 +98,94 @@
 // };
 
 // export default AuthContext;
+// import React, { createContext, useState, useContext, useEffect } from 'react';
+// import { getAccessToken, getUserData, clearAuthData, saveTokens, saveUserData } from '../utils/storage';
+
+// const AuthContext = createContext({});
+
+// export const AuthProvider = ({ children }) => {
+//   const [user, setUser] = useState(null);
+//   const [isAuthenticated, setIsAuthenticated] = useState(false);
+//   const [isLoading, setIsLoading] = useState(true);
+
+//   useEffect(() => {
+//     checkAuthStatus();
+//   }, []);
+
+//   const checkAuthStatus = async () => {
+//     try {
+//       const token = await getAccessToken();
+//       const userData = await getUserData();
+
+//       if (token && userData) {
+//         setUser(userData);
+//         setIsAuthenticated(true);
+//       }
+//     } catch (error) {
+//       console.error('Auth check error:', error);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const login = async (accessToken, refreshToken, userData) => {
+//     await saveTokens(accessToken, refreshToken);
+//     await saveUserData(userData);
+//     setUser(userData);
+//     setIsAuthenticated(true);
+//   };
+
+//   const logout = async () => {
+//     await clearAuthData();
+//     setUser(null);
+//     setIsAuthenticated(false);
+//   };
+
+//   const updateUser = async (updatedUserData) => {
+//     await saveUserData(updatedUserData);
+//     setUser(updatedUserData);
+//   };
+
+//   // ✅ ROLE FLAGS
+//   const isAdmin = user?.role === 'admin';
+//   const isVendor = user?.role === 'vendor';
+//   const isCustomer = user?.role === 'customer';
+
+//   return (
+//     <AuthContext.Provider
+//       value={{
+//         user,
+//         isAuthenticated,
+//         isLoading,
+//         isAdmin,
+//         isVendor,
+//         isCustomer,
+//         login,
+//         logout,
+//         updateUser,
+//       }}
+//     >
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+// export const useAuth = () => useContext(AuthContext);
+
+// export default AuthContext;
+
+
+/**
+ * AuthContext.js
+ *
+ * Added: isServiceVendor flag
+ * Requires: user object from login response includes vendor_type field.
+ * Backend should return vendor_type in the user object on login/signup.
+ *
+ * Usage:
+ *   const { user, isAuthenticated, isVendor, isServiceVendor, login, logout } = useAuth();
+ */
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getAccessToken, getUserData, clearAuthData, saveTokens, saveUserData } from '../utils/storage';
 
@@ -116,7 +204,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = await getAccessToken();
       const userData = await getUserData();
-
       if (token && userData) {
         setUser(userData);
         setIsAuthenticated(true);
@@ -146,10 +233,15 @@ export const AuthProvider = ({ children }) => {
     setUser(updatedUserData);
   };
 
-  // ✅ ROLE FLAGS
+  // ── Role flags ─────────────────────────────────────────
   const isAdmin = user?.role === 'admin';
   const isVendor = user?.role === 'vendor';
   const isCustomer = user?.role === 'customer';
+
+  // ✅ Service vendor: role is "vendor" AND vendor_type is "service"
+  // Requires backend to include vendor_type in the login/signup user object.
+  // If vendor_type is not yet in the response, this safely defaults to false.
+  const isServiceVendor = user?.role === 'vendor' && user?.vendor_type === 'service';
 
   return (
     <AuthContext.Provider
@@ -160,6 +252,7 @@ export const AuthProvider = ({ children }) => {
         isAdmin,
         isVendor,
         isCustomer,
+        isServiceVendor,   // ✅ NEW
         login,
         logout,
         updateUser,
