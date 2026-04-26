@@ -13,10 +13,22 @@ const ProfileScreen = ({ navigation }) => {
   const { user, logout, isAuthenticated } = useAuth();
   const [checkingVendor, setCheckingVendor] = useState(false);
 
-  // ✅ Check vendor status when screen loads
+  // ✅ Check role and route to the correct screen on mount
   useEffect(() => {
-    const checkVendorStatus = async () => {
-      if (isAuthenticated && user?.role === 'vendor') {
+    const checkUserStatus = async () => {
+      if (!isAuthenticated) return;
+
+      // ── Service Provider → ServiceDashboard ──────────────────
+      if (user?.role === 'service_provider') {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'ServiceDashboard' }],
+        });
+        return;
+      }
+
+      // ── Product Vendor → VendorDashboard or BusinessRegistration
+      if (user?.role === 'vendor') {
         setCheckingVendor(true);
         try {
           const profileCheck = await getVendorProfile();
@@ -58,7 +70,7 @@ const ProfileScreen = ({ navigation }) => {
       }
     };
 
-    checkVendorStatus();
+    checkUserStatus();
   }, [isAuthenticated, user, navigation]);
 
   const handleLogout = async () => {
