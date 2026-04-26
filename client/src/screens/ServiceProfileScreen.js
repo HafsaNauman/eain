@@ -36,6 +36,7 @@ import {
   uploadImage,
 } from '../api/serviceService';
 import { ServiceBottomNav } from './ServiceDashboardScreen';
+import { useAuth } from '../context/AuthContext';
 
 // Guide shows "category" field — these are common service categories
 const SERVICE_CATEGORIES = [
@@ -61,6 +62,7 @@ const CITIES = [
 ];
 
 const ServiceProfileScreen = ({ navigation }) => {
+  const { isAuthenticated } = useAuth();
   const [existingProfile, setExistingProfile] = useState(null);
   const [loading, setLoading]   = useState(true);
   const [saving, setSaving]     = useState(false);
@@ -87,7 +89,13 @@ const ServiceProfileScreen = ({ navigation }) => {
     cover_url:        '',
   });
 
+  // ── Auth guard ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated) navigation.replace('Login');
+  }, [isAuthenticated, navigation]);
+
   const loadProfile = useCallback(async () => {
+    if (!isAuthenticated) return;
     setLoading(true);
     const res = await getServiceProfile();
     if (res.success && res.data?.data?.profile) {
@@ -107,7 +115,7 @@ const ServiceProfileScreen = ({ navigation }) => {
       });
     }
     setLoading(false);
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => { loadProfile(); }, [loadProfile]);
 

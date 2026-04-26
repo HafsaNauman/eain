@@ -3,12 +3,14 @@ import {
   sendOTP, 
   verifyOTP, 
   signup, 
-  login 
+  login,
+  logout,
 } from '../controllers/auth.controller.js';
 import { 
   checkDuplicatePhoneOrEmail, 
   validateSignupFields 
 } from '../middlewares/verifySignUp.js';
+import { verifyJWT } from '../middlewares/authJwt.js';
 
 const router = express.Router();
 
@@ -31,5 +33,8 @@ router.post(
 
 // Login
 router.post('/login', login);
+
+// Logout — requires a valid access token
+router.post('/logout', verifyJWT, logout);
 
 export default router;

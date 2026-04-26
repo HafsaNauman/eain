@@ -294,4 +294,21 @@ export const login = async (phoneNumber, password) => {
   }
 };
 
+/**
+ * Logout user — tells the backend to revoke the access token,
+ * then clears local storage via AuthContext.logout().
+ * Always resolves (never throws) so the UI can safely clear
+ * local state even if the network call fails.
+ */
+export const logoutApi = async () => {
+  try {
+    await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.LOGOUT);
+    return { success: true };
+  } catch (error) {
+    // Silently succeed — local tokens will be cleared regardless
+    console.warn('Logout API call failed (token may already be expired):', error.message);
+    return { success: true };
+  }
+};
+
 export default apiClient;

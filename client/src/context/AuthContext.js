@@ -188,6 +188,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getAccessToken, getUserData, clearAuthData, saveTokens, saveUserData } from '../utils/storage';
+import { logoutApi } from '../api/authService';
 
 const AuthContext = createContext({});
 
@@ -223,6 +224,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    // Revoke token on backend first (fire-and-forget — always clear local state)
+    await logoutApi();
     await clearAuthData();
     setUser(null);
     setIsAuthenticated(false);
