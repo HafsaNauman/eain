@@ -66,23 +66,32 @@ const LoginScreen = ({ navigation }) => {
         await contextLogin(accessToken, refreshToken, user);
 
         if (user.role === 'admin') {
-          // ── Admin ──────────────────────────────────────────────
+          // ── Admin ────────────────────────────────────────────
           navigation.reset({
             index: 0,
             routes: [{ name: 'AdminDashboard' }],
           });
 
+        } else if (user.role === 'service_provider') {
+          // ── Service Provider ─────────────────────────────────
+          // Must come BEFORE the vendor check so it's never
+          // accidentally routed to VendorDashboard.
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'ServiceDashboard' }],
+          });
+
         } else if (user.role === 'vendor') {
-          // ── Vendor — branch on vendor_type ────────────────────
+          // ── Product Vendor ────────────────────────────────────
+          // vendor_type check kept for future if a vendor account
+          // is ever migrated to service; otherwise falls through
+          // to the standard vendor profile check.
           if (user.vendor_type === 'service') {
-            // Service vendor → service dashboard (no profile pre-check needed;
-            // ServiceDashboard fetches its own profile on mount)
             navigation.reset({
               index: 0,
               routes: [{ name: 'ServiceDashboard' }],
             });
           } else {
-            // Product vendor → existing profile-check flow (unchanged)
             try {
               const profileCheck = await getVendorProfile();
               if (profileCheck.success) {
@@ -110,15 +119,8 @@ const LoginScreen = ({ navigation }) => {
             }
           }
 
-        } else if (user.role === 'service_provider') {
-          // ── Service Provider ───────────────────────────────────
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'ServiceDashboard' }],
-          });
-
         } else {
-          // ── Customer ───────────────────────────────────────────
+          // ── Customer ─────────────────────────────────────────
           navigation.reset({
             index: 0,
             routes: [{ name: 'Home' }],
