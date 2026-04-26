@@ -78,7 +78,7 @@ app.use(compression());
 // Rate limiting (prevent abuse)
 app.use('/api/', rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 1000,                 // generous limit for development
+  max: 300,                 // generous limit for development
   message: { success: false, message: 'Too many requests, try again later' }
 }));
 
@@ -89,17 +89,12 @@ const authLimiter = rateLimit({
   message: { success: false, message: 'Too many login attempts, try again later' }
 });
 
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 300,
-  message: { success: false, message: 'Too many requests, try again later' }
-});
 
 app.use(helmet());
 
 app.use('/api/auth', authLimiter);  // strict - login/signup only
-app.use('/api/', apiLimiter);       // normal - everything else
-// Routes
+
+//Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);

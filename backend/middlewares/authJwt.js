@@ -1,6 +1,7 @@
 import { verifyToken } from '../services/token.service.js';
 import { errorResponse } from '../utils/responseBuilder.js';
 import { User } from '../models/index.js';
+import { isRevoked } from '../services/tokenDenylist.js';
 
 
 // Verify JWT token from request header
@@ -35,6 +36,11 @@ export const verifyJWT = async (req, res, next) => {
 
     if (!token) {
       return errorResponse(res, 403, 'No token provided');
+    }
+
+    // Reject tokens that have been revoked via logout
+    if (isRevoked(token)) {
+      return errorResponse(res, 401, 'Token has been revoked. Please log in again.');
     }
 
     // Verify token

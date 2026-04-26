@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/colors';
+import { useAuth } from '../context/AuthContext';
 import {
   getServiceBookings, confirmBooking, rejectBooking,
   completeBooking, cancelBookingByProvider,
@@ -25,6 +26,7 @@ import { StatusBadge, ServiceBottomNav } from './ServiceDashboardScreen';
 const FILTERS = ['all', 'pending', 'confirmed', 'completed', 'cancelled', 'rejected'];
 
 const ServiceBookingsScreen = ({ navigation }) => {
+  const { isAuthenticated } = useAuth();
   const [bookings, setBookings]           = useState([]);
   const [filter, setFilter]               = useState('all');
   const [loading, setLoading]             = useState(true);
@@ -33,7 +35,13 @@ const ServiceBookingsScreen = ({ navigation }) => {
   const [modal, setModal]                 = useState({ visible: false, type: null, id: null });
   const [modalInput, setModalInput]       = useState('');
 
+  // ── Auth guard ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated) navigation.replace('Login');
+  }, [isAuthenticated, navigation]);
+
   const load = useCallback(async (isRefresh = false) => {
+    if (!isAuthenticated) return;
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
       const params = filter !== 'all' ? { status: filter } : {};
@@ -46,7 +54,7 @@ const ServiceBookingsScreen = ({ navigation }) => {
       }
     } catch (e) { console.error(e); }
     finally { setLoading(false); setRefreshing(false); }
-  }, [filter]);
+  }, [filter, isAuthenticated]);
 
   useEffect(() => { load(); }, [load]);
 

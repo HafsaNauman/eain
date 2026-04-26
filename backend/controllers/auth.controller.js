@@ -2,7 +2,8 @@ import bcrypt from 'bcryptjs';
 import { User, UserVerification, sequelize } from '../models/index.js';
 import { generateOTP, isOTPExpired } from '../utils/generateOtp.js';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
-import { generateAccessToken, generateRefreshToken } from '../services/token.service.js';
+import { generateAccessToken, generateRefreshToken, verifyToken } from '../services/token.service.js';
+import { addToDenylist } from '../services/tokenDenylist.js';
 
 /**
  * STEP 1: Send OTP to phone number
@@ -302,5 +303,31 @@ export const login = async (req, res) => {
   } catch (error) {
     console.error('Login Error:', error);
     return errorResponse(res, 500, 'Failed to login', error.message);
+  }
+};
+
+// ─── Logout ──────────────────────────────────────────────────────────────────
+// POST /api/auth/logout
+// Header: Authorization: Bearer <accessToken>
+//
+// Adds the access token to an in-memory denylist so it is rejected on every
+// subsequent request, even though the JWT has not yet expired naturally.
+export const logout = async (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader?.split(' ')[1];
+
+    if (token) {
+      // Decode without throwing (token may be near-expired but still valid)
+      const decoded = verifyToken(token);
+      if (decoded?.exp) {
+        addToDenylist(token, decoded.exp); // exp is Unix seconds
+      }
+    }
+
+    return successResponse(res, 200, 'Logged out successfully');
+  } catch (error) {
+    // Even if token verification fails, treat as logged-out on the client side
+    return successResponse(res, 200, 'Logged out successfully');
   }
 };

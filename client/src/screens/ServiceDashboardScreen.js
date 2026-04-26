@@ -16,14 +16,22 @@ import { getServiceDashboard, getServiceProfile } from '../api/serviceService';
 import { COLORS } from '../constants/colors';
 
 const ServiceDashboardScreen = ({ navigation }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const [dashboard, setDashboard]     = useState(null);
   const [profile, setProfile]         = useState(null);
   const [loading, setLoading]         = useState(true);
   const [refreshing, setRefreshing]   = useState(false);
   const [error, setError]             = useState('');
 
+  // ── Auth guard: redirect to Login if not authenticated ─────────────────────
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigation.replace('Login');
+    }
+  }, [isAuthenticated, navigation]);
+
   const loadData = useCallback(async (isRefresh = false) => {
+    if (!isAuthenticated) return; // don't fire requests without a token
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
       setError('');
@@ -38,7 +46,7 @@ const ServiceDashboardScreen = ({ navigation }) => {
       else setProfile(null); // profile not found — show gracefully
     } catch (e) { setError('Failed to load dashboard.'); }
     finally { setLoading(false); setRefreshing(false); }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => { loadData(); }, [loadData]);
 

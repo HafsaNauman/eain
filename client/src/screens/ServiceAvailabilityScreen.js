@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/colors';
+import { useAuth } from '../context/AuthContext';
 import { getMyAvailability, addAvailabilitySlot, removeAvailabilitySlot } from '../api/serviceService';
 import { ServiceBottomNav } from './ServiceDashboardScreen';
 
@@ -29,6 +30,7 @@ const NEXT_DATES = Array.from({ length: 60 }, (_, i) => {
 });
 
 const ServiceAvailabilityScreen = ({ navigation }) => {
+  const { isAuthenticated } = useAuth();
   const [slots, setSlots]           = useState([]);
   const [loading, setLoading]       = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -40,7 +42,13 @@ const ServiceAvailabilityScreen = ({ navigation }) => {
     slot_duration_mins: 60, specific_date: NEXT_DATES[0],
   });
 
+  // ── Auth guard ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated) navigation.replace('Login');
+  }, [isAuthenticated, navigation]);
+
   const load = useCallback(async (isRefresh = false) => {
+    if (!isAuthenticated) return;
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
       const res = await getMyAvailability();
@@ -50,7 +58,7 @@ const ServiceAvailabilityScreen = ({ navigation }) => {
       } else Alert.alert('Error', res.error);
     } catch (e) { console.error(e); }
     finally { setLoading(false); setRefreshing(false); }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => { load(); }, [load]);
 
