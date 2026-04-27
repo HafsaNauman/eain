@@ -63,8 +63,11 @@ apiClient.interceptors.response.use(
       
       // Handle specific status codes
       if (error.response.status === 401) {
-        // Unauthorized - could trigger logout
-        console.log('Unauthorized access - token may be expired');
+        // Unauthorized - token may be expired. Clear storage.
+        console.log('Unauthorized access - token may be expired. Clearing local storage.');
+        import('../utils/storage').then(storage => {
+          storage.clearAuthData();
+        });
       }
     } else if (error.request) {
       // Request made but no response
