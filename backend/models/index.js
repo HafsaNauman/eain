@@ -8,6 +8,7 @@ import OrderHistory from './orderHistory.js';
 import { Payout, VendorCommissionRate, PayoutBatch, PayoutBatchItem } from './payout.js';
 import Booking from './booking.js';
 import ServiceAvailability from './serviceAvailability.js';
+import RecommendationEvent from './recommendationEvent.js';
 
 //====== Associations ======
 
@@ -73,9 +74,13 @@ Listing.hasMany(Booking, { foreignKey: 'listing_id', as: 'bookings' });
 ServiceAvailability.belongsTo(VendorProfile, { foreignKey: 'vendor_id' });
 VendorProfile.hasMany(ServiceAvailability, { foreignKey: 'vendor_id', as: 'availability' });
 
+// RecommendationEvent associations
+RecommendationEvent.belongsTo(User, { foreignKey: 'user_id' });
+RecommendationEvent.belongsTo(Listing, { foreignKey: 'listing_id' });
 
 export {
     sequelize, User, UserVerification, VendorProfile, Listing, Order
-    , OrderHistory, Payout, VendorCommissionRate, PayoutBatch, PayoutBatchItem, Booking, ServiceAvailability
+    , OrderHistory, Payout, VendorCommissionRate, PayoutBatch, PayoutBatchItem, Booking, ServiceAvailability, 
+    RecommendationEvent
 };
 
