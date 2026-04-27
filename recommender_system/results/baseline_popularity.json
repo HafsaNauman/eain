@@ -1,0 +1,34 @@
+{
+  "baseline_name": "PopularityBaseline",
+  "description": "Recommends same top-K items by weighted interaction count in train set",
+  "weight_scheme": {
+    "click": 1.0,
+    "save": 2.0,
+    "cart_add": 3.0,
+    "order_or_booking": 5.0
+  },
+  "top10_items": [
+    103,
+    57,
+    59,
+    71,
+    86,
+    78,
+    88,
+    87,
+    49,
+    89
+  ],
+  "metrics": {
+    "HR@10": 0.626812,
+    "NDCG@10": 0.133966,
+    "Recall@10": 0.129976
+  },
+  "evaluation": {
+    "n_test_users": 276,
+    "k": 10,
+    "ground_truth_source": "test interactions (clicks, saves, cart, orders, bookings)"
+  },
+  "benchmark_note": "These are the MINIMUM metrics to beat. Any model claiming improvement must exceed HR@10=0.6268, NDCG@10=0.1340.",
+  "generated_at": "2026-04-27"
+}
