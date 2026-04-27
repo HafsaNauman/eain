@@ -35,8 +35,11 @@ export const createListing = async (req, res) => {
       return errorResponse(res, 400, 'Listing type and title (English) are required');
     }
 
+    const city = vendorProfile?.city || null;
+
     const listing = await Listing.create({
       vendor_id: vendorProfile.vendor_id,
+      city,
       listing_type,
       title_en,
       title_ur,

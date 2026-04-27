@@ -24,6 +24,7 @@ import aiDescriptionRoutes from './routes/aiDescription.routes.js';
 import visualSearchRoutes from './routes/visualSearch.routes.js';
 import serviceRoutes from './routes/service.routes.js';
 import bookingRoutes from './routes/booking.routes.js';
+import eventsRouter from './routes/events.js';
 
 console.log(' Starting application...');
 
@@ -110,6 +111,7 @@ app.use('/api/catalog', visualSearchRoutes);
 
 app.use('/api/service', serviceRoutes);    // service provider routes
 app.use('/api/bookings', bookingRoutes);   // customer booking routes
+app.use('/api/events', eventsRouter);
 
 // Health check route
 app.get('/health', (req, res) => {
