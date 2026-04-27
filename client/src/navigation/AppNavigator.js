@@ -51,6 +51,7 @@ import AdminDashboard from '../screens/admin/AdminDashboard';
 import UserManagementScreen from '../screens/admin/UserManagementScreen';
 import VendorsManagementScreen from '../screens/admin/VendorsManagementScreen';
 import ListingsManagementScreen from '../screens/admin/ListingsManagementScreen';
+import OrdersManagementScreen from '../screens/admin/OrdersManagementScreen';
 
 
 
@@ -129,6 +130,7 @@ const AppNavigator = () => {
         <Stack.Screen name="UsersManagement" component={UserManagementScreen} />
         <Stack.Screen name="VendorsManagement" component={VendorsManagementScreen} />
         <Stack.Screen name="ListingsManagement" component={ListingsManagementScreen} />
+        <Stack.Screen name="OrdersManagement" component={OrdersManagementScreen} />
 
       </Stack.Navigator>
     </NavigationContainer>

@@ -10,11 +10,14 @@ import {
   Alert,
   Modal,
   TextInput,
+  Switch,
+  Platform,
+  StatusBar
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Ionicons from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { getAllVendors, updateVendorStatus } from '../../api/adminService';
+import { getAllVendors, updateVendorStatus, deleteVendor } from '../../api/adminService';
 
 const VendorsManagementScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -51,10 +54,12 @@ const VendorsManagementScreen = ({ navigation }) => {
         setHasMore(result.data.pagination?.hasMore ?? newVendors.length === LIMIT);
       } else {
         setError(result.error);
+        setHasMore(false);
       }
     } catch (err) {
       console.error('Fetch vendors error:', err);
       setError('Network error');
+      setHasMore(false);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -111,6 +116,34 @@ const VendorsManagementScreen = ({ navigation }) => {
     setShowReasonModal(false);
   };
 
+  const handleDelete = async (vendorId, vendorName) => {
+    Alert.alert(
+      t('admin.confirmDelete'),
+      `${t('admin.deleteVendor')} ${vendorName || vendorId}?`,
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('admin.delete'),
+          style: 'destructive',
+          onPress: async () => {
+            setUpdatingVendorId(vendorId);
+            try {
+              const result = await deleteVendor(vendorId);
+              if (result.success) {
+                Alert.alert(t('admin.vendorDeleted'));
+                fetchVendors(true);
+              } else {
+                Alert.alert(t('common.error'), result.error);
+              }
+            } catch (err) {
+              Alert.alert(t('common.error'), t('errors.serverError'));
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const renderVendorCard = ({ item: vendor }) => {
     const isUpdating = updatingVendorId === vendor.vendor_id;
     const statusColor = vendor.is_active ? '#4CAF50' : '#F44336';
@@ -149,25 +182,36 @@ const VendorsManagementScreen = ({ navigation }) => {
           </Text>
         </View>
 
-        {/* Action Button */}
-        <TouchableOpacity
-          style={[styles.actionButton, styles.statusButton]}
-          onPress={() => handleStatusChange(vendor.vendor_id, vendor.is_active)}
-          disabled={isUpdating}
-        >
-          {isUpdating ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Ionicons
-              name={vendor.is_active ? 'toggle-off-outline' : 'toggle-outline'}
-              size={18}
-              color="#fff"
-            />
-          )}
-          <Text style={styles.actionButtonText}>
-            {vendor.is_active ? t('admin.deactivate') : t('admin.approve')}
-          </Text>
-        </TouchableOpacity>
+        {/* Action Buttons */}
+        <View style={styles.actionRow}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.statusButton]}
+            onPress={() => handleStatusChange(vendor.vendor_id, vendor.is_active)}
+            disabled={isUpdating}
+          >
+            {isUpdating ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Ionicons
+                name={vendor.is_active ? 'toggle-off-outline' : 'toggle-outline'}
+                size={18}
+                color="#fff"
+              />
+            )}
+            <Text style={styles.actionButtonText}>
+              {vendor.is_active ? t('admin.deactivate') : t('admin.approve')}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={() => handleDelete(vendor.vendor_id, vendor.business_name_en)}
+            disabled={isUpdating}
+          >
+            <Ionicons name="trash-outline" size={18} color="#fff" />
+            <Text style={styles.actionButtonText}>{t('admin.delete')}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -288,7 +332,11 @@ const VendorsManagementScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 10,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -359,6 +407,10 @@ const styles = StyleSheet.create({
   },
   detailText: { fontSize: 14, color: '#666', marginLeft: 8, flex: 1 },
   createdDate: { fontSize: 12, color: '#999', marginTop: 4 },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
   actionButton: {
     flex: 1,
     flexDirection: 'row',
@@ -369,7 +421,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   statusButton: { backgroundColor: '#2196F3' },
-  actionButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  deleteButton: { backgroundColor: '#F44336' },
+  actionButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',

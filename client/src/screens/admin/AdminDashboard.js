@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Platform, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getAnalytics } from '../../api/adminService'; // Your service
+import { useAuth } from '../../context/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
 
 const AdminDashboard = ({ navigation }) => {
+  const { logout } = useAuth();
   const [analytics, setAnalytics] = useState({});
 
   useEffect(() => {
@@ -24,8 +28,14 @@ const AdminDashboard = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Admin Dashboard</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.headerRow}>
+        <Text style={styles.header}>Admin Dashboard</Text>
+        <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+          <Ionicons name="log-out-outline" size={20} color="#fff" />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={stats}
         renderItem={renderStat}
@@ -33,21 +43,42 @@ const AdminDashboard = ({ navigation }) => {
         keyExtractor={item => item.title}
       />
       <Text style={styles.revenue}>Revenue: PKR {analytics.revenue?.total_revenue?.toLocaleString()}</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#f5f5f5' },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  statCard: { 
+  container: {
+    flex: 1,
+    padding: 16,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 20,
+    backgroundColor: '#f5f5f5'
+  },
+  header: { fontSize: 24, fontWeight: 'bold' },
+  statCard: {
     flex: 1, backgroundColor: 'white', padding: 20, margin: 8, borderRadius: 12,
     shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 8, elevation: 3,
     alignItems: 'center'
   },
   statTitle: { fontSize: 14, color: '#666', marginBottom: 8 },
   statValue: { fontSize: 28, fontWeight: 'bold', color: '#036c5f' },
-  revenue: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginTop: 20 }
+  revenue: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginTop: 20 },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F44336',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 4
+  },
+  logoutText: { color: '#fff', fontWeight: 'bold', fontSize: 14 }
 });
 
 export default AdminDashboard;

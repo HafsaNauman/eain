@@ -916,12 +916,14 @@ import { useTranslation } from 'react-i18next';
 import { startRecording, stopRecording } from '../utils/audioRecorder';
 import { transcribeAudio } from '../api/sttService';
 import StockIndicator from '../components/StockIndicator';
+import { useAuth } from '../context/AuthContext';
 
 const categories = ['All', 'Electronics', 'Fashion & Apparel', 'Home & Garden', 'Health & Beauty', 'Sports & Fitness', 'Food & Beverage'];
 const cities = ['All Cities', 'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta'];
 
 function HomeScreen() {
   const { i18n, t } = useTranslation();
+  const { isAdmin } = useAuth();
   const isUrdu = i18n.language === 'ur';
   const navigation = useNavigation();
   const [selectedStockFilter, setSelectedStockFilter] = useState('all');
@@ -1471,7 +1473,7 @@ function HomeScreen() {
           <Text style={{ color: '#666', fontSize: 12 }}>{t('homeScreen.wishlist')}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.navBtn}>
+        <TouchableOpacity onPress={() => navigation.navigate(isAdmin ? 'AdminDashboard' : 'Profile')} style={styles.navBtn}>
           <Ionicons name="person-outline" size={24} color="#666" />
           <Text style={{ color: '#666', fontSize: 12 }}>{t('homeScreen.profile')}</Text>
         </TouchableOpacity>

@@ -10,9 +10,12 @@ import {
   Alert,
   Modal,
   Switch,
+  TextInput,
+  Platform,
+  StatusBar
 } from 'react-native';
-import SafeAreaView from 'react-native-safe-area-context';
-import Ionicons from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { getAllListingsAdmin } from '../../api/adminService';
 
@@ -76,7 +79,7 @@ const ListingsManagementScreen = ({ navigation }) => {
     const featuredColor = listing.is_featured ? '#FF9800' : '#666';
 
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.listingCard}
         onPress={() => navigation.navigate('ProductDetailScreen', { listing })}
       >
@@ -88,7 +91,7 @@ const ListingsManagementScreen = ({ navigation }) => {
             </Text>
             <Text style={styles.listingId}>ID: {listing.listing_id}</Text>
           </View>
-          
+
           {/* Status Badge */}
           <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
             <Text style={styles.statusText}>
@@ -238,10 +241,10 @@ const ListingsManagementScreen = ({ navigation }) => {
         keyExtractor={(item) => `listing-${item.listing_id}`}
         contentContainerStyle={styles.listContent}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh} 
-            colors={['#036c5f']} 
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#036c5f']}
           />
         }
         ListEmptyComponent={renderEmpty}
@@ -262,7 +265,11 @@ const ListingsManagementScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 10,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -275,7 +282,7 @@ const styles = StyleSheet.create({
   },
   backButton: { padding: 8 },
   headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#1a1a1a' },
-  
+
   // Filters
   filterContainer: {
     backgroundColor: '#fff',
@@ -333,7 +340,7 @@ const styles = StyleSheet.create({
   },
   errorText: { flex: 1, marginLeft: 8, fontSize: 14, color: '#c62828' },
   retryText: { fontSize: 14, color: '#036c5f', fontWeight: 'bold' },
-  
+
   listContent: { padding: 16, paddingBottom: 100 },
   listingCard: {
     backgroundColor: '#fff',

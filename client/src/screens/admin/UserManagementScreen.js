@@ -15,6 +15,10 @@ import {
   RefreshControl,
   Alert,
   Switch,
+  ActionSheetIOS,
+  Modal,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -64,10 +68,12 @@ const UsersManagementScreen = ({ navigation }) => {
         setHasMore(result.data.pagination?.hasMore || newUsers.length === LIMIT);
       } else {
         setError(result.error);
+        setHasMore(false);
       }
     } catch (err) {
       console.error('Fetch users error:', err);
       setError(t('errors.networkError'));
+      setHasMore(false);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -168,6 +174,7 @@ const UsersManagementScreen = ({ navigation }) => {
       admin: '#e91e63',
       vendor: '#4CAF50',
       customer: '#2196F3',
+      service_provider: '#9C27B0',
     }[user.role?.toLowerCase()] || '#999';
 
     return (
@@ -212,10 +219,10 @@ const UsersManagementScreen = ({ navigation }) => {
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <>
-                <Ionicons 
-                  name={user.is_active ? "toggle-off-outline" : "toggle-outline"} 
-                  size={18} 
-                  color="#fff" 
+                <Ionicons
+                  name={user.is_active ? "toggle-off-outline" : "toggle-outline"}
+                  size={18}
+                  color="#fff"
                 />
                 <Text style={styles.actionButtonText}>
                   {user.is_active ? t('admin.deactivate') : t('admin.activate')}
@@ -227,7 +234,7 @@ const UsersManagementScreen = ({ navigation }) => {
           <TouchableOpacity
             style={[styles.actionButton, styles.roleButton]}
             onPress={() => {
-              const roles = ['vendor', 'customer', 'admin'].filter(r => r !== user.role);
+              const roles = ['vendor', 'customer', 'admin', 'service_provider'].filter(r => r !== user.role);
               Alert.alert(
                 t('admin.changeRole'),
                 t('admin.selectRole'),
@@ -264,7 +271,7 @@ const UsersManagementScreen = ({ navigation }) => {
           onPress={() => setFilterRole('all')}
         >
           <Text style={[styles.filterTabText, filterRole === 'all' && styles.filterTabTextActive]}>
-            {t('admin.allUsers')}
+            All
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -272,7 +279,7 @@ const UsersManagementScreen = ({ navigation }) => {
           onPress={() => setFilterRole('vendor')}
         >
           <Text style={[styles.filterTabText, filterRole === 'vendor' && styles.filterTabTextActive]}>
-            {t('admin.vendors')}
+            Vendors
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -280,11 +287,19 @@ const UsersManagementScreen = ({ navigation }) => {
           onPress={() => setFilterRole('customer')}
         >
           <Text style={[styles.filterTabText, filterRole === 'customer' && styles.filterTabTextActive]}>
-            {t('admin.customers')}
+            Custs
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterTab, filterRole === 'service_provider' && styles.filterTabActive]}
+          onPress={() => setFilterRole('service_provider')}
+        >
+          <Text style={[styles.filterTabText, filterRole === 'service_provider' && styles.filterTabTextActive]}>
+            Provs
           </Text>
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.activeFilterRow}>
         <Text style={styles.activeFilterLabel}>{t('admin.activeOnly')}</Text>
         <Switch
@@ -364,7 +379,11 @@ const UsersManagementScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 10,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

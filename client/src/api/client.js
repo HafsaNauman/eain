@@ -32,10 +32,10 @@ apiClient.interceptors.request.use(
     } catch (error) {
       console.error('Error adding auth token:', error);
     }
-    
+
     // Log request (helpful for debugging)
     console.log(`📤 ${config.method.toUpperCase()} ${config.url}`);
-    
+
     return config;
   },
   (error) => {
@@ -60,11 +60,14 @@ apiClient.interceptors.response.use(
         data: error.response.data,
         url: error.config.url,
       });
-      
+
       // Handle specific status codes
       if (error.response.status === 401) {
-        // Unauthorized - could trigger logout
-        console.log('Unauthorized access - token may be expired');
+        // Unauthorized - token may be expired. Clear storage.
+        console.log('Unauthorized access - token may be expired. Clearing local storage.');
+        import('../utils/storage').then(storage => {
+          storage.clearAuthData();
+        });
       }
     } else if (error.request) {
       // Request made but no response
@@ -73,7 +76,7 @@ apiClient.interceptors.response.use(
       // Error in request setup
       console.error('Request Setup Error:', error.message);
     }
-    
+
     return Promise.reject(error);
   }
 );
