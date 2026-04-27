@@ -26,3 +26,16 @@ backend/scripts/
 visualSearch/model/
 tests/
 visualSearch/requirements-local.txt
+
+
+
+# Recommender System
+eain_rec/
+recommender_system/checkpoints/
+recommender_system/cache/
+recommender_system/__pycache__/
+recommender_system/*.pyc
+recommender_system/data/*.npy
+recommender_system/data/*.index
+*.pth
+*.npy
