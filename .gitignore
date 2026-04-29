@@ -39,3 +39,5 @@ recommender_system/data/*.npy
 recommender_system/data/*.index
 *.pth
 *.npy
+__pycache__/
+*.pyc

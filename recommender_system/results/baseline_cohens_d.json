@@ -1,0 +1,5 @@
+{
+  "RandomBaseline": -0.0668,
+  "EmbeddingCosineBaseline": -0.1182,
+  "ContentBasedBaseline": -0.1036
+}
