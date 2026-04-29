@@ -1,0 +1,36 @@
+{
+  "_comment": "EAIN CFGAN hyperparameters \u2014 Sitting 7",
+  "n_items": 80,
+  "noise_dim": 64,
+  "g_hidden_dims": [
+    256,
+    128
+  ],
+  "d_hidden_dims": [
+    256,
+    128
+  ],
+  "dropout": 0.2,
+  "lr_g": 0.001,
+  "lr_d": 0.001,
+  "beta1": 0.5,
+  "beta2": 0.999,
+  "lambda_reg": 0.0001,
+  "batch_size": 64,
+  "n_epochs": 100,
+  "d_steps": 1,
+  "g_steps": 1,
+  "save_every": 10,
+  "checkpoint_dir": "checkpoints/cfgan/",
+  "use_wgan_gp": false,
+  "lambda_gp": 10.0,
+  "_notes": {
+    "noise_dim": "Dimension of random noise fed to Generator",
+    "g_hidden_dims": "MLP layers in Generator [256\u2192128\u2192n_items]",
+    "d_hidden_dims": "MLP layers in Discriminator [256\u2192128\u21921]",
+    "lambda_reg": "L2 penalty on Generator output to avoid extreme values",
+    "d_steps": "How many D updates per G update (1 = balanced)",
+    "use_wgan_gp": "Set true if BCE training becomes unstable after 50 epochs",
+    "dropout": "Applied after every hidden layer for regularisation"
+  }
+}
