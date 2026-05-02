@@ -37,7 +37,15 @@ recommender_system/__pycache__/
 recommender_system/*.pyc
 recommender_system/data/*.npy
 recommender_system/data/*.index
+recommender_system/data/*.faiss
+recommender_system/data/*.parquet
+#recommender_system/plots/*.png
 *.pth
+*.pt
+*.ckpt
 *.npy
+*.npz
+*.faiss
+*.parquet
 __pycache__/
 *.pyc
