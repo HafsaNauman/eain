@@ -1,0 +1,14 @@
+{
+  "total_labels": 200,
+  "errors": 0,
+  "success_rate": 1.0,
+  "confidence_mean": 0.8443,
+  "high_conf_rate": 1.0,
+  "low_conf_rate": 0.0,
+  "preferred_A_pct": 0.75,
+  "preferred_B_pct": 0.25,
+  "balanced_split": false,
+  "category_coherence": 0.94,
+  "reason_quality": 1.0,
+  "pass_80pct_check": true
+}
