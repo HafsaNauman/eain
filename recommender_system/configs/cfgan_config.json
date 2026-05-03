@@ -1,6 +1,6 @@
 {
   "_comment": "EAIN CFGAN hyperparameters \u2014 Sitting 7",
-  "n_items": 80,
+  "n_items": 87,
   "noise_dim": 64,
   "g_hidden_dims": [
     256,

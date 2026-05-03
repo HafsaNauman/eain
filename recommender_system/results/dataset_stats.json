@@ -1,38 +1,11 @@
 {
-  "split_date": "2026-04-01",
-  "cold_item_threshold": "items with 0 train interactions",
-  "n_total_users": 343,
-  "n_train_users": 197,
-  "n_test_users": 276,
-  "n_total_items": 80,
-  "n_warm_items": 65,
-  "n_cold_items": 15,
-  "n_train_pairs": 1216,
-  "n_test_pairs": 2387,
-  "train_sparsity": 0.905037,
-  "train_rows": 1216,
-  "test_rows": 2387,
-  "cold_item_ids": [
-    30,
-    34,
-    40,
-    42,
-    48,
-    52,
-    58,
-    60,
-    61,
-    63,
-    65,
-    79,
-    97,
-    98,
-    100
-  ],
-  "interaction_weight_map": {
-    "click": 1.0,
-    "save": 2.0,
-    "cart_add": 3.0,
-    "order_or_booking": 5.0
-  }
+  "n_users": 297,
+  "n_items": 87,
+  "n_warm_items": 87,
+  "n_cold_items": 0,
+  "n_train": 1747,
+  "n_test": 437,
+  "sparsity": 0.9155,
+  "split_ratio": 0.8,
+  "split_timestamp": "2026-04-02 17:40:00.400000"
 }
