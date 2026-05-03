@@ -33,14 +33,13 @@ MAP_FILE   = os.path.join(DATA_DIR, "id_map.json")
 DIM        = 512
 device     = "cpu"
 _lock      = threading.Lock()
-
-print("Loading CLIP model...")
-model     = CLIPModel.from_pretrained(MODEL_DIR).to(device)
-model.eval()
-processor = CLIPProcessor.from_pretrained(MODEL_DIR)
-
-
-print("✅ Model ready")
+_ready      = False
+_init_error = None
+model       = None
+processor   = None
+index       = None
+id_map      = {}
+CLIP_MODEL  = os.getenv("CLIP_MODEL", "openai/clip-vit-base-patch32")
 
 def get_s3_client():
     key    = os.getenv("DO_SPACES_KEY")
