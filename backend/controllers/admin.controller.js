@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import sequelize from '../config/db.js';
 import { User, VendorProfile, Listing, Order } from '../models/index.js';
-import { successResponse, errorResponse } from '../utils/responseBuilder.js';
+import { successResponse, errorResponse, parseBoolean } from '../utils/responseBuilder.js';
 
 // ============================================================
 // USER MANAGEMENT
@@ -14,7 +14,8 @@ export const getAllUsers = async (req, res) => {
 
     const where = {};
     if (role) where.role = role;
-    if (is_active !== undefined) where.is_active = is_active === 'true';
+    if (parseBoolean(is_active) !== undefined) where.is_active = parseBoolean(is_active);
+
 
     const { count, rows } = await User.findAndCountAll({
       where,
@@ -133,7 +134,8 @@ export const getAllVendors = async (req, res) => {
   try {
     const { is_active, limit = 20, offset = 0 } = req.query;
     const where = {};
-    if (is_active !== undefined) where.is_active = is_active === 'true';
+    if (parseBoolean(is_active) !== undefined) where.is_active = parseBoolean(is_active);
+
 
     const { count, rows } = await VendorProfile.findAndCountAll({
       where,
@@ -188,9 +190,9 @@ export const getAllListings = async (req, res) => {
   try {
     const { is_active, category, is_featured, limit = 20, offset = 0 } = req.query;
     const where = {};
-    if (is_active !== undefined) where.is_active = is_active === 'true';
+    if (parseBoolean(is_active) !== undefined) where.is_active = parseBoolean(is_active);
     if (category) where.category = category;
-    if (is_featured !== undefined) where.is_featured = is_featured === 'true';
+    if (parseBoolean(is_featured) !== undefined) where.is_featured = parseBoolean(is_featured);
 
     const { count, rows } = await Listing.findAndCountAll({
       where,
