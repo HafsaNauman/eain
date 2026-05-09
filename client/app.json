@@ -13,14 +13,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.mobileapp"
+      "bundleIdentifier": "com.eain.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.yourcompany.mobileapp",
+      "package": "com.eain.app",
       "permissions": [
         "RECORD_AUDIO"
       ]
@@ -31,6 +31,11 @@
     "plugins": [
       "expo-localization",
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "82e2cbca-58d4-491f-b886-6488057ca5b4"
+      }
+    }
   }
 }
