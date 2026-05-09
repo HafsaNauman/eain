@@ -2,7 +2,6 @@ import apiClient from './client';
 
 // USERS ✅ (already perfect)
 export const getAllUsers = (params = {}) => apiClient.get('/api/admin/users', { params });
-export const getAllUsers = (params = {}) => apiClient.get('/api/admin/users', { params });
 export const updateUserStatus = (id, is_active) =>
   apiClient.put(`/api/admin/users/${id}/status`, { is_active });
   apiClient.put(`/api/admin/users/${id}/status`, { is_active });
@@ -14,7 +13,6 @@ export const deleteUser = (id) =>
   apiClient.delete(`/api/admin/users/${id}`);
 
 // VENDORS ✅ (add params support)
-export const getAllVendors = (params = {}) => apiClient.get('/api/admin/vendors', { params });
 export const getAllVendors = (params = {}) => apiClient.get('/api/admin/vendors', { params });
 export const updateVendorStatus = (id, is_active, reason) =>
   apiClient.put(`/api/admin/vendors/${id}/status`, { is_active, reason });
