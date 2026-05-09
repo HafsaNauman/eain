@@ -18,10 +18,18 @@ const KEYS = {
 // Token management
 export const saveTokens = async (accessToken, refreshToken) => {
   try {
+    if (!accessToken || !refreshToken) {
+      console.error('❌ saveTokens called with missing values!', { accessToken, refreshToken });
+      return;
+    }
+    console.log("SAVING ACCESS TOKEN:", accessToken);
+    console.log("SAVING REFRESH TOKEN:", refreshToken);
     await AsyncStorage.multiSet([
       [KEYS.ACCESS_TOKEN, accessToken],
       [KEYS.REFRESH_TOKEN, refreshToken],
     ]);
+    const saved = await AsyncStorage.getItem(KEYS.ACCESS_TOKEN);
+    console.log("TOKEN AFTER SAVE:", saved);
   } catch (error) {
     console.error('Error saving tokens:', error);
     throw error;
