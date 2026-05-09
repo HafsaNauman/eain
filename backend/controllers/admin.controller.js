@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import sequelize from '../config/db.js';
 import { User, VendorProfile, Listing, Order } from '../models/index.js';
-import { successResponse, errorResponse } from '../utils/responseBuilder.js';
+import { successResponse, errorResponse, parseBoolean } from '../utils/responseBuilder.js';
 
 // ============================================================
 // USER MANAGEMENT
@@ -10,12 +10,20 @@ import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 // GET /api/admin/users
 export const getAllUsers = async (req, res) => {
   try {
+<<<<<<< HEAD
     const { role, limit = 20, offset = 0 } = req.query;
 
     const where = {};
     if (role) where.role = role;
     // User table does not have an is_active column. 
     // Ignore any is_active filters.
+=======
+    const { role, is_verified, limit = 20, offset = 0 } = req.query;
+
+    const where = {};
+    if (role) where.role = role;
+    if (parseBoolean(is_verified) !== undefined) where.is_verified = parseBoolean(is_verified);
+>>>>>>> 119536a7bfcb0ccd1c226642cadbc58e028d3986
 
     const { count, rows } = await User.findAndCountAll({
       where,
@@ -61,11 +69,11 @@ export const getUserById = async (req, res) => {
 };
 
 // PUT /api/admin/users/:userId/status
-// body: { is_active: true/false }
+// body: { is_verified: true/false }
 export const updateUserStatus = async (req, res) => {
   try {
-    const { is_active } = req.body;
-    if (is_active === undefined) return errorResponse(res, 400, 'is_active is required');
+    const { is_verified } = req.body;
+    if (is_verified === undefined) return errorResponse(res, 400, 'is_verified is required');
 
     const user = await User.findByPk(req.params.userId);
     if (!user) return errorResponse(res, 404, 'User not found');
@@ -75,12 +83,20 @@ export const updateUserStatus = async (req, res) => {
       return errorResponse(res, 400, 'Cannot change your own status');
     }
 
+<<<<<<< HEAD
     // FAKE the update because Users table doesn't have an is_active column
     // await user.update({ is_active });
+=======
+    await user.update({ is_verified });
+>>>>>>> 119536a7bfcb0ccd1c226642cadbc58e028d3986
 
-    return successResponse(res, 200, `User ${is_active ? 'activated' : 'deactivated'}`, {
+    return successResponse(res, 200, `User ${is_verified ? 'verified' : 'unverified'}`, {
       user_id: user.user_id,
+<<<<<<< HEAD
       is_active: is_active
+=======
+      is_verified: user.is_verified
+>>>>>>> 119536a7bfcb0ccd1c226642cadbc58e028d3986
     });
   } catch (error) {
     return errorResponse(res, 500, 'Failed to update user status', error.message);
@@ -141,7 +157,8 @@ export const getAllVendors = async (req, res) => {
   try {
     const { is_active, limit = 20, offset = 0 } = req.query;
     const where = {};
-    if (is_active !== undefined) where.is_active = is_active === 'true';
+    if (parseBoolean(is_active) !== undefined) where.is_active = parseBoolean(is_active);
+
 
     const { count, rows } = await VendorProfile.findAndCountAll({
       where,
@@ -196,9 +213,9 @@ export const getAllListings = async (req, res) => {
   try {
     const { is_active, category, is_featured, limit = 20, offset = 0 } = req.query;
     const where = {};
-    if (is_active !== undefined) where.is_active = is_active === 'true';
+    if (parseBoolean(is_active) !== undefined) where.is_active = parseBoolean(is_active);
     if (category) where.category = category;
-    if (is_featured !== undefined) where.is_featured = is_featured === 'true';
+    if (parseBoolean(is_featured) !== undefined) where.is_featured = parseBoolean(is_featured);
 
     const { count, rows } = await Listing.findAndCountAll({
       where,
