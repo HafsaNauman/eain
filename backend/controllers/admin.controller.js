@@ -10,12 +10,11 @@ import { successResponse, errorResponse, parseBoolean } from '../utils/responseB
 // GET /api/admin/users
 export const getAllUsers = async (req, res) => {
   try {
-    const { role, is_active, limit = 20, offset = 0 } = req.query;
+    const { role, is_verified, limit = 20, offset = 0 } = req.query;
 
     const where = {};
     if (role) where.role = role;
-    if (parseBoolean(is_active) !== undefined) where.is_active = parseBoolean(is_active);
-
+    if (parseBoolean(is_verified) !== undefined) where.is_verified = parseBoolean(is_verified);
 
     const { count, rows } = await User.findAndCountAll({
       where,
@@ -55,11 +54,11 @@ export const getUserById = async (req, res) => {
 };
 
 // PUT /api/admin/users/:userId/status
-// body: { is_active: true/false }
+// body: { is_verified: true/false }
 export const updateUserStatus = async (req, res) => {
   try {
-    const { is_active } = req.body;
-    if (is_active === undefined) return errorResponse(res, 400, 'is_active is required');
+    const { is_verified } = req.body;
+    if (is_verified === undefined) return errorResponse(res, 400, 'is_verified is required');
 
     const user = await User.findByPk(req.params.userId);
     if (!user) return errorResponse(res, 404, 'User not found');
@@ -69,11 +68,11 @@ export const updateUserStatus = async (req, res) => {
       return errorResponse(res, 400, 'Cannot change your own status');
     }
 
-    await user.update({ is_active });
+    await user.update({ is_verified });
 
-    return successResponse(res, 200, `User ${is_active ? 'activated' : 'deactivated'}`, {
+    return successResponse(res, 200, `User ${is_verified ? 'verified' : 'unverified'}`, {
       user_id: user.user_id,
-      is_active: user.is_active
+      is_verified: user.is_verified
     });
   } catch (error) {
     return errorResponse(res, 500, 'Failed to update user status', error.message);
