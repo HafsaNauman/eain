@@ -101,11 +101,7 @@ const Listing = sequelize.define(
         min: 0
       }
     },
-    city: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      comment: 'Vendor city — used for location-based recommendations',
-    },
+
     popularity_count: {
       type: DataTypes.INTEGER,
       allowNull: false,
