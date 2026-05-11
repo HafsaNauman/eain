@@ -18,12 +18,31 @@ const ProfileScreen = ({ navigation }) => {
     const checkUserStatus = async () => {
       if (!isAuthenticated) return;
 
-      // ── Service Provider → ServiceDashboard ──────────────────
+      // ── Service Provider → check for profile first ──────────────────
       if (user?.role === 'service_provider') {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'ServiceDashboard' }],
-        });
+        setCheckingVendor(true);
+        try {
+          const { getServiceProfile } = await import('../api/serviceService');
+          const profileCheck = await getServiceProfile();
+          if (profileCheck?.success && profileCheck.data?.data) {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'ServiceDashboard' }],
+            });
+          } else {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'ServiceProfile' }],
+            });
+          }
+        } catch {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'ServiceProfile' }],
+          });
+        } finally {
+          setCheckingVendor(false);
+        }
         return;
       }
 
@@ -152,7 +171,7 @@ const ProfileScreen = ({ navigation }) => {
   }
 
   // ✅ VENDOR CHECKING: Show loading
-  if (isAuthenticated && user?.role === 'vendor' && checkingVendor) {
+  if (isAuthenticated && (user?.role === 'vendor' || user?.role === 'service_provider') && checkingVendor) {
     return (
       <View style={styles.centerContent}>
         <ActivityIndicator size="large" color={COLORS.primary} />

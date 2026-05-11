@@ -130,11 +130,13 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      console.error('API Error Response:', {
-        status: error.response.status,
-        data: error.response.data,
-        url: error.config.url,
-      });
+      // Don't log 400s/404s — they're expected validation/lookup responses
+      if (error.response.status !== 404 && error.response.status !== 400) {
+        console.warn('API Response:', {
+          status: error.response.status,
+          url: error.config.url,
+        });
+      }
 
       if (error.response.status === 401) {
         import('../utils/storage').then(storage => storage.clearAuthData());

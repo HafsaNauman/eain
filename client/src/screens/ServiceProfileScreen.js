@@ -62,7 +62,7 @@ const CITIES = [
 ];
 
 const ServiceProfileScreen = ({ navigation }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const [existingProfile, setExistingProfile] = useState(null);
   const [loading, setLoading]   = useState(true);
   const [saving, setSaving]     = useState(false);
@@ -89,30 +89,32 @@ const ServiceProfileScreen = ({ navigation }) => {
     cover_url:        '',
   });
 
-  // ── Auth guard ──────────────────────────────────────────────
-  useEffect(() => {
-    if (!isAuthenticated) navigation.replace('Login');
-  }, [isAuthenticated, navigation]);
+  // Auth check is handled by loadProfile — no redirect needed here
 
   const loadProfile = useCallback(async () => {
     if (!isAuthenticated) return;
     setLoading(true);
-    const res = await getServiceProfile();
-    if (res.success && res.data?.data?.profile) {
-      const p = res.data.data.profile;
-      setExistingProfile(p);
-      setForm({
-        business_name_en: p.business_name_en || '',
-        business_name_ur: p.business_name_ur || '',
-        description_en:   p.description_en   || '',
-        description_ur:   p.description_ur   || '',
-        category:         p.category         || SERVICE_CATEGORIES[0],
-        city:             p.city             || CITIES[0],
-        area:             p.area             || '',
-        is_female_only:   p.is_female_only   || false,
-        logo_url:         p.media?.logo_url  || '',
-        cover_url:        p.media?.cover_url || '',
-      });
+    try {
+      const res = await getServiceProfile();
+      if (res.success && res.data?.data?.profile) {
+        const p = res.data.data.profile;
+        setExistingProfile(p);
+        setForm({
+          business_name_en: p.business_name_en || '',
+          business_name_ur: p.business_name_ur || '',
+          description_en:   p.description_en   || '',
+          description_ur:   p.description_ur   || '',
+          category:         p.category         || SERVICE_CATEGORIES[0],
+          city:             p.city             || CITIES[0],
+          area:             p.area             || '',
+          is_female_only:   p.is_female_only   || false,
+          logo_url:         p.media?.logo_url  || '',
+          cover_url:        p.media?.cover_url || '',
+        });
+      }
+      // 404 is expected for new providers — silently show blank form
+    } catch {
+      // Network issues — still show the form so user can fill it
     }
     setLoading(false);
   }, [isAuthenticated]);
@@ -222,18 +224,52 @@ const ServiceProfileScreen = ({ navigation }) => {
     );
   }
 
+  const handleCancel = () => {
+    Alert.alert(
+      'Cancel Registration',
+      'Are you sure? Your account will be removed and you\'ll need to sign up again.',
+      [
+        { text: 'No, Continue', style: 'cancel' },
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}>
-          <Ionicons name="arrow-back" size={22} color="#fff" />
+        <TouchableOpacity onPress={existingProfile ? () => navigation.goBack() : handleCancel} hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+          <Ionicons name={existingProfile ? 'arrow-back' : 'close'} size={22} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{existingProfile ? 'Edit Profile' : 'Create Profile'}</Text>
-        <View style={{ width: 30 }} />
+        <Text style={styles.headerTitle}>{existingProfile ? 'Edit Profile' : 'Complete Your Profile'}</Text>
+        {!existingProfile ? (
+          <TouchableOpacity onPress={handleCancel} hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600' }}>Skip</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 30 }} />
+        )}
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+
+          {/* Welcome banner for new service providers */}
+          {!existingProfile && (
+            <View style={{ backgroundColor: '#ECFDF5', borderRadius: 12, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#A7F3D0' }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#065F46', marginBottom: 4 }}>👋 Welcome!</Text>
+              <Text style={{ fontSize: 13, color: '#047857', lineHeight: 19 }}>
+                Please fill in your business details below to set up your service provider profile. You can update these later.
+              </Text>
+            </View>
+          )}
 
           {/* ── Cover Photo ──────────────────────── */}
           <TouchableOpacity style={styles.coverWrap} onPress={() => pickImage('cover')}>

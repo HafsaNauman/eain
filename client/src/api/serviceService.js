@@ -4,7 +4,7 @@
  * Section 7 – Service Provider → /api/service/*
  * Section 9 – File Upload      → /api/upload
  */
-import apiClient from './authService';
+import apiClient from './client';
 
 // §7 SERVICE PROFILE
 export const getServiceProfile = async () => {

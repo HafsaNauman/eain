@@ -143,7 +143,7 @@ export const sendOTP = async (phoneNumber) => {
     });
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('Send OTP Error:', error);
+    console.warn('Send OTP Error:', error.message);
     return { success: false, error: error.response?.data?.message || 'Failed to send OTP' };
   }
 };
@@ -156,7 +156,7 @@ export const verifyOTP = async (phoneNumber, otpCode) => {
     });
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('Verify OTP Error:', error);
+    console.warn('Verify OTP Error:', error.message);
     return { success: false, error: error.response?.data?.message || 'Invalid OTP code' };
   }
 };
@@ -173,7 +173,7 @@ export const signUp = async (userData) => {
     });
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('Sign Up Error:', error);
+    console.warn('Sign Up Error:', error.message);
     return { success: false, error: error.response?.data?.message || 'Failed to sign up' };
   }
 };
@@ -187,7 +187,7 @@ export const login = async (phoneNumber, password) => {
     console.log('🔍 RAW LOGIN RESPONSE:', JSON.stringify(response.data, null, 2));
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('Login Error:', error);
+    console.warn('Login Error:', error.message);
     return { success: false, error: error.response?.data?.message || 'Invalid credentials' };
   }
 };

@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
 
 const ErrorAlert = ({ message }) => {
@@ -13,7 +14,9 @@ const ErrorAlert = ({ message }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.icon}>⚠️</Text>
+      <View style={styles.iconContainer}>
+        <Ionicons name="alert-circle" size={24} color={COLORS.error} />
+      </View>
       <Text style={styles.message}>{message}</Text>
     </View>
   );
@@ -23,22 +26,30 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.errorBackground,
+    backgroundColor: '#FFF5F5',
     padding: 16,
     borderRadius: 12,
     marginBottom: 20,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.error,
+    borderWidth: 1,
+    borderColor: '#FED7D7',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  icon: {
-    fontSize: 20,
+  iconContainer: {
     marginRight: 12,
+    backgroundColor: '#FFE5E5',
+    padding: 4,
+    borderRadius: 20,
   },
   message: {
     flex: 1,
     fontSize: 14,
-    color: COLORS.error,
-    fontWeight: '500',
+    color: '#C53030',
+    fontWeight: '600',
+    lineHeight: 20,
   },
 });
 

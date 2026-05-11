@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { getMyBookings, cancelMyBooking } from '../../api/bookingService';
+import { useAuth } from '../../context/AuthContext';
 
 const PRIMARY = '#036c5f';
 const FILTERS = ['all', 'pending', 'confirmed', 'completed', 'cancelled'];
@@ -25,13 +26,15 @@ const STATUS_MAP = {
 };
 
 const MyBookings = ({ navigation }) => {
+  const { isAuthenticated } = useAuth();
   const [bookings, setBookings]       = useState([]);
   const [filter, setFilter]           = useState('all');
-  const [loading, setLoading]         = useState(true);
+  const [loading, setLoading]         = useState(false);
   const [refreshing, setRefreshing]   = useState(false);
   const [cancelling, setCancelling]   = useState(null);
 
   const load = useCallback(async (isRefresh = false) => {
+    if (!isAuthenticated) return;
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
       const params = filter !== 'all' ? { status: filter } : {};
@@ -44,7 +47,7 @@ const MyBookings = ({ navigation }) => {
       }
     } catch { Alert.alert('Error', 'Failed to load bookings.'); }
     finally { setLoading(false); setRefreshing(false); }
-  }, [filter]);
+  }, [filter, isAuthenticated]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -129,6 +132,20 @@ const MyBookings = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Login prompt if not authenticated */}
+      {!isAuthenticated ? (
+        <View style={styles.center}>
+          <Ionicons name="lock-closed-outline" size={56} color="#9CA3AF" />
+          <Text style={styles.emptyTitle}>Login Required</Text>
+          <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 6, textAlign: 'center', paddingHorizontal: 32 }}>
+            Please log in to view and manage your bookings.
+          </Text>
+          <TouchableOpacity style={styles.browseBtn} onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.browseBtnText}>Log In</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+      <>
       {/* Filter tabs */}
       <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, gap: 8 }}>
@@ -162,6 +179,8 @@ const MyBookings = ({ navigation }) => {
             )}
           />
         )}
+      </>
+      )}
     </SafeAreaView>
   );
 };

@@ -955,7 +955,7 @@
 // // });
 
 // // export default LoginScreen;
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -965,10 +965,12 @@ import {
   Platform,
   TouchableOpacity,
   TextInput,
+  BackHandler,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from '@react-navigation/native';
 import CustomInput from '../components/common/CustomInput';
 import CustomButton from '../components/common/CustomButton';
 import ErrorAlert from '../components/common/ErrorAlert';
@@ -983,6 +985,17 @@ import { getVendorProfile } from '../api/VendorService';
 
 const LoginScreen = ({ navigation }) => {
   const { t } = useTranslation();
+
+  // Override hardware back button to always go Home
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+        return true;
+      });
+      return () => subscription.remove();
+    }, [navigation])
+  );
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -1179,7 +1192,12 @@ const LoginScreen = ({ navigation }) => {
         >
           <View style={styles.header}>
             <View style={styles.headerRow}>
-              <Text style={styles.appName}>{t('login.appName')}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <TouchableOpacity onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                  <Ionicons name="arrow-back" size={22} color={COLORS.text} />
+                </TouchableOpacity>
+                <Text style={styles.appName}>{t('login.appName')}</Text>
+              </View>
               <LanguageSwitcher />
             </View>
             <Text style={styles.title}>{t('login.title')}</Text>
