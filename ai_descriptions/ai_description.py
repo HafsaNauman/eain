@@ -141,7 +141,7 @@ def generate_service_description(data: Dict[str, Any]) -> Dict[str, Any]:
             
     except Exception as e:
         return {
-            "error": f"Error generating service description: {str(e)}",
+            "error": f"Error generating service description: {repr(e)}",
             "error_type": type(e).__name__
         }
 
@@ -262,7 +262,7 @@ def generate_product_description(data: Dict[str, Any]) -> Dict[str, Any]:
             
     except Exception as e:
         return {
-            "error": f"Error generating product description: {str(e)}",
+            "error": f"Error generating product description: {repr(e)}",
             "error_type": type(e).__name__
         }
 
@@ -352,8 +352,8 @@ def generate_description_from_image(file, item_type: str = "product") -> Dict[st
         }
         
     except Exception as e:
-        print("Error:", e)
-        return {"error": f"Error generating description from image: {str(e)}"}
+        print("Error:", repr(e))
+        return {"error": f"Error generating description from image: {repr(e)}"}
 
 
 # ============================================================================
@@ -419,4 +419,4 @@ Please regenerate the description taking this feedback into account while mainta
             }
             
     except Exception as e:
-        return {"error": f"Error during regeneration: {str(e)}"}
+        return {"error": f"Error during regeneration: {repr(e)}"}

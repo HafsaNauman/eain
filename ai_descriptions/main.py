@@ -147,7 +147,7 @@ async def create_service_description(request: ServiceDescriptionRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error generating service description: {str(e)}"
+            detail=f"Error generating service description: {repr(e)}"
         )
 
 
@@ -183,10 +183,12 @@ async def create_product_description(request: ProductDescriptionRequest):
             "data": result,
             "message": "Product description generated successfully"
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error generating product description: {str(e)}"
+            detail=f"Error generating product description: {repr(e)}"
         )
 
 
@@ -223,6 +225,8 @@ async def create_service_description_from_image(file: UploadFile = File(...)):
             "data": result,
             "message": "Service description generated from image successfully"
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -259,6 +263,8 @@ async def create_product_description_from_image(file: UploadFile = File(...)):
             "data": result,
             "message": "Product description generated from image successfully"
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -345,6 +351,8 @@ async def regenerate_product_with_feedback(request: RegenerationRequest):
             "feedback_applied": request.feedback,
             "message": "Product description regenerated with feedback"
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
