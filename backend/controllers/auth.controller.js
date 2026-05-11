@@ -22,7 +22,10 @@ export const sendOTP = async (req, res) => {
     }
 
     // Check if phone number already registered
-    const existingUser = await User.findOne({ where: { phone_number } });
+    const existingUser = await User.findOne({ 
+      where: { phone_number },
+      transaction 
+    });
     if (existingUser) {
       await transaction.rollback();
       return errorResponse(res, 400, 'Phone number already registered');

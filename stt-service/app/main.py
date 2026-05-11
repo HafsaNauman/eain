@@ -15,19 +15,35 @@ import math
 # Load environment variables
 load_dotenv()
 
-# Set credentials
-if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
-    credentials_path = os.path.join(os.path.dirname(__file__), '..', 'credentials.json')
-    credentials_path = os.path.abspath(credentials_path)
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
-    print(f"🔑 Set credentials to: {credentials_path}")
+# ── Credentials setup ─────────────────────────────────────────────────────────
+# Priority 1: GOOGLE_CREDENTIALS_BASE64 env var (for DigitalOcean / cloud deploys)
+#             Decodes the base64 JSON and writes it to a temp file on disk.
+# Priority 2: GOOGLE_APPLICATION_CREDENTIALS env var pointing to an existing file.
+# Priority 3: Fall back to the local credentials.json in the repo root.
+import base64
+
+_creds_base64 = os.environ.get('GOOGLE_CREDENTIALS_BASE64')
+if _creds_base64:
+    _creds_path = os.path.join(os.path.dirname(__file__), '..', 'credentials.json')
+    _creds_path = os.path.abspath(_creds_path)
+    try:
+        with open(_creds_path, 'wb') as _f:
+            _f.write(base64.b64decode(_creds_base64))
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = _creds_path
+        print(f"🔑 Decoded GOOGLE_CREDENTIALS_BASE64 → wrote credentials to: {_creds_path}")
+    except Exception as _e:
+        print(f"❌ Failed to decode GOOGLE_CREDENTIALS_BASE64: {_e}")
+elif not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
+    _creds_path = os.path.join(os.path.dirname(__file__), '..', 'credentials.json')
+    _creds_path = os.path.abspath(_creds_path)
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = _creds_path
+    print(f"🔑 Set credentials to local file: {_creds_path}")
 
 creds_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-print(
-    f" Credentials file found: {creds_path}"
-    if creds_path and os.path.exists(creds_path)
-    else f" Credentials file NOT found: {creds_path}"
-)
+if creds_path and os.path.exists(creds_path):
+    print(f"✅ Credentials file found: {creds_path}")
+else:
+    print(f"❌ Credentials file NOT found: {creds_path}")
 
 app = FastAPI(
     title="Speech-to-Text Service",
