@@ -107,7 +107,8 @@ async def health_check():
     """Health check endpoint for monitoring"""
     return {
         "status": "healthy",
-        "service": "AI Description Generator"
+        "service": "AI Description Generator",
+        "key_configured": bool(os.getenv("OPENAI_API_KEY"))
     }
 
 
@@ -355,22 +356,30 @@ async def regenerate_product_with_feedback(request: RegenerationRequest):
 # ERROR HANDLING
 # ============================================================================
 
+from fastapi.responses import JSONResponse
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
-    return {
-        "success": False,
-        "error": exc.detail,
-        "status_code": exc.status_code
-    }
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "error": exc.detail,
+            "status_code": exc.status_code
+        }
+    )
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
-    return {
-        "success": False,
-        "error": str(exc),
-        "status_code": 500
-    }
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "error": str(exc),
+            "status_code": 500
+        }
+    )
 
 
 if __name__ == "__main__":
