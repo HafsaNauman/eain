@@ -24,11 +24,12 @@ import aiDescriptionRoutes from './routes/aiDescription.routes.js';
 import visualSearchRoutes from './routes/visualSearch.routes.js';
 import serviceRoutes from './routes/service.routes.js';
 import bookingRoutes from './routes/booking.routes.js';
+import recommendRoutes from './routes/recommend.js';
 
 console.log(' Starting application...');
 
 const app = express();
-app.set('trust proxy', 1); 
+app.set('trust proxy', 1);
 
 // Trust the first proxy (ngrok, nginx, etc.) so express-rate-limit
 // can read the real client IP from the X-Forwarded-For header
@@ -65,8 +66,8 @@ const PORT = process.env.PORT || 3000;
 connectDB()
   .then(() => {
     app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+      console.log(`Server running on port ${PORT}`);
+    });
   })
   .catch((err) => {
     console.error(' Database setup failed:', err);
@@ -89,6 +90,9 @@ const authLimiter = rateLimit({
   message: { success: false, message: 'Too many login attempts, try again later' }
 });
 
+
+app.use('/api/recommend', recommendRoutes);
+app.use('/api/events', recommendRoutes); // events/log shares the router
 
 app.use(helmet());
 

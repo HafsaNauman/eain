@@ -1,0 +1,43 @@
+EAIN Sitting 20 — Postman Quick Test Checklist
+
+1) GET /health
+Expected: 200 OK
+
+2) POST /recommend/for-you
+Body:
+{
+  "user_id": "U0187",
+  "query": "embroidered suit for eid",
+  "top_k": 10,
+  "exclude_ids": []
+}
+
+3) GET /recommend/similar/23?top_k=10
+
+4) POST /recommend/voice-rerank
+Body:
+{
+  "user_id": "U0119",
+  "transcript": "bridal lehenga shaadi ke liye",
+  "top_k": 10
+}
+
+5) POST /recommend/visual-rerank
+Body:
+{
+  "user_id": null,
+  "visual_embedding": [0.01, 0.02, 0.03],
+  "top_k": 10
+}
+Note: send the real 1024-dim embedding from client/service.
+
+6) POST /events/log
+Body:
+{
+  "user_id": "U0187",
+  "session_id": "sess_001",
+  "listing_id": "23",
+  "event_type": "click",
+  "timestamp": "2026-05-09T16:00:00Z",
+  "metadata": {"surface": "home_feed"}
+}

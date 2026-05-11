@@ -1,0 +1,4 @@
+Condition,Recall@5,Recall@10,Recall@50,FinalLoss
+No Augmentation,0.2904,0.4487,0.8927,0.0042
+CFGAN Only,0.2522,0.4328,0.897,0.0051
+CFGAN + LLM Pairs,0.2728,0.4489,0.8707,0.1384

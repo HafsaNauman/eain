@@ -1,0 +1,6 @@
+{
+  "model": "ColdStartRecommender_v1",
+  "HR@10": 0.67,
+  "Recall@10": 0.4345,
+  "alpha": 0.424
+}

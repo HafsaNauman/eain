@@ -1,0 +1,902 @@
+[
+  {
+    "user_id": "U0187",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0119",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0249",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0226",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0240",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0152",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0074",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0035",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0129",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0165",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0154",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0120",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0242",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0088",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0284",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0264",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0237",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.05,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0271",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0174",
+    "style_weight": 0.25,
+    "occasion_weight": 0.15,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.2,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0063",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0146",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0182",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0159",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0054",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0116",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0051",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0255",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0033",
+    "style_weight": 0.2,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0210",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0005",
+    "style_weight": 0.15,
+    "occasion_weight": 0.25,
+    "category_weight": 0.3,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0292",
+    "style_weight": 0.15,
+    "occasion_weight": 0.35,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0065",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0113",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0075",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0093",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0103",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0153",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0269",
+    "style_weight": 0.15,
+    "occasion_weight": 0.25,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.2
+  },
+  {
+    "user_id": "U0277",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0279",
+    "style_weight": 0.25,
+    "occasion_weight": 0.15,
+    "category_weight": 0.3,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0299",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0260",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0019",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0252",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0040",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0185",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0201",
+    "style_weight": 0.25,
+    "occasion_weight": 0.15,
+    "category_weight": 0.3,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0239",
+    "style_weight": 0.15,
+    "occasion_weight": 0.25,
+    "category_weight": 0.3,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0222",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0218",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.05,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0216",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0046",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0170",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0128",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0143",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0053",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0104",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0096",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0007",
+    "style_weight": 0.15,
+    "occasion_weight": 0.25,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.2
+  },
+  {
+    "user_id": "U0004",
+    "style_weight": 0.2,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0003",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0010",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.2,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0127",
+    "style_weight": 0.25,
+    "occasion_weight": 0.15,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0112",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0107",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.15,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0110",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0094",
+    "style_weight": 0.15,
+    "occasion_weight": 0.3,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0099",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0229",
+    "style_weight": 0.25,
+    "occasion_weight": 0.3,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.1,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0254",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0256",
+    "style_weight": 0.25,
+    "occasion_weight": 0.15,
+    "category_weight": 0.2,
+    "price_weight": 0.1,
+    "cultural_weight": 0.2,
+    "brand_weight": 0.1
+  },
+  {
+    "user_id": "U0032",
+    "style_weight": 0.15,
+    "occasion_weight": 0.25,
+    "category_weight": 0.3,
+    "price_weight": 0.1,
+    "cultural_weight": 0.05,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0029",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0020",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0018",
+    "style_weight": 0.25,
+    "occasion_weight": 0.2,
+    "category_weight": 0.15,
+    "price_weight": 0.1,
+    "cultural_weight": 0.15,
+    "brand_weight": 0.15
+  },
+  {
+    "user_id": "U0262",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0183",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0193",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0045",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0038",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0181",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0192",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0164",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0080",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0172",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0079",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0052",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0049",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0090",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0061",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0118",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0114",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0098",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0083",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0073",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0291",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0286",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0293",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0016",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  },
+  {
+    "user_id": "U0282",
+    "style_weight": 0.1665,
+    "occasion_weight": 0.1667,
+    "category_weight": 0.1667,
+    "price_weight": 0.1667,
+    "cultural_weight": 0.1667,
+    "brand_weight": 0.1667
+  }
+]

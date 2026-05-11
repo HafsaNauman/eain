@@ -1,0 +1,1002 @@
+[
+  {
+    "style_preference": "traditional with embroidered touches",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, traditional, cotton",
+    "inferred_archetype": "traditional fashion shopper",
+    "user_id": "U0187"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, bridal, formal",
+    "category_affinity": "Makeup & Beauty Services, Mehndi Services, Jewelry",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, gold, traditional, festive",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0119"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, formal, bridal",
+    "category_affinity": "Bridal & Wedding, Jewelry, Mehndi Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "lehenga, velvet, festive, mehndi",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0249"
+  },
+  {
+    "style_preference": "Pakistani summer outfit",
+    "preferred_occasions": "eid, formal dinner, wedding",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "cotton, embroidered, festive",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0226"
+  },
+  {
+    "style_preference": "bridal traditional with event touches",
+    "preferred_occasions": "wedding, bridal, event",
+    "category_affinity": "Photography, Mehndi Services, Event Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, henna, event",
+    "inferred_archetype": "bridal event planner",
+    "user_id": "U0240"
+  },
+  {
+    "style_preference": "ethnic embroidered with traditional touches",
+    "preferred_occasions": "wedding, formal, eid",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, phulkari, silk",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0152"
+  },
+  {
+    "style_preference": "traditional bridal with event touches",
+    "preferred_occasions": "wedding, event, bridal",
+    "category_affinity": "Event Services, Mehndi Services, Photography",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "henna, decoration, traditional",
+    "inferred_archetype": "bridal event planner",
+    "user_id": "U0074"
+  },
+  {
+    "style_preference": "bridal mehndi traditional",
+    "preferred_occasions": "wedding, eid, formal events",
+    "category_affinity": "Mehndi Services, Event Services, Photography",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "henna, bridal, traditional, mehndi",
+    "inferred_archetype": "bridal traditional shopper",
+    "user_id": "U0035"
+  },
+  {
+    "style_preference": "traditional pakistani with embroidery",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, traditional, pakistani",
+    "inferred_archetype": "traditional pakistani shopper",
+    "user_id": "U0129"
+  },
+  {
+    "style_preference": "accessory focused with modern touches",
+    "preferred_occasions": "formal, casual, wedding",
+    "category_affinity": "Accessories, Jewelry",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "modern urban",
+    "brand_cues": "fashion, elegant, embroidered",
+    "inferred_archetype": "fashion conscious accessory shopper",
+    "user_id": "U0165"
+  },
+  {
+    "style_preference": "bridal traditional with event touches",
+    "preferred_occasions": "wedding, event, bridal",
+    "category_affinity": "Photography, Mehndi Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, event, henna",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0154"
+  },
+  {
+    "style_preference": "traditional with modern touches",
+    "preferred_occasions": "wedding, formal",
+    "category_affinity": "Accessories, Jewelry",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "gold-plated, leather, embroidered",
+    "inferred_archetype": "traditional luxury shopper",
+    "user_id": "U0120"
+  },
+  {
+    "style_preference": "bridal traditional with elegant touches",
+    "preferred_occasions": "wedding, formal, party",
+    "category_affinity": "Jewelry, Beauty & Skincare, Mehndi Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, elegant, handmade, natural",
+    "inferred_archetype": "bridal traditional shopper",
+    "user_id": "U0242"
+  },
+  {
+    "style_preference": "traditional bridal with embroidered touches",
+    "preferred_occasions": "wedding, eid, formal dinner",
+    "category_affinity": "Bridal & Wedding, Jewelry, Mehndi Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, traditional, handmade",
+    "inferred_archetype": "traditional bridal shopper",
+    "user_id": "U0088"
+  },
+  {
+    "style_preference": "ethnic formal with embroidered touches",
+    "preferred_occasions": "wedding, eid, formal dinner",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, formal, silk",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0284"
+  },
+  {
+    "style_preference": "ethnic formal with embroidered touches",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, formal, silk",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0264"
+  },
+  {
+    "style_preference": "bridal traditional with henna touches",
+    "preferred_occasions": "wedding, bridal, event",
+    "category_affinity": "Mehndi Services, Photography",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "henna, bridal, traditional",
+    "inferred_archetype": "bridal traditional shopper",
+    "user_id": "U0237"
+  },
+  {
+    "style_preference": "ethnic bridal with modern touches",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Clothing, Accessories, Jewelry",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, glitter, silk",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0271"
+  },
+  {
+    "style_preference": "traditional pakistani with embroidery",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, traditional, pakistani",
+    "inferred_archetype": "traditional pakistani shopper",
+    "user_id": "U0174"
+  },
+  {
+    "style_preference": "traditional with embroidered touches",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, silk, handblock printed",
+    "inferred_archetype": "traditional fashion shopper",
+    "user_id": "U0063"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, engagement, formal events",
+    "category_affinity": "Mehndi Services, Jewelry, Makeup & Beauty Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "mehndi, bridal, gold-plated, traditional",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0146"
+  },
+  {
+    "style_preference": "traditional bridal with modern touches",
+    "preferred_occasions": "wedding, events, formal",
+    "category_affinity": "Event Services, Photography, Mehndi Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, decoration, henna",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0182"
+  },
+  {
+    "style_preference": "traditional bridal with mehndi touches",
+    "preferred_occasions": "wedding, bridal, events",
+    "category_affinity": "Mehndi Services, Event Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "mehndi, henna, embroidered, traditional",
+    "inferred_archetype": "bridal traditional shopper",
+    "user_id": "U0159"
+  },
+  {
+    "style_preference": "ethnic bridal with modern touches",
+    "preferred_occasions": "wedding, party, formal",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, festive, elegant",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0054"
+  },
+  {
+    "style_preference": "traditional with embroidered touches",
+    "preferred_occasions": "casual, formal, traditional",
+    "category_affinity": "Accessories, Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, traditional, casual",
+    "inferred_archetype": "traditional shopper",
+    "user_id": "U0116"
+  },
+  {
+    "style_preference": "ethnic with modern touches",
+    "preferred_occasions": "wedding, eid, formal dinner",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, festive, pakistani",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0051"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, formal events, bridal shower",
+    "category_affinity": "Makeup & Beauty Services, Hair & Salon Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, formal, traditional, beauty",
+    "inferred_archetype": "bridal beauty shopper",
+    "user_id": "U0255"
+  },
+  {
+    "style_preference": "bridal beauty services",
+    "preferred_occasions": "wedding, formal events",
+    "category_affinity": "Makeup & Beauty Services, Hair & Salon Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, makeup, hair",
+    "inferred_archetype": "bridal beauty shopper",
+    "user_id": "U0033"
+  },
+  {
+    "style_preference": "bridal with modern touches",
+    "preferred_occasions": "wedding, event, formal",
+    "category_affinity": "Photography, Event Services, Mehndi Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, event, photography",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0210"
+  },
+  {
+    "style_preference": "beauty and skincare",
+    "preferred_occasions": "wedding, party, formal events",
+    "category_affinity": "Makeup & Beauty Services, Beauty & Skincare",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "natural, skincare, beauty",
+    "inferred_archetype": "beauty conscious shopper",
+    "user_id": "U0005"
+  },
+  {
+    "style_preference": "traditional wedding with event touches",
+    "preferred_occasions": "wedding, event, bridal",
+    "category_affinity": "Event Services, Photography, Mehndi Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, event, traditional, flowers",
+    "inferred_archetype": "wedding planner",
+    "user_id": "U0292"
+  },
+  {
+    "style_preference": "ethnic embroidered with modern touches",
+    "preferred_occasions": "wedding, formal dinner, party",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, silk, festive",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0065"
+  },
+  {
+    "style_preference": "ethnic bridal with modern touches",
+    "preferred_occasions": "wedding, formal, party",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, traditional, fashion",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0113"
+  },
+  {
+    "style_preference": "fashionable casual wear",
+    "preferred_occasions": "casual, formal, wedding",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "modern urban",
+    "brand_cues": "fashion, comfortable, elegant",
+    "inferred_archetype": "fashion conscious shopper",
+    "user_id": "U0075"
+  },
+  {
+    "style_preference": "traditional home decor",
+    "preferred_occasions": "wedding, formal dinner",
+    "category_affinity": "Home & Decor, Food & Organic, Beauty & Skincare",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "handmade, organic, natural",
+    "inferred_archetype": "traditional homemaker",
+    "user_id": "U0093"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, engagement, formal",
+    "category_affinity": "Mehndi Services, Jewelry, Makeup & Beauty Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "mehndi, bridal, gold-plated",
+    "inferred_archetype": "bridal traditional shopper",
+    "user_id": "U0103"
+  },
+  {
+    "style_preference": "traditional with embroidered touches",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, traditional, silk",
+    "inferred_archetype": "traditional fashion shopper",
+    "user_id": "U0153"
+  },
+  {
+    "style_preference": "beauty and skincare",
+    "preferred_occasions": "party, wedding, event",
+    "category_affinity": "Makeup & Beauty Services, Beauty & Skincare, Hair & Salon Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "natural, organic, at-home",
+    "inferred_archetype": "beauty conscious shopper",
+    "user_id": "U0269"
+  },
+  {
+    "style_preference": "bridal traditional with mehndi touches",
+    "preferred_occasions": "wedding, eid, formal event",
+    "category_affinity": "Mehndi Services, Photography, Bridal & Wedding",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "mehndi, bridal, henna, embroidered",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0277"
+  },
+  {
+    "style_preference": "traditional with natural touches",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Beauty & Skincare, Hair & Salon Services, Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "natural, embroidered, handmade",
+    "inferred_archetype": "traditional beauty shopper",
+    "user_id": "U0279"
+  },
+  {
+    "style_preference": "traditional with embroidered touches",
+    "preferred_occasions": "wedding, formal",
+    "category_affinity": "Accessories, Jewelry, Bridal & Wedding",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, traditional, elegant",
+    "inferred_archetype": "traditional wedding shopper",
+    "user_id": "U0299"
+  },
+  {
+    "style_preference": "traditional with modern touches",
+    "preferred_occasions": "formal, casual, wedding",
+    "category_affinity": "Accessories, Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, leather, pashmina",
+    "inferred_archetype": "traditional fashion shopper",
+    "user_id": "U0260"
+  },
+  {
+    "style_preference": "ethnic bridal with embroidery",
+    "preferred_occasions": "wedding, eid, formal dinner",
+    "category_affinity": "Clothing, Jewelry",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, festive, zardozi",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0019"
+  },
+  {
+    "style_preference": "ethnic formal with embroidered touches",
+    "preferred_occasions": "eid, formal dinner, wedding",
+    "category_affinity": "Clothing, Makeup & Beauty Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, silk, festive",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0252"
+  },
+  {
+    "style_preference": "bridal photography services",
+    "preferred_occasions": "wedding, event, baby-shower",
+    "category_affinity": "Photography, Mehndi Services, Catering",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, event, photography",
+    "inferred_archetype": "bridal event planner",
+    "user_id": "U0040"
+  },
+  {
+    "style_preference": "bridal traditional with embroidered touches",
+    "preferred_occasions": "wedding, mehndi, formal",
+    "category_affinity": "Mehndi Services, Makeup & Beauty Services, Bridal & Wedding",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, bridal, traditional",
+    "inferred_archetype": "bridal traditional shopper",
+    "user_id": "U0185"
+  },
+  {
+    "style_preference": "elegant modern accessories",
+    "preferred_occasions": "formal, casual",
+    "category_affinity": "Accessories, Jewelry",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "modern urban",
+    "brand_cues": "elegant, luxury, leather",
+    "inferred_archetype": "fashion conscious shopper",
+    "user_id": "U0201"
+  },
+  {
+    "style_preference": "beauty and skincare",
+    "preferred_occasions": "wedding, formal events",
+    "category_affinity": "Makeup & Beauty Services, Hair & Salon Services, Beauty & Skincare",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "natural, skincare, at-home",
+    "inferred_archetype": "beauty conscious shopper",
+    "user_id": "U0239"
+  },
+  {
+    "style_preference": "ethnic casual with embroidery",
+    "preferred_occasions": "casual, party, formal",
+    "category_affinity": "Clothing, Jewelry",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, casual, festive",
+    "inferred_archetype": "casual fashion shopper",
+    "user_id": "U0222"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, formal",
+    "category_affinity": "Bridal & Wedding, Jewelry, Makeup & Beauty Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, bridal, gold",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0218"
+  },
+  {
+    "style_preference": "bridal event services",
+    "preferred_occasions": "wedding, eid, event",
+    "category_affinity": "Photography, Event Services, Mehndi Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "event, bridal, photography",
+    "inferred_archetype": "bridal event planner",
+    "user_id": "U0216"
+  },
+  {
+    "style_preference": "ethnic bridal with modern touches",
+    "preferred_occasions": "wedding, eid, formal dinner",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, festive, silk",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0046"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, eid, formal",
+    "category_affinity": "Bridal & Wedding, Jewelry, Makeup & Beauty Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, bridal, traditional",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0170"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, formal, party",
+    "category_affinity": "Jewelry, Bridal & Wedding, Makeup & Beauty Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, formal, glitter, handmade",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0128"
+  },
+  {
+    "style_preference": "traditional bridal with henna",
+    "preferred_occasions": "wedding, mehndi, engagement",
+    "category_affinity": "Mehndi Services, Photography, Bridal & Wedding",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "henna, embroidered, traditional",
+    "inferred_archetype": "bridal traditional shopper",
+    "user_id": "U0143"
+  },
+  {
+    "style_preference": "traditional bridal with henna touches",
+    "preferred_occasions": "wedding, bridal, events",
+    "category_affinity": "Mehndi Services, Photography, Event Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "henna, mehndi, bridal, traditional",
+    "inferred_archetype": "bridal traditional shopper",
+    "user_id": "U0053"
+  },
+  {
+    "style_preference": "traditional bridal with henna",
+    "preferred_occasions": "wedding, eid, events",
+    "category_affinity": "Mehndi Services, Photography, Event Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "henna, bridal, traditional",
+    "inferred_archetype": "traditional bridal shopper",
+    "user_id": "U0104"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, bridal, formal",
+    "category_affinity": "Jewelry, Mehndi Services, Bridal & Wedding",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, bridal, gold",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0096"
+  },
+  {
+    "style_preference": "natural beauty skincare",
+    "preferred_occasions": "bridal, beauty services",
+    "category_affinity": "Beauty & Skincare, Makeup & Beauty Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "natural, skincare, bridal",
+    "inferred_archetype": "beauty conscious bride",
+    "user_id": "U0007"
+  },
+  {
+    "style_preference": "traditional bridal henna",
+    "preferred_occasions": "wedding, eid",
+    "category_affinity": "Mehndi Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "henna, mehndi, traditional",
+    "inferred_archetype": "bridal mehndi shopper",
+    "user_id": "U0004"
+  },
+  {
+    "style_preference": "ethnic with modern touches",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional with modern influence",
+    "brand_cues": "embroidered, handmade, lace",
+    "inferred_archetype": "ethnic chic shopper",
+    "user_id": "U0003"
+  },
+  {
+    "style_preference": "traditional with embroidered touches",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, festive, traditional",
+    "inferred_archetype": "traditional festive shopper",
+    "user_id": "U0010"
+  },
+  {
+    "style_preference": "traditional handprinted",
+    "preferred_occasions": "wedding, formal dinner",
+    "category_affinity": "Accessories, Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "handprinted, embroidered, casual",
+    "inferred_archetype": "traditional accessories shopper",
+    "user_id": "U0127"
+  },
+  {
+    "style_preference": "ethnic modern fusion",
+    "preferred_occasions": "wedding, formal dinner, eid",
+    "category_affinity": "Accessories, Jewelry",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional with modern influences",
+    "brand_cues": "embroidered, elegant, handmade",
+    "inferred_archetype": "fashion conscious shopper",
+    "user_id": "U0112"
+  },
+  {
+    "style_preference": "bridal beauty services",
+    "preferred_occasions": "wedding, formal event",
+    "category_affinity": "Makeup & Beauty Services, Hair & Salon Services",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "beauty, bridal, at-home",
+    "inferred_archetype": "bridal beauty shopper",
+    "user_id": "U0107"
+  },
+  {
+    "style_preference": "bridal with traditional touches",
+    "preferred_occasions": "wedding, event",
+    "category_affinity": "Photography, Mehndi Services",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, event, henna",
+    "inferred_archetype": "bridal luxury shopper",
+    "user_id": "U0110"
+  },
+  {
+    "style_preference": "bridal with mehndi touches",
+    "preferred_occasions": "wedding, eid, baby shower",
+    "category_affinity": "Mehndi Services, Photography",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "mehndi, bridal, photography",
+    "inferred_archetype": "bridal photography enthusiast",
+    "user_id": "U0094"
+  },
+  {
+    "style_preference": "ethnic bridal with modern touches",
+    "preferred_occasions": "wedding, formal",
+    "category_affinity": "Jewelry, Accessories, Bridal & Wedding",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, festive, velvet",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0099"
+  },
+  {
+    "style_preference": "bridal beauty with natural touches",
+    "preferred_occasions": "wedding, party, formal",
+    "category_affinity": "Makeup & Beauty Services, Beauty & Skincare",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "bridal, beauty, natural",
+    "inferred_archetype": "bridal beauty shopper",
+    "user_id": "U0229"
+  },
+  {
+    "style_preference": "ethnic party with embroidered touches",
+    "preferred_occasions": "party, formal dinner, eid",
+    "category_affinity": "Clothing, Fabric",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, festive, pakistani",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0254"
+  },
+  {
+    "style_preference": "traditional ethnic with natural touches",
+    "preferred_occasions": "wedding, eid, formal dinner",
+    "category_affinity": "Clothing, Home & Decor, Beauty & Skincare",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "phulkari, embroidered, natural, traditional",
+    "inferred_archetype": "traditional homemaker",
+    "user_id": "U0256"
+  },
+  {
+    "style_preference": "beauty and skincare",
+    "preferred_occasions": "party, wedding",
+    "category_affinity": "Makeup & Beauty Services, Beauty & Skincare",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "modern urban",
+    "brand_cues": "natural, organic, skincare",
+    "inferred_archetype": "beauty conscious shopper",
+    "user_id": "U0032"
+  },
+  {
+    "style_preference": "ethnic bridal with modern touches",
+    "preferred_occasions": "wedding, formal",
+    "category_affinity": "Clothing, Accessories, Bridal & Wedding",
+    "price_sensitivity": "premium-buyer",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, festive, elegant",
+    "inferred_archetype": "festive traditional shopper",
+    "user_id": "U0029"
+  },
+  {
+    "style_preference": "ethnic casual with embroidered touches",
+    "preferred_occasions": "casual, party, formal",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, casual, silk",
+    "inferred_archetype": "casual ethnic shopper",
+    "user_id": "U0020"
+  },
+  {
+    "style_preference": "ethnic casual with embroidered touches",
+    "preferred_occasions": "casual, party, formal",
+    "category_affinity": "Clothing, Accessories",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani traditional",
+    "brand_cues": "embroidered, casual, festive",
+    "inferred_archetype": "casual traditional shopper",
+    "user_id": "U0018"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0262"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0183"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0193"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0045"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0038"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0181"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0192"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0164"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0080"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0172"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0079"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0052"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0049"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0090"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0061"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0118"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0114"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0098"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0083"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0073"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0291"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0286"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0293"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0016"
+  },
+  {
+    "style_preference": "Pakistani fashion",
+    "preferred_occasions": "casual, festive",
+    "category_affinity": "Clothing",
+    "price_sensitivity": "value-seeker",
+    "cultural_orientation": "Pakistani",
+    "brand_cues": "traditional, colorful",
+    "inferred_archetype": "general fashion shopper",
+    "user_id": "U0282"
+  }
+]

@@ -40,6 +40,7 @@ recommender_system/data/*.index
 recommender_system/data/*.faiss
 recommender_system/data/*.parquet
 recommender_system/*.env
+recommender_system/scripts
 #recommender_system/plots/*.png
 *.pth
 *.pt

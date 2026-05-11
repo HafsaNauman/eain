@@ -1,0 +1,624 @@
+{
+  "stats": {
+    "total": 87,
+    "kept": 85,
+    "removed": 2,
+    "removed_hard": 0,
+    "removed_ma": 2,
+    "removed_neigh": 0,
+    "mean_sim": 0.9675,
+    "min_sim": 0.813,
+    "max_sim": 0.9947
+  },
+  "per_item": [
+    {
+      "item_id": "21",
+      "sim": 0.9133,
+      "ma_threshold": 0.509,
+      "neigh_sim": 0.4819,
+      "kept": true
+    },
+    {
+      "item_id": "22",
+      "sim": 0.9638,
+      "ma_threshold": 0.6987,
+      "neigh_sim": 0.4269,
+      "kept": true
+    },
+    {
+      "item_id": "23",
+      "sim": 0.9176,
+      "ma_threshold": 0.895,
+      "neigh_sim": 0.5636,
+      "kept": true
+    },
+    {
+      "item_id": "24",
+      "sim": 0.9489,
+      "ma_threshold": 0.9073,
+      "neigh_sim": 0.3836,
+      "kept": true
+    },
+    {
+      "item_id": "25",
+      "sim": 0.9813,
+      "ma_threshold": 0.9076,
+      "neigh_sim": 0.3596,
+      "kept": true
+    },
+    {
+      "item_id": "26",
+      "sim": 0.9749,
+      "ma_threshold": 0.9184,
+      "neigh_sim": 0.3048,
+      "kept": true
+    },
+    {
+      "item_id": "27",
+      "sim": 0.9655,
+      "ma_threshold": 0.9197,
+      "neigh_sim": 0.3638,
+      "kept": true
+    },
+    {
+      "item_id": "30",
+      "sim": 0.9713,
+      "ma_threshold": 0.9164,
+      "neigh_sim": 0.6013,
+      "kept": true
+    },
+    {
+      "item_id": "31",
+      "sim": 0.9556,
+      "ma_threshold": 0.9166,
+      "neigh_sim": 0.5486,
+      "kept": true
+    },
+    {
+      "item_id": "32",
+      "sim": 0.9648,
+      "ma_threshold": 0.9176,
+      "neigh_sim": 0.4883,
+      "kept": true
+    },
+    {
+      "item_id": "33",
+      "sim": 0.9759,
+      "ma_threshold": 0.913,
+      "neigh_sim": 0.5985,
+      "kept": true
+    },
+    {
+      "item_id": "34",
+      "sim": 0.9705,
+      "ma_threshold": 0.9125,
+      "neigh_sim": 0.484,
+      "kept": true
+    },
+    {
+      "item_id": "35",
+      "sim": 0.9483,
+      "ma_threshold": 0.9136,
+      "neigh_sim": 0.5447,
+      "kept": true
+    },
+    {
+      "item_id": "36",
+      "sim": 0.9531,
+      "ma_threshold": 0.9114,
+      "neigh_sim": 0.4707,
+      "kept": true
+    },
+    {
+      "item_id": "37",
+      "sim": 0.9704,
+      "ma_threshold": 0.9051,
+      "neigh_sim": 0.5469,
+      "kept": true
+    },
+    {
+      "item_id": "38",
+      "sim": 0.9647,
+      "ma_threshold": 0.9111,
+      "neigh_sim": 0.5923,
+      "kept": true
+    },
+    {
+      "item_id": "39",
+      "sim": 0.9389,
+      "ma_threshold": 0.91,
+      "neigh_sim": 0.5166,
+      "kept": true
+    },
+    {
+      "item_id": "40",
+      "sim": 0.9785,
+      "ma_threshold": 0.9079,
+      "neigh_sim": 0.7033,
+      "kept": true
+    },
+    {
+      "item_id": "41",
+      "sim": 0.9476,
+      "ma_threshold": 0.9054,
+      "neigh_sim": 0.6585,
+      "kept": true
+    },
+    {
+      "item_id": "42",
+      "sim": 0.9597,
+      "ma_threshold": 0.912,
+      "neigh_sim": 0.557,
+      "kept": true
+    },
+    {
+      "item_id": "43",
+      "sim": 0.9524,
+      "ma_threshold": 0.9071,
+      "neigh_sim": 0.678,
+      "kept": true
+    },
+    {
+      "item_id": "44",
+      "sim": 0.9715,
+      "ma_threshold": 0.9134,
+      "neigh_sim": 0.7191,
+      "kept": true
+    },
+    {
+      "item_id": "45",
+      "sim": 0.9544,
+      "ma_threshold": 0.9145,
+      "neigh_sim": 0.4913,
+      "kept": true
+    },
+    {
+      "item_id": "46",
+      "sim": 0.9787,
+      "ma_threshold": 0.9068,
+      "neigh_sim": 0.6002,
+      "kept": true
+    },
+    {
+      "item_id": "47",
+      "sim": 0.9654,
+      "ma_threshold": 0.8894,
+      "neigh_sim": 0.5077,
+      "kept": true
+    },
+    {
+      "item_id": "48",
+      "sim": 0.9138,
+      "ma_threshold": 0.8946,
+      "neigh_sim": 0.6712,
+      "kept": true
+    },
+    {
+      "item_id": "49",
+      "sim": 0.8846,
+      "ma_threshold": 0.8882,
+      "neigh_sim": 0.6919,
+      "kept": false
+    },
+    {
+      "item_id": "50",
+      "sim": 0.9805,
+      "ma_threshold": 0.891,
+      "neigh_sim": 0.5953,
+      "kept": true
+    },
+    {
+      "item_id": "51",
+      "sim": 0.9467,
+      "ma_threshold": 0.9059,
+      "neigh_sim": 0.6178,
+      "kept": true
+    },
+    {
+      "item_id": "52",
+      "sim": 0.9794,
+      "ma_threshold": 0.9198,
+      "neigh_sim": 0.5924,
+      "kept": true
+    },
+    {
+      "item_id": "53",
+      "sim": 0.9885,
+      "ma_threshold": 0.9219,
+      "neigh_sim": 0.5624,
+      "kept": true
+    },
+    {
+      "item_id": "54",
+      "sim": 0.9539,
+      "ma_threshold": 0.9303,
+      "neigh_sim": 0.5217,
+      "kept": true
+    },
+    {
+      "item_id": "55",
+      "sim": 0.9911,
+      "ma_threshold": 0.933,
+      "neigh_sim": 0.4934,
+      "kept": true
+    },
+    {
+      "item_id": "56",
+      "sim": 0.9886,
+      "ma_threshold": 0.932,
+      "neigh_sim": 0.5328,
+      "kept": true
+    },
+    {
+      "item_id": "57",
+      "sim": 0.9929,
+      "ma_threshold": 0.9386,
+      "neigh_sim": 0.7071,
+      "kept": true
+    },
+    {
+      "item_id": "58",
+      "sim": 0.9838,
+      "ma_threshold": 0.9349,
+      "neigh_sim": 0.7058,
+      "kept": true
+    },
+    {
+      "item_id": "59",
+      "sim": 0.9866,
+      "ma_threshold": 0.9352,
+      "neigh_sim": 0.8101,
+      "kept": true
+    },
+    {
+      "item_id": "60",
+      "sim": 0.9728,
+      "ma_threshold": 0.934,
+      "neigh_sim": 0.7413,
+      "kept": true
+    },
+    {
+      "item_id": "61",
+      "sim": 0.9899,
+      "ma_threshold": 0.9347,
+      "neigh_sim": 0.6821,
+      "kept": true
+    },
+    {
+      "item_id": "62",
+      "sim": 0.9871,
+      "ma_threshold": 0.9358,
+      "neigh_sim": 0.6475,
+      "kept": true
+    },
+    {
+      "item_id": "63",
+      "sim": 0.9873,
+      "ma_threshold": 0.9389,
+      "neigh_sim": 0.6189,
+      "kept": true
+    },
+    {
+      "item_id": "64",
+      "sim": 0.9917,
+      "ma_threshold": 0.9363,
+      "neigh_sim": 0.6338,
+      "kept": true
+    },
+    {
+      "item_id": "65",
+      "sim": 0.9883,
+      "ma_threshold": 0.9363,
+      "neigh_sim": 0.626,
+      "kept": true
+    },
+    {
+      "item_id": "66",
+      "sim": 0.9771,
+      "ma_threshold": 0.9362,
+      "neigh_sim": 0.6885,
+      "kept": true
+    },
+    {
+      "item_id": "67",
+      "sim": 0.9872,
+      "ma_threshold": 0.934,
+      "neigh_sim": 0.7642,
+      "kept": true
+    },
+    {
+      "item_id": "68",
+      "sim": 0.9867,
+      "ma_threshold": 0.9216,
+      "neigh_sim": 0.6468,
+      "kept": true
+    },
+    {
+      "item_id": "69",
+      "sim": 0.981,
+      "ma_threshold": 0.9039,
+      "neigh_sim": 0.6485,
+      "kept": true
+    },
+    {
+      "item_id": "70",
+      "sim": 0.9263,
+      "ma_threshold": 0.8989,
+      "neigh_sim": 0.6207,
+      "kept": true
+    },
+    {
+      "item_id": "71",
+      "sim": 0.8885,
+      "ma_threshold": 0.8842,
+      "neigh_sim": 0.4716,
+      "kept": true
+    },
+    {
+      "item_id": "72",
+      "sim": 0.962,
+      "ma_threshold": 0.8701,
+      "neigh_sim": 0.6143,
+      "kept": true
+    },
+    {
+      "item_id": "73",
+      "sim": 0.9134,
+      "ma_threshold": 0.8474,
+      "neigh_sim": 0.6116,
+      "kept": true
+    },
+    {
+      "item_id": "74",
+      "sim": 0.9102,
+      "ma_threshold": 0.8663,
+      "neigh_sim": 0.3891,
+      "kept": true
+    },
+    {
+      "item_id": "75",
+      "sim": 0.813,
+      "ma_threshold": 0.8656,
+      "neigh_sim": 0.6207,
+      "kept": false
+    },
+    {
+      "item_id": "76",
+      "sim": 0.9831,
+      "ma_threshold": 0.8794,
+      "neigh_sim": 0.5899,
+      "kept": true
+    },
+    {
+      "item_id": "77",
+      "sim": 0.9581,
+      "ma_threshold": 0.8944,
+      "neigh_sim": 0.56,
+      "kept": true
+    },
+    {
+      "item_id": "78",
+      "sim": 0.9825,
+      "ma_threshold": 0.9273,
+      "neigh_sim": 0.7165,
+      "kept": true
+    },
+    {
+      "item_id": "79",
+      "sim": 0.9854,
+      "ma_threshold": 0.9286,
+      "neigh_sim": 0.5939,
+      "kept": true
+    },
+    {
+      "item_id": "80",
+      "sim": 0.9776,
+      "ma_threshold": 0.9325,
+      "neigh_sim": 0.777,
+      "kept": true
+    },
+    {
+      "item_id": "81",
+      "sim": 0.9894,
+      "ma_threshold": 0.9313,
+      "neigh_sim": 0.6142,
+      "kept": true
+    },
+    {
+      "item_id": "82",
+      "sim": 0.9777,
+      "ma_threshold": 0.9303,
+      "neigh_sim": 0.5772,
+      "kept": true
+    },
+    {
+      "item_id": "83",
+      "sim": 0.9763,
+      "ma_threshold": 0.9326,
+      "neigh_sim": 0.5093,
+      "kept": true
+    },
+    {
+      "item_id": "84",
+      "sim": 0.9803,
+      "ma_threshold": 0.928,
+      "neigh_sim": 0.5595,
+      "kept": true
+    },
+    {
+      "item_id": "85",
+      "sim": 0.9892,
+      "ma_threshold": 0.9245,
+      "neigh_sim": 0.7539,
+      "kept": true
+    },
+    {
+      "item_id": "86",
+      "sim": 0.9666,
+      "ma_threshold": 0.927,
+      "neigh_sim": 0.6815,
+      "kept": true
+    },
+    {
+      "item_id": "87",
+      "sim": 0.9601,
+      "ma_threshold": 0.9283,
+      "neigh_sim": 0.5963,
+      "kept": true
+    },
+    {
+      "item_id": "88",
+      "sim": 0.9887,
+      "ma_threshold": 0.928,
+      "neigh_sim": 0.5466,
+      "kept": true
+    },
+    {
+      "item_id": "89",
+      "sim": 0.9871,
+      "ma_threshold": 0.9283,
+      "neigh_sim": 0.6841,
+      "kept": true
+    },
+    {
+      "item_id": "90",
+      "sim": 0.9873,
+      "ma_threshold": 0.9345,
+      "neigh_sim": 0.5162,
+      "kept": true
+    },
+    {
+      "item_id": "91",
+      "sim": 0.9684,
+      "ma_threshold": 0.9341,
+      "neigh_sim": 0.6067,
+      "kept": true
+    },
+    {
+      "item_id": "92",
+      "sim": 0.9913,
+      "ma_threshold": 0.9338,
+      "neigh_sim": 0.6738,
+      "kept": true
+    },
+    {
+      "item_id": "93",
+      "sim": 0.9863,
+      "ma_threshold": 0.9335,
+      "neigh_sim": 0.6543,
+      "kept": true
+    },
+    {
+      "item_id": "94",
+      "sim": 0.9855,
+      "ma_threshold": 0.9358,
+      "neigh_sim": 0.5548,
+      "kept": true
+    },
+    {
+      "item_id": "95",
+      "sim": 0.9859,
+      "ma_threshold": 0.9343,
+      "neigh_sim": 0.5428,
+      "kept": true
+    },
+    {
+      "item_id": "96",
+      "sim": 0.9801,
+      "ma_threshold": 0.9347,
+      "neigh_sim": 0.5336,
+      "kept": true
+    },
+    {
+      "item_id": "97",
+      "sim": 0.9839,
+      "ma_threshold": 0.9365,
+      "neigh_sim": 0.6112,
+      "kept": true
+    },
+    {
+      "item_id": "98",
+      "sim": 0.9881,
+      "ma_threshold": 0.9351,
+      "neigh_sim": 0.6627,
+      "kept": true
+    },
+    {
+      "item_id": "99",
+      "sim": 0.9947,
+      "ma_threshold": 0.9348,
+      "neigh_sim": 0.6621,
+      "kept": true
+    },
+    {
+      "item_id": "100",
+      "sim": 0.9788,
+      "ma_threshold": 0.9333,
+      "neigh_sim": 0.544,
+      "kept": true
+    },
+    {
+      "item_id": "101",
+      "sim": 0.9785,
+      "ma_threshold": 0.9336,
+      "neigh_sim": 0.6199,
+      "kept": true
+    },
+    {
+      "item_id": "102",
+      "sim": 0.9763,
+      "ma_threshold": 0.9299,
+      "neigh_sim": 0.6961,
+      "kept": true
+    },
+    {
+      "item_id": "103",
+      "sim": 0.9899,
+      "ma_threshold": 0.9271,
+      "neigh_sim": 0.6718,
+      "kept": true
+    },
+    {
+      "item_id": "104",
+      "sim": 0.9758,
+      "ma_threshold": 0.9249,
+      "neigh_sim": 0.5852,
+      "kept": true
+    },
+    {
+      "item_id": "105",
+      "sim": 0.9648,
+      "ma_threshold": 0.9244,
+      "neigh_sim": 0.5287,
+      "kept": true
+    },
+    {
+      "item_id": "106",
+      "sim": 0.9679,
+      "ma_threshold": 0.9247,
+      "neigh_sim": 0.5779,
+      "kept": true
+    },
+    {
+      "item_id": "107",
+      "sim": 0.9735,
+      "ma_threshold": 0.9265,
+      "neigh_sim": 0.6223,
+      "kept": true
+    },
+    {
+      "item_id": "108",
+      "sim": 0.9916,
+      "ma_threshold": 0.7335,
+      "neigh_sim": 0.6048,
+      "kept": true
+    },
+    {
+      "item_id": "109",
+      "sim": 0.9846,
+      "ma_threshold": 0.5399,
+      "neigh_sim": 0.5235,
+      "kept": true
+    }
+  ]
+}

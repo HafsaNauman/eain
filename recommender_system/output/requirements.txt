@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+numpy
+pandas
+sentence-transformers
+scikit-learn
+matplotlib
+pydantic
+faiss-cpu
+torch
+transformers
+rank-bm25
+langchain
+python-dotenv
