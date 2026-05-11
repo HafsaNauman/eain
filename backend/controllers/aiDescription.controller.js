@@ -5,7 +5,7 @@ import fs from 'fs';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 import { Listing } from '../models/index.js';
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'https://walrus-app-w43ss.ondigitalocean.app/eain-ai-descriptions';
 
 /**
  * POST /api/ai/generate-product-description

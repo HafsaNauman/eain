@@ -10,20 +10,11 @@ import { successResponse, errorResponse, parseBoolean } from '../utils/responseB
 // GET /api/admin/users
 export const getAllUsers = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const { role, limit = 20, offset = 0 } = req.query;
-
-    const where = {};
-    if (role) where.role = role;
-    // User table does not have an is_active column. 
-    // Ignore any is_active filters.
-=======
     const { role, is_verified, limit = 20, offset = 0 } = req.query;
 
     const where = {};
     if (role) where.role = role;
     if (parseBoolean(is_verified) !== undefined) where.is_verified = parseBoolean(is_verified);
->>>>>>> 119536a7bfcb0ccd1c226642cadbc58e028d3986
 
     const { count, rows } = await User.findAndCountAll({
       where,
@@ -33,15 +24,9 @@ export const getAllUsers = async (req, res) => {
       order: [['created_at', 'DESC']]
     });
 
-    // Inject fake is_active so the frontend UI doesn't break
-    const formattedUsers = rows.map(u => ({
-      ...u.toJSON(),
-      is_active: true
-    }));
-
     return successResponse(res, 200, 'Users retrieved', {
       total: count,
-      users: formattedUsers,
+      users: rows,
       pagination: { limit, offset, hasMore: parseInt(offset) + rows.length < count }
     });
   } catch (error) {
@@ -83,20 +68,11 @@ export const updateUserStatus = async (req, res) => {
       return errorResponse(res, 400, 'Cannot change your own status');
     }
 
-<<<<<<< HEAD
-    // FAKE the update because Users table doesn't have an is_active column
-    // await user.update({ is_active });
-=======
     await user.update({ is_verified });
->>>>>>> 119536a7bfcb0ccd1c226642cadbc58e028d3986
 
     return successResponse(res, 200, `User ${is_verified ? 'verified' : 'unverified'}`, {
       user_id: user.user_id,
-<<<<<<< HEAD
-      is_active: is_active
-=======
       is_verified: user.is_verified
->>>>>>> 119536a7bfcb0ccd1c226642cadbc58e028d3986
     });
   } catch (error) {
     return errorResponse(res, 500, 'Failed to update user status', error.message);

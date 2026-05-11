@@ -5,8 +5,7 @@ import { Listing, VendorProfile, User } from '../models/index.js';
 import { successResponse, errorResponse } from '../utils/responseBuilder.js';
 import { Op } from 'sequelize';
 
-// const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL;
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'https://walrus-app-w43ss.ondigitalocean.app/eain-visual-search';
 console.log('🚀 ML_SERVICE_URL:', ML_SERVICE_URL);
 
 export const visualSearch = async (req, res) => {
@@ -21,7 +20,7 @@ export const visualSearch = async (req, res) => {
     try {
       const health = await axios.get(`${ML_SERVICE_URL}/health`, { timeout: 5000 });
       console.log('✅ ML service healthy:', health.data);
-      
+
       if (health.data.vectors_indexed === 0) {
         return errorResponse(res, 503, 'Index empty - run: node scripts/index-listings-ml.js');
       }
@@ -94,11 +93,11 @@ export const visualSearch = async (req, res) => {
     console.error('- status:', error.response?.status);
     console.error('- data:', JSON.stringify(error.response?.data));
     console.error('- ML_URL:', ML_SERVICE_URL);
-    
+
     if (error.code === 'ECONNREFUSED') {
       return errorResponse(res, 503, 'ML service not running on ' + ML_SERVICE_URL);
     }
-    
+
     return errorResponse(res, 500, 'Visual search failed: ' + error.message);
   }
 };

@@ -119,7 +119,7 @@ const FASHION_PHRASES = [
 
 
 export default {
-  fastApiUrl: process.env.FASTAPI_URL || 'http://localhost:8000',
+  fastApiUrl: process.env.FASTAPI_URL || 'https://walrus-app-w43ss.ondigitalocean.app/eain-stt-service',
   uploadDir: './uploads/audio',
   maxFileSize: 50 * 1024 * 1024,
   allowedFormats: [
