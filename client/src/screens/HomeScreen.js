@@ -202,8 +202,6 @@ function HomeScreen() {
 
       if (result.success) {
         setProducts((result.data?.listings || []).map(normalizeProduct));
-        setFeedSource('catalog');
-        setFeedLabel('');
       } else {
         setError(result.error || 'Failed to load products');
       }
@@ -525,11 +523,32 @@ function HomeScreen() {
           </View>
         )}
 
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categories}>
+          {categories.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              onPress={() => {
+                setSelectedCategory(cat);
+              }}
+              style={[styles.categoryBtn, selectedCategory === cat && styles.categorySelected]}
+            >
+              <Text
+                style={{
+                  color: selectedCategory === cat ? '#fff' : '#036c5f',
+                  fontWeight: selectedCategory === cat ? 'bold' : 'normal',
+                }}
+              >
+                {cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
         {/* ── For You Carousel ─────────────────────────────────────────────── */}
         {(forYouLoading || forYouItems.length > 0) && (
           <View style={{ marginBottom: 20 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 }}>
-              <Text style={styles.sectionTitle}>✨ For You</Text>
+              <Text style={styles.sectionTitle}>For You</Text>
               {forYouLoading
                 ? <ActivityIndicator size="small" color="#036c5f" />
                 : forYouLabel ? <Text style={styles.feedBadge}>{forYouLabel}</Text> : null}
@@ -569,27 +588,6 @@ function HomeScreen() {
             </ScrollView>
           </View>
         )}
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categories}>
-          {categories.map((cat) => (
-            <TouchableOpacity
-              key={cat}
-              onPress={() => {
-                setSelectedCategory(cat);
-              }}
-              style={[styles.categoryBtn, selectedCategory === cat && styles.categorySelected]}
-            >
-              <Text
-                style={{
-                  color: selectedCategory === cat ? '#fff' : '#036c5f',
-                  fontWeight: selectedCategory === cat ? 'bold' : 'normal',
-                }}
-              >
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
 
         <Text style={styles.sectionTitle}>Services</Text>
         <View style={{ marginBottom: 20, gap: 10 }}>
