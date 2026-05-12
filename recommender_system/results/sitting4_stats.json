@@ -1,0 +1,13 @@
+{
+  "n_synthetic_users": 300,
+  "n_users_with_interactions": 297,
+  "n_items_total": 87,
+  "n_items_covered": 87,
+  "n_interactions": 2184,
+  "n_events_total": 19232,
+  "sparsity": 0.9163,
+  "n_orders": 8,
+  "n_clicks": 2560,
+  "avg_interactions_per_user": 7.35,
+  "avg_interactions_per_item": 25.1
+}

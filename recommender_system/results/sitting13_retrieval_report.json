@@ -1,0 +1,265 @@
+{
+  "n_items_indexed": 87,
+  "n_test_queries": 8,
+  "coherence_checks": 4,
+  "coherent_hits": 3,
+  "coherence_pct": 75.0,
+  "sample_results": {
+    "Q1 — English bridal": [
+      {
+        "item_id": "73",
+        "title_en": "Wedding Photography (Full Day)",
+        "category": "Photography",
+        "rrf_score": 0.087687
+      },
+      {
+        "item_id": "81",
+        "title_en": "Velvet Lehenga Festive",
+        "category": "Bridal & Wedding",
+        "rrf_score": 0.087055
+      },
+      {
+        "item_id": "75",
+        "title_en": "Pre-Wedding Photo Shoot",
+        "category": "Photography",
+        "rrf_score": 0.082784
+      },
+      {
+        "item_id": "99",
+        "title_en": "Flower Decoration Bridal Car",
+        "category": "Event Services",
+        "rrf_score": 0.080049
+      },
+      {
+        "item_id": "46",
+        "title_en": "Maroon Wedding Wear Shalwar Kameez",
+        "category": "Bridal & Wedding",
+        "rrf_score": 0.077178
+      }
+    ],
+    "Q2 — Urdu clothing": [
+      {
+        "item_id": "97",
+        "title_en": "Engagement Ring Gold Look",
+        "category": "Jewelry",
+        "rrf_score": 0.070125
+      },
+      {
+        "item_id": "73",
+        "title_en": "Wedding Photography (Full Day)",
+        "category": "Photography",
+        "rrf_score": 0.06722
+      },
+      {
+        "item_id": "101",
+        "title_en": "Party Wear Capri Set Embroidered",
+        "category": "Clothing",
+        "rrf_score": 0.063141
+      },
+      {
+        "item_id": "107",
+        "title_en": "Zardozi Work Blouse Piece",
+        "category": "Clothing",
+        "rrf_score": 0.062766
+      },
+      {
+        "item_id": "99",
+        "title_en": "Flower Decoration Bridal Car",
+        "category": "Event Services",
+        "rrf_score": 0.062308
+      }
+    ],
+    "Q3 — English jewelry": [
+      {
+        "item_id": "77",
+        "title_en": "Lapis Lazuli Earrings",
+        "category": "Jewelry",
+        "rrf_score": 0.083198
+      },
+      {
+        "item_id": "25",
+        "title_en": "Sparkling Initial Pendant Necklace",
+        "category": "Jewelry",
+        "rrf_score": 0.083007
+      },
+      {
+        "item_id": "24",
+        "title_en": "Aeris Hoops",
+        "category": "Jewelry",
+        "rrf_score": 0.080645
+      },
+      {
+        "item_id": "27",
+        "title_en": "Elegant Modern Ring",
+        "category": "Jewelry",
+        "rrf_score": 0.079688
+      },
+      {
+        "item_id": "26",
+        "title_en": "Infinity Symbol Bracelet",
+        "category": "Jewelry",
+        "rrf_score": 0.077381
+      }
+    ],
+    "Q4 — Urdu beauty": [
+      {
+        "item_id": "85",
+        "title_en": "Bridal Mehndi Home Visit",
+        "category": "Mehndi Services",
+        "rrf_score": 0.076664
+      },
+      {
+        "item_id": "73",
+        "title_en": "Wedding Photography (Full Day)",
+        "category": "Photography",
+        "rrf_score": 0.076133
+      },
+      {
+        "item_id": "107",
+        "title_en": "Zardozi Work Blouse Piece",
+        "category": "Clothing",
+        "rrf_score": 0.069681
+      },
+      {
+        "item_id": "95",
+        "title_en": "Handmade Candles Fragrant Set",
+        "category": "Home & Decor",
+        "rrf_score": 0.069097
+      },
+      {
+        "item_id": "108",
+        "title_en": "Eid Photography Indoor Studio",
+        "category": "Photography",
+        "rrf_score": 0.064583
+      }
+    ],
+    "Q5 — English event": [
+      {
+        "item_id": "69",
+        "title_en": "Event Decoration Setup",
+        "category": "Event Services",
+        "rrf_score": 0.089574
+      },
+      {
+        "item_id": "99",
+        "title_en": "Flower Decoration Bridal Car",
+        "category": "Event Services",
+        "rrf_score": 0.08632
+      },
+      {
+        "item_id": "72",
+        "title_en": "Mehndi / Henna Application",
+        "category": "Mehndi Services",
+        "rrf_score": 0.078947
+      },
+      {
+        "item_id": "67",
+        "title_en": "Henna Design for Events",
+        "category": "Mehndi Services",
+        "rrf_score": 0.075476
+      },
+      {
+        "item_id": "59",
+        "title_en": "Mehndi Bridal Full Design",
+        "category": "Mehndi Services",
+        "rrf_score": 0.074399
+      }
+    ],
+    "Q6 — Budget query": [
+      {
+        "item_id": "60",
+        "title_en": "Mehndi Simple Hands",
+        "category": "Mehndi Services",
+        "rrf_score": 0.089335
+      },
+      {
+        "item_id": "106",
+        "title_en": "Gota Kinari Embellishment",
+        "category": "Fabric",
+        "rrf_score": 0.081273
+      },
+      {
+        "item_id": "82",
+        "title_en": "Cotton Trouser Palazzo",
+        "category": "Clothing",
+        "rrf_score": 0.079637
+      },
+      {
+        "item_id": "104",
+        "title_en": "Handmade Lace Trim Fabric",
+        "category": "Fabric",
+        "rrf_score": 0.075758
+      },
+      {
+        "item_id": "80",
+        "title_en": "Mehndi Feet Full Design",
+        "category": "Mehndi Services",
+        "rrf_score": 0.072428
+      }
+    ],
+    "Q7 — Service query": [
+      {
+        "item_id": "71",
+        "title_en": "Hairstyling & Blow Dry",
+        "category": "Hair & Salon Services",
+        "rrf_score": 0.088409
+      },
+      {
+        "item_id": "92",
+        "title_en": "Nail Art Service at Home",
+        "category": "Makeup & Beauty Services",
+        "rrf_score": 0.079751
+      },
+      {
+        "item_id": "78",
+        "title_en": "Hair Spa Service at Home",
+        "category": "Hair & Salon Services",
+        "rrf_score": 0.079133
+      },
+      {
+        "item_id": "70",
+        "title_en": "Full Bridal Makeup Package",
+        "category": "Makeup & Beauty Services",
+        "rrf_score": 0.077445
+      },
+      {
+        "item_id": "65",
+        "title_en": "Hair Treatment Keratin",
+        "category": "Hair & Salon Services",
+        "rrf_score": 0.075758
+      }
+    ],
+    "Q8 — Fabric query": [
+      {
+        "item_id": "102",
+        "title_en": "Dupatta Silk Hand Embroidered",
+        "category": "Clothing",
+        "rrf_score": 0.086382
+      },
+      {
+        "item_id": "107",
+        "title_en": "Zardozi Work Blouse Piece",
+        "category": "Clothing",
+        "rrf_score": 0.078558
+      },
+      {
+        "item_id": "41",
+        "title_en": "Black Embroidered Formal Shalwar Kameez",
+        "category": "Clothing",
+        "rrf_score": 0.075543
+      },
+      {
+        "item_id": "106",
+        "title_en": "Gota Kinari Embellishment",
+        "category": "Fabric",
+        "rrf_score": 0.074824
+      },
+      {
+        "item_id": "86",
+        "title_en": "Sindhi Embroidered Blouse",
+        "category": "Clothing",
+        "rrf_score": 0.073191
+      }
+    ]
+  }
+}

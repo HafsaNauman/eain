@@ -1,0 +1,756 @@
+{
+  "test_user": "U0187",
+  "tests": {
+    "known_user": {
+      "user_id": "U0187",
+      "query": null,
+      "results": [
+        {
+          "rank": 1,
+          "item_id": "23",
+          "score": 0.9057,
+          "title": "Elegant Embroidered Suit",
+          "category": "Clothing",
+          "price": 6500.0,
+          "signals": {
+            "emb_sim": 0.5808,
+            "pop_score": 1.5476,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        },
+        {
+          "rank": 2,
+          "item_id": "86",
+          "score": 0.8417,
+          "title": "Sindhi Embroidered Blouse",
+          "category": "Clothing",
+          "price": 4200.0,
+          "signals": {
+            "emb_sim": 0.5292,
+            "pop_score": 1.7047,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        },
+        {
+          "rank": 3,
+          "item_id": "21",
+          "score": 0.8167,
+          "title": "Elegant Satin Kimono",
+          "category": "Clothing",
+          "price": 7000.0,
+          "signals": {
+            "emb_sim": 0.4989,
+            "pop_score": 1.8718,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        },
+        {
+          "rank": 4,
+          "item_id": "101",
+          "score": 0.8105,
+          "title": "Party Wear Capri Set Embroidered",
+          "category": "Clothing",
+          "price": 4800.0,
+          "signals": {
+            "emb_sim": 0.5,
+            "pop_score": 1.8245,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        },
+        {
+          "rank": 5,
+          "item_id": "102",
+          "score": 0.7713,
+          "title": "Dupatta Silk Hand Embroidered",
+          "category": "Clothing",
+          "price": 7500.0,
+          "signals": {
+            "emb_sim": 0.4858,
+            "pop_score": 1.7405,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        },
+        {
+          "rank": 6,
+          "item_id": "41",
+          "score": 0.7709,
+          "title": "Black Embroidered Formal Shalwar Kameez",
+          "category": "Clothing",
+          "price": 7800.0,
+          "signals": {
+            "emb_sim": 0.4926,
+            "pop_score": 1.6677,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        },
+        {
+          "rank": 7,
+          "item_id": "71",
+          "score": 0.7328,
+          "title": "Hairstyling & Blow Dry",
+          "category": "Hair & Salon Services",
+          "price": 5000.0,
+          "signals": {
+            "emb_sim": 0.4606,
+            "pop_score": 1.775,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        },
+        {
+          "rank": 8,
+          "item_id": "106",
+          "score": 0.7264,
+          "title": "Gota Kinari Embellishment",
+          "category": "Fabric",
+          "price": 250.0,
+          "signals": {
+            "emb_sim": 0.4476,
+            "pop_score": 1.8718,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        },
+        {
+          "rank": 9,
+          "item_id": "107",
+          "score": 0.7108,
+          "title": "Zardozi Work Blouse Piece",
+          "category": "Clothing",
+          "price": 9500.0,
+          "signals": {
+            "emb_sim": 0.4465,
+            "pop_score": 1.7918,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        },
+        {
+          "rank": 10,
+          "item_id": "81",
+          "score": 0.7074,
+          "title": "Velvet Lehenga Festive",
+          "category": "Bridal & Wedding",
+          "price": 22000.0,
+          "signals": {
+            "emb_sim": 0.4369,
+            "pop_score": 1.8718,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0
+          }
+        }
+      ],
+      "latency_ms": 4.87,
+      "method": "profile_emb(w=0.77) + log_pop(w=0.23)",
+      "top_k": 10
+    },
+    "urdu_query": {
+      "user_id": null,
+      "query": "شادی کے لیے لہنگا اور جیولری",
+      "results": [
+        {
+          "rank": 1,
+          "item_id": "73",
+          "score": 0.9619,
+          "title": "Wedding Photography (Full Day)",
+          "category": "Photography",
+          "price": 75000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.1041,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3048
+          }
+        },
+        {
+          "rank": 2,
+          "item_id": "85",
+          "score": 0.95,
+          "title": "Bridal Mehndi Home Visit",
+          "category": "Mehndi Services",
+          "price": 8000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.0669,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3062
+          }
+        },
+        {
+          "rank": 3,
+          "item_id": "59",
+          "score": 0.9251,
+          "title": "Mehndi Bridal Full Design",
+          "category": "Mehndi Services",
+          "price": 5000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.0794,
+            "cf_score": 0.0,
+            "ctx_sim": 0.2831
+          }
+        },
+        {
+          "rank": 4,
+          "item_id": "60",
+          "score": 0.8869,
+          "title": "Mehndi Simple Hands",
+          "category": "Mehndi Services",
+          "price": 800.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.9741,
+            "cf_score": 0.0,
+            "ctx_sim": 0.2834
+          }
+        },
+        {
+          "rank": 5,
+          "item_id": "52",
+          "score": 0.8862,
+          "title": "Handwoven Basket Bag",
+          "category": "Accessories",
+          "price": 1600.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.8871,
+            "cf_score": 0.0,
+            "ctx_sim": 0.308
+          }
+        },
+        {
+          "rank": 6,
+          "item_id": "107",
+          "score": 0.8853,
+          "title": "Zardozi Work Blouse Piece",
+          "category": "Clothing",
+          "price": 9500.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.7918,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3347
+          }
+        },
+        {
+          "rank": 7,
+          "item_id": "67",
+          "score": 0.8801,
+          "title": "Henna Design for Events",
+          "category": "Mehndi Services",
+          "price": 2000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.9315,
+            "cf_score": 0.0,
+            "ctx_sim": 0.2903
+          }
+        },
+        {
+          "rank": 8,
+          "item_id": "58",
+          "score": 0.8714,
+          "title": "Party Makeup at Home",
+          "category": "Makeup & Beauty Services",
+          "price": 3500.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.9459,
+            "cf_score": 0.0,
+            "ctx_sim": 0.2794
+          }
+        },
+        {
+          "rank": 9,
+          "item_id": "92",
+          "score": 0.8688,
+          "title": "Nail Art Service at Home",
+          "category": "Makeup & Beauty Services",
+          "price": 1200.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.0919,
+            "cf_score": 0.0,
+            "ctx_sim": 0.2353
+          }
+        },
+        {
+          "rank": 10,
+          "item_id": "57",
+          "score": 0.8678,
+          "title": "Bridal Makeup Package Full Day",
+          "category": "Makeup & Beauty Services",
+          "price": 15000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.0794,
+            "cf_score": 0.0,
+            "ctx_sim": 0.2381
+          }
+        }
+      ],
+      "latency_ms": 32523.7,
+      "method": "log_pop(w=0.50) + ctx_query(w=0.50)",
+      "top_k": 10
+    },
+    "bilingual_user": {
+      "user_id": "U0119",
+      "query": "bridal lehenga شادی کے لیے",
+      "results": [
+        {
+          "rank": 1,
+          "item_id": "70",
+          "score": 0.8888,
+          "title": "Full Bridal Makeup Package",
+          "category": "Makeup & Beauty Services",
+          "price": 25000.0,
+          "signals": {
+            "emb_sim": 0.551,
+            "pop_score": 1.7405,
+            "cf_score": 0.0,
+            "ctx_sim": 0.4809
+          }
+        },
+        {
+          "rank": 2,
+          "item_id": "81",
+          "score": 0.8358,
+          "title": "Velvet Lehenga Festive",
+          "category": "Bridal & Wedding",
+          "price": 22000.0,
+          "signals": {
+            "emb_sim": 0.4631,
+            "pop_score": 1.8718,
+            "cf_score": 0.0,
+            "ctx_sim": 0.6493
+          }
+        },
+        {
+          "rank": 3,
+          "item_id": "71",
+          "score": 0.8268,
+          "title": "Hairstyling & Blow Dry",
+          "category": "Hair & Salon Services",
+          "price": 5000.0,
+          "signals": {
+            "emb_sim": 0.5455,
+            "pop_score": 1.775,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3201
+          }
+        },
+        {
+          "rank": 4,
+          "item_id": "23",
+          "score": 0.8205,
+          "title": "Elegant Embroidered Suit",
+          "category": "Clothing",
+          "price": 6500.0,
+          "signals": {
+            "emb_sim": 0.5188,
+            "pop_score": 1.5476,
+            "cf_score": 0.0,
+            "ctx_sim": 0.4997
+          }
+        },
+        {
+          "rank": 5,
+          "item_id": "59",
+          "score": 0.8138,
+          "title": "Mehndi Bridal Full Design",
+          "category": "Mehndi Services",
+          "price": 5000.0,
+          "signals": {
+            "emb_sim": 0.4716,
+            "pop_score": 2.0794,
+            "cf_score": 0.0,
+            "ctx_sim": 0.4747
+          }
+        },
+        {
+          "rank": 6,
+          "item_id": "57",
+          "score": 0.7774,
+          "title": "Bridal Makeup Package Full Day",
+          "category": "Makeup & Beauty Services",
+          "price": 15000.0,
+          "signals": {
+            "emb_sim": 0.4644,
+            "pop_score": 2.0794,
+            "cf_score": 0.0,
+            "ctx_sim": 0.4044
+          }
+        },
+        {
+          "rank": 7,
+          "item_id": "85",
+          "score": 0.7623,
+          "title": "Bridal Mehndi Home Visit",
+          "category": "Mehndi Services",
+          "price": 8000.0,
+          "signals": {
+            "emb_sim": 0.4391,
+            "pop_score": 2.0669,
+            "cf_score": 0.0,
+            "ctx_sim": 0.4724
+          }
+        },
+        {
+          "rank": 8,
+          "item_id": "72",
+          "score": 0.7623,
+          "title": "Mehndi / Henna Application",
+          "category": "Mehndi Services",
+          "price": 8000.0,
+          "signals": {
+            "emb_sim": 0.4561,
+            "pop_score": 1.9879,
+            "cf_score": 0.0,
+            "ctx_sim": 0.4319
+          }
+        },
+        {
+          "rank": 9,
+          "item_id": "69",
+          "score": 0.7598,
+          "title": "Event Decoration Setup",
+          "category": "Event Services",
+          "price": 18000.0,
+          "signals": {
+            "emb_sim": 0.4592,
+            "pop_score": 1.9169,
+            "cf_score": 0.0,
+            "ctx_sim": 0.4391
+          }
+        },
+        {
+          "rank": 10,
+          "item_id": "99",
+          "score": 0.7561,
+          "title": "Flower Decoration Bridal Car",
+          "category": "Event Services",
+          "price": 12000.0,
+          "signals": {
+            "emb_sim": 0.4641,
+            "pop_score": 1.8083,
+            "cf_score": 0.0,
+            "ctx_sim": 0.4499
+          }
+        }
+      ],
+      "latency_ms": 2111.98,
+      "method": "profile_emb(w=0.62) + log_pop(w=0.19) + ctx_query(w=0.19)",
+      "top_k": 10
+    },
+    "visual_proxy": {
+      "user_id": null,
+      "query": null,
+      "results": [
+        {
+          "rank": 1,
+          "item_id": "26",
+          "score": 0.8184,
+          "title": "Infinity Symbol Bracelet",
+          "category": "Jewelry",
+          "price": 1000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.6094,
+            "cf_score": 0.0,
+            "ctx_sim": 1.0
+          }
+        },
+        {
+          "rank": 2,
+          "item_id": "25",
+          "score": 0.6515,
+          "title": "Sparkling Initial Pendant Necklace",
+          "category": "Jewelry",
+          "price": 1000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.9315,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3965
+          }
+        },
+        {
+          "rank": 3,
+          "item_id": "27",
+          "score": 0.5972,
+          "title": "Elegant Modern Ring",
+          "category": "Jewelry",
+          "price": 1300.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.9021,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3044
+          }
+        },
+        {
+          "rank": 4,
+          "item_id": "92",
+          "score": 0.578,
+          "title": "Nail Art Service at Home",
+          "category": "Makeup & Beauty Services",
+          "price": 1200.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.0919,
+            "cf_score": 0.0,
+            "ctx_sim": 0.1161
+          }
+        },
+        {
+          "rank": 5,
+          "item_id": "59",
+          "score": 0.5603,
+          "title": "Mehndi Bridal Full Design",
+          "category": "Mehndi Services",
+          "price": 5000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.0794,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0884
+          }
+        },
+        {
+          "rank": 6,
+          "item_id": "57",
+          "score": 0.5473,
+          "title": "Bridal Makeup Package Full Day",
+          "category": "Makeup & Beauty Services",
+          "price": 15000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.0794,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0608
+          }
+        },
+        {
+          "rank": 7,
+          "item_id": "72",
+          "score": 0.5443,
+          "title": "Mehndi / Henna Application",
+          "category": "Mehndi Services",
+          "price": 8000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.9879,
+            "cf_score": 0.0,
+            "ctx_sim": 0.1258
+          }
+        },
+        {
+          "rank": 8,
+          "item_id": "24",
+          "score": 0.542,
+          "title": "Aeris Hoops",
+          "category": "Jewelry",
+          "price": 1200.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.7405,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3131
+          }
+        },
+        {
+          "rank": 9,
+          "item_id": "73",
+          "score": 0.5382,
+          "title": "Wedding Photography (Full Day)",
+          "category": "Photography",
+          "price": 75000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.1041,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0225
+          }
+        },
+        {
+          "rank": 10,
+          "item_id": "90",
+          "score": 0.5373,
+          "title": "Organic Rose Water 200ml",
+          "category": "Beauty & Skincare",
+          "price": 400.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 2.0669,
+            "cf_score": 0.0,
+            "ctx_sim": 0.0494
+          }
+        }
+      ],
+      "latency_ms": 3.25,
+      "method": "log_pop(w=0.50) + ctx_query(w=0.50)",
+      "top_k": 10
+    },
+    "cold_start": {
+      "user_id": "UNKNOWN_USER_999",
+      "query": "casual summer dress",
+      "results": [
+        {
+          "rank": 1,
+          "item_id": "47",
+          "score": 0.86,
+          "title": "Sky Blue Summer Suit",
+          "category": "Clothing",
+          "price": 4300.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.7228,
+            "cf_score": 0.0,
+            "ctx_sim": 0.5167
+          }
+        },
+        {
+          "rank": 2,
+          "item_id": "44",
+          "score": 0.7825,
+          "title": "Grey Casual Shalwar Kameez",
+          "category": "Clothing",
+          "price": 4800.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.8871,
+            "cf_score": 0.0,
+            "ctx_sim": 0.372
+          }
+        },
+        {
+          "rank": 3,
+          "item_id": "34",
+          "score": 0.7789,
+          "title": "Chic White Mini Bag",
+          "category": "Accessories",
+          "price": 3900.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.8245,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3923
+          }
+        },
+        {
+          "rank": 4,
+          "item_id": "21",
+          "score": 0.7609,
+          "title": "Elegant Satin Kimono",
+          "category": "Clothing",
+          "price": 7000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.8718,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3552
+          }
+        },
+        {
+          "rank": 5,
+          "item_id": "32",
+          "score": 0.7461,
+          "title": "Stylish Beige Crossbody Bag",
+          "category": "Accessories",
+          "price": 4800.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.7228,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3971
+          }
+        },
+        {
+          "rank": 6,
+          "item_id": "22",
+          "score": 0.7424,
+          "title": "Chic Striped Pajama Set",
+          "category": "Clothing",
+          "price": 5000.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.775,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3731
+          }
+        },
+        {
+          "rank": 7,
+          "item_id": "36",
+          "score": 0.684,
+          "title": "Trendy Pink Handbag",
+          "category": "Accessories",
+          "price": 5600.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.8718,
+            "cf_score": 0.0,
+            "ctx_sim": 0.2745
+          }
+        },
+        {
+          "rank": 8,
+          "item_id": "101",
+          "score": 0.6827,
+          "title": "Party Wear Capri Set Embroidered",
+          "category": "Clothing",
+          "price": 4800.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.8245,
+            "cf_score": 0.0,
+            "ctx_sim": 0.2913
+          }
+        },
+        {
+          "rank": 9,
+          "item_id": "33",
+          "score": 0.6615,
+          "title": "Luxury Maroon Shoulder Bag",
+          "category": "Accessories",
+          "price": 9200.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.8245,
+            "cf_score": 0.0,
+            "ctx_sim": 0.2691
+          }
+        },
+        {
+          "rank": 10,
+          "item_id": "86",
+          "score": 0.6544,
+          "title": "Sindhi Embroidered Blouse",
+          "category": "Clothing",
+          "price": 4200.0,
+          "signals": {
+            "emb_sim": 0.0,
+            "pop_score": 1.7047,
+            "cf_score": 0.0,
+            "ctx_sim": 0.3078
+          }
+        }
+      ],
+      "latency_ms": 374.72,
+      "method": "log_pop(w=0.50) + ctx_query(w=0.50)",
+      "top_k": 10
+    }
+  },
+  "latency_benchmark": {
+    "mean_ms": 395.56,
+    "median_ms": 388.52,
+    "min_ms": 382.88,
+    "max_ms": 444.85
+  }
+}

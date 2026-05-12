@@ -1,0 +1,6 @@
+setup,retrieval,profiles,noise_control,ensemble,notes
+Popularity baseline,0,0,0,0,minimum benchmark
+Hybrid retrieval,1,0,0,0,FAISS + BM25 + RRF
+RAG item augmentation,1,0,0,0,metadata enriched items
+Profiles + embeddings,1,1,0,0,user embeddings added
+Full system,1,1,1,1,submission-ready pipeline

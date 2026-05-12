@@ -1,7 +1,7 @@
 import { Audio } from 'expo-av';
 import { Platform } from 'react-native';
 // ✅ Import from legacy path to avoid deprecation warning
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 
 /**
  * Start audio recording

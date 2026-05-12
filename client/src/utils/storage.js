@@ -58,6 +58,9 @@ export const getRefreshToken = async () => {
 export const saveUserData = async (userData) => {
   try {
     await AsyncStorage.setItem(KEYS.USER_DATA, JSON.stringify(userData));
+    if (userData?.user_id) {
+      await AsyncStorage.setItem('user_id', String(userData.user_id));
+    }
   } catch (error) {
     console.error('Error saving user data:', error);
     throw error;
@@ -81,6 +84,7 @@ export const clearAuthData = async () => {
       KEYS.ACCESS_TOKEN,
       KEYS.REFRESH_TOKEN,
       KEYS.USER_DATA,
+      'user_id'
     ]);
   } catch (error) {
     console.error('Error clearing auth data:', error);

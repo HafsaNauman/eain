@@ -1,0 +1,23 @@
+[
+  {
+    "Condition": "No Augmentation",
+    "Recall@5": 0.2904,
+    "Recall@10": 0.4487,
+    "Recall@50": 0.8927,
+    "FinalLoss": 0.0042
+  },
+  {
+    "Condition": "CFGAN Only",
+    "Recall@5": 0.2522,
+    "Recall@10": 0.4328,
+    "Recall@50": 0.897,
+    "FinalLoss": 0.0051
+  },
+  {
+    "Condition": "CFGAN + LLM Pairs",
+    "Recall@5": 0.2728,
+    "Recall@10": 0.4489,
+    "Recall@50": 0.8707,
+    "FinalLoss": 0.1384
+  }
+]

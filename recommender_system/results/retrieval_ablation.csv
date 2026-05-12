@@ -1,0 +1,7 @@
+method,K,Recall,Std,n_users
+FAISS Only,50,0.8404,0.2891,174
+FAISS Only,200,1.0,0.0,174
+FAISS Only,1000,1.0,0.0,174
+Hybrid,50,0.8329,0.2993,174
+Hybrid,200,1.0,0.0,174
+Hybrid,1000,1.0,0.0,174

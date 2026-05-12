@@ -1,0 +1,493 @@
+[
+  {
+    "archetype_id": "A01",
+    "name": "Karachi Bridal Shopper",
+    "description": "Bride-to-be in Karachi planning a wedding. Buys heavy formals, bridal sets, and books makeup/mehndi services.",
+    "city_preference": [
+      "Karachi"
+    ],
+    "preferred_categories": [
+      "Bridal & Wedding",
+      "Jewelry",
+      "Makeup & Beauty Services",
+      "Mehndi Services"
+    ],
+    "preferred_listing_type": "both",
+    "price_band_bias": {
+      "low": 0.05,
+      "mid": 0.3,
+      "high": 0.65
+    },
+    "tags_affinity": [
+      "bridal",
+      "wedding",
+      "lehenga",
+      "kundan",
+      "mehndi",
+      "nikkah",
+      "makeup"
+    ],
+    "session_length": "long",
+    "engagement_depth": "high",
+    "interaction_probabilities": {
+      "impression_to_click": 0.4,
+      "click_to_save": 0.35,
+      "click_to_cart": 0.25,
+      "cart_to_order": 0.6,
+      "service_to_booking": 0.5
+    }
+  },
+  {
+    "archetype_id": "A02",
+    "name": "Lahore Festive Shopper",
+    "description": "Woman in Lahore shopping for Eid and festive occasions. Prefers lawn, chiffon, and jewellery at mid price.",
+    "city_preference": [
+      "Lahore"
+    ],
+    "preferred_categories": [
+      "Clothing",
+      "Jewelry",
+      "Accessories"
+    ],
+    "preferred_listing_type": "product",
+    "price_band_bias": {
+      "low": 0.2,
+      "mid": 0.65,
+      "high": 0.15
+    },
+    "tags_affinity": [
+      "eid",
+      "festive",
+      "lawn",
+      "chiffon",
+      "3-piece",
+      "earrings",
+      "bangles"
+    ],
+    "session_length": "medium",
+    "engagement_depth": "medium",
+    "interaction_probabilities": {
+      "impression_to_click": 0.3,
+      "click_to_save": 0.25,
+      "click_to_cart": 0.3,
+      "cart_to_order": 0.55,
+      "service_to_booking": 0.1
+    }
+  },
+  {
+    "archetype_id": "A03",
+    "name": "Hyderabad / Multan Budget Buyer",
+    "description": "Price-conscious shopper from smaller cities looking for everyday kurtas, fabric, and basic accessories.",
+    "city_preference": [
+      "Multan",
+      "Faisalabad"
+    ],
+    "preferred_categories": [
+      "Clothing",
+      "Fabric",
+      "Accessories"
+    ],
+    "preferred_listing_type": "product",
+    "price_band_bias": {
+      "low": 0.7,
+      "mid": 0.25,
+      "high": 0.05
+    },
+    "tags_affinity": [
+      "kurta",
+      "cotton",
+      "unstitched",
+      "khaddar",
+      "casual",
+      "fabric"
+    ],
+    "session_length": "short",
+    "engagement_depth": "low",
+    "interaction_probabilities": {
+      "impression_to_click": 0.2,
+      "click_to_save": 0.15,
+      "click_to_cart": 0.35,
+      "cart_to_order": 0.65,
+      "service_to_booking": 0.05
+    }
+  },
+  {
+    "archetype_id": "A04",
+    "name": "Islamabad Beauty Enthusiast",
+    "description": "Skincare and beauty-conscious woman in Islamabad. Buys serums, organic products, and books facials/hair services.",
+    "city_preference": [
+      "Islamabad"
+    ],
+    "preferred_categories": [
+      "Beauty & Skincare",
+      "Hair & Salon Services",
+      "Makeup & Beauty Services"
+    ],
+    "preferred_listing_type": "both",
+    "price_band_bias": {
+      "low": 0.2,
+      "mid": 0.6,
+      "high": 0.2
+    },
+    "tags_affinity": [
+      "skincare",
+      "organic",
+      "serum",
+      "facial",
+      "hair-treatment",
+      "brightening",
+      "natural"
+    ],
+    "session_length": "medium",
+    "engagement_depth": "high",
+    "interaction_probabilities": {
+      "impression_to_click": 0.38,
+      "click_to_save": 0.4,
+      "click_to_cart": 0.2,
+      "cart_to_order": 0.5,
+      "service_to_booking": 0.45
+    }
+  },
+  {
+    "archetype_id": "A05",
+    "name": "Lahore Tailoring & Fabric Seeker",
+    "description": "Buys unstitched fabric and books tailoring services. Prefers custom stitching over ready-made.",
+    "city_preference": [
+      "Lahore",
+      "Faisalabad"
+    ],
+    "preferred_categories": [
+      "Fabric",
+      "Tailoring",
+      "Clothing"
+    ],
+    "preferred_listing_type": "both",
+    "price_band_bias": {
+      "low": 0.4,
+      "mid": 0.5,
+      "high": 0.1
+    },
+    "tags_affinity": [
+      "fabric",
+      "unstitched",
+      "tailoring",
+      "stitching",
+      "custom",
+      "lawn",
+      "khaddar"
+    ],
+    "session_length": "medium",
+    "engagement_depth": "medium",
+    "interaction_probabilities": {
+      "impression_to_click": 0.28,
+      "click_to_save": 0.2,
+      "click_to_cart": 0.3,
+      "cart_to_order": 0.55,
+      "service_to_booking": 0.4
+    }
+  },
+  {
+    "archetype_id": "A06",
+    "name": "Karachi Jewelry Lover",
+    "description": "Passionate about traditional Pakistani jewelry. Frequently browses and saves jhumkas, maang tikkas, and kundan sets.",
+    "city_preference": [
+      "Karachi"
+    ],
+    "preferred_categories": [
+      "Jewelry",
+      "Accessories",
+      "Bridal & Wedding"
+    ],
+    "preferred_listing_type": "product",
+    "price_band_bias": {
+      "low": 0.15,
+      "mid": 0.5,
+      "high": 0.35
+    },
+    "tags_affinity": [
+      "earrings",
+      "jhumka",
+      "necklace",
+      "bangles",
+      "kundan",
+      "maang-tikka",
+      "gold-plated"
+    ],
+    "session_length": "long",
+    "engagement_depth": "high",
+    "interaction_probabilities": {
+      "impression_to_click": 0.45,
+      "click_to_save": 0.5,
+      "click_to_cart": 0.2,
+      "cart_to_order": 0.4,
+      "service_to_booking": 0.05
+    }
+  },
+  {
+    "archetype_id": "A07",
+    "name": "Karachi Event Planner Buyer",
+    "description": "Plans weddings and events. Books photography, decoration, and catering services.",
+    "city_preference": [
+      "Karachi",
+      "Lahore"
+    ],
+    "preferred_categories": [
+      "Photography",
+      "Event Services",
+      "Catering",
+      "Mehndi Services"
+    ],
+    "preferred_listing_type": "service",
+    "price_band_bias": {
+      "low": 0.05,
+      "mid": 0.35,
+      "high": 0.6
+    },
+    "tags_affinity": [
+      "photography",
+      "wedding",
+      "decoration",
+      "catering",
+      "event",
+      "mehndi",
+      "bridal-car"
+    ],
+    "session_length": "long",
+    "engagement_depth": "high",
+    "interaction_probabilities": {
+      "impression_to_click": 0.35,
+      "click_to_save": 0.3,
+      "click_to_cart": 0.05,
+      "cart_to_order": 0.2,
+      "service_to_booking": 0.55
+    }
+  },
+  {
+    "archetype_id": "A08",
+    "name": "Islamabad Home & Organic Shopper",
+    "description": "Health-conscious buyer interested in organic food, natural beauty, and home decor products.",
+    "city_preference": [
+      "Islamabad"
+    ],
+    "preferred_categories": [
+      "Food & Organic",
+      "Beauty & Skincare",
+      "Home & Decor"
+    ],
+    "preferred_listing_type": "product",
+    "price_band_bias": {
+      "low": 0.45,
+      "mid": 0.45,
+      "high": 0.1
+    },
+    "tags_affinity": [
+      "organic",
+      "natural",
+      "handmade",
+      "honey",
+      "rose-water",
+      "neem",
+      "decor"
+    ],
+    "session_length": "medium",
+    "engagement_depth": "medium",
+    "interaction_probabilities": {
+      "impression_to_click": 0.28,
+      "click_to_save": 0.3,
+      "click_to_cart": 0.28,
+      "cart_to_order": 0.6,
+      "service_to_booking": 0.08
+    }
+  },
+  {
+    "archetype_id": "A09",
+    "name": "Lahore Salon Service Seeker",
+    "description": "Regularly books at-home salon services like hair spa, blowdry, nail art, and threading.",
+    "city_preference": [
+      "Lahore",
+      "Karachi"
+    ],
+    "preferred_categories": [
+      "Hair & Salon Services",
+      "Makeup & Beauty Services",
+      "Beauty & Skincare"
+    ],
+    "preferred_listing_type": "service",
+    "price_band_bias": {
+      "low": 0.3,
+      "mid": 0.6,
+      "high": 0.1
+    },
+    "tags_affinity": [
+      "at-home",
+      "hair-spa",
+      "blowdry",
+      "nail-art",
+      "threading",
+      "waxing",
+      "salon"
+    ],
+    "session_length": "short",
+    "engagement_depth": "medium",
+    "interaction_probabilities": {
+      "impression_to_click": 0.32,
+      "click_to_save": 0.2,
+      "click_to_cart": 0.05,
+      "cart_to_order": 0.15,
+      "service_to_booking": 0.55
+    }
+  },
+  {
+    "archetype_id": "A10",
+    "name": "Multan Traditional Craft Buyer",
+    "description": "Appreciates handmade and traditional crafts — Sindhi embroidery, Phulkari, Ajrak, pottery.",
+    "city_preference": [
+      "Multan",
+      "Karachi"
+    ],
+    "preferred_categories": [
+      "Clothing",
+      "Home & Decor",
+      "Accessories",
+      "Fabric"
+    ],
+    "preferred_listing_type": "product",
+    "price_band_bias": {
+      "low": 0.25,
+      "mid": 0.55,
+      "high": 0.2
+    },
+    "tags_affinity": [
+      "handmade",
+      "embroidery",
+      "sindhi",
+      "ajrak",
+      "phulkari",
+      "traditional",
+      "pottery"
+    ],
+    "session_length": "medium",
+    "engagement_depth": "high",
+    "interaction_probabilities": {
+      "impression_to_click": 0.35,
+      "click_to_save": 0.4,
+      "click_to_cart": 0.22,
+      "cart_to_order": 0.48,
+      "service_to_booking": 0.05
+    }
+  },
+  {
+    "archetype_id": "A11",
+    "name": "Karachi Party Wear Shopper",
+    "description": "Young professional buying party and formal wear — maxi dresses, embellished outfits, clutches.",
+    "city_preference": [
+      "Karachi",
+      "Islamabad"
+    ],
+    "preferred_categories": [
+      "Clothing",
+      "Accessories",
+      "Jewelry"
+    ],
+    "preferred_listing_type": "product",
+    "price_band_bias": {
+      "low": 0.1,
+      "mid": 0.6,
+      "high": 0.3
+    },
+    "tags_affinity": [
+      "party",
+      "formal",
+      "maxi",
+      "embellished",
+      "clutch",
+      "gown",
+      "capri"
+    ],
+    "session_length": "medium",
+    "engagement_depth": "medium",
+    "interaction_probabilities": {
+      "impression_to_click": 0.32,
+      "click_to_save": 0.28,
+      "click_to_cart": 0.3,
+      "cart_to_order": 0.52,
+      "service_to_booking": 0.08
+    }
+  },
+  {
+    "archetype_id": "A12",
+    "name": "Lahore Dupatta & Fabric Combo Buyer",
+    "description": "Buys matching dupattas, fabrics, and trimmings like gota kinari and lace to assemble outfits.",
+    "city_preference": [
+      "Lahore",
+      "Faisalabad"
+    ],
+    "preferred_categories": [
+      "Clothing",
+      "Fabric",
+      "Accessories"
+    ],
+    "preferred_listing_type": "product",
+    "price_band_bias": {
+      "low": 0.35,
+      "mid": 0.55,
+      "high": 0.1
+    },
+    "tags_affinity": [
+      "dupatta",
+      "fabric",
+      "lace",
+      "gota",
+      "kinari",
+      "phulkari",
+      "tilla"
+    ],
+    "session_length": "medium",
+    "engagement_depth": "medium",
+    "interaction_probabilities": {
+      "impression_to_click": 0.3,
+      "click_to_save": 0.25,
+      "click_to_cart": 0.32,
+      "cart_to_order": 0.58,
+      "service_to_booking": 0.05
+    }
+  },
+  {
+    "archetype_id": "A13",
+    "name": "Islamabad Mehndi & Event Service Seeker",
+    "description": "Books mehndi artists and event decoration for home events, engagement parties, and nikah ceremonies.",
+    "city_preference": [
+      "Islamabad",
+      "Lahore"
+    ],
+    "preferred_categories": [
+      "Mehndi Services",
+      "Event Services",
+      "Photography"
+    ],
+    "preferred_listing_type": "service",
+    "price_band_bias": {
+      "low": 0.1,
+      "mid": 0.5,
+      "high": 0.4
+    },
+    "tags_affinity": [
+      "mehndi",
+      "henna",
+      "bridal",
+      "engagement",
+      "decoration",
+      "nikkah",
+      "event"
+    ],
+    "session_length": "long",
+    "engagement_depth": "high",
+    "interaction_probabilities": {
+      "impression_to_click": 0.38,
+      "click_to_save": 0.35,
+      "click_to_cart": 0.05,
+      "cart_to_order": 0.15,
+      "service_to_booking": 0.6
+    }
+  }
+]

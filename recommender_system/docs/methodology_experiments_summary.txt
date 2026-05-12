@@ -1,0 +1,28 @@
+EAIN Recommender — Methodology and Experiments Summary
+
+1. Data foundation
+- Cleaned EAIN catalog and generated synthetic user interactions for cold-start training.
+- Established baseline recommenders and offline evaluation harness.
+
+2. Augmentation
+- Implemented CFGAN for sparse interaction augmentation.
+- Added LLM-based metadata enrichment for items and compact user profile generation.
+
+3. Retrieval and ranking
+- Built hybrid retrieval and an ensemble pipeline combining profile-item similarity,
+  log popularity, and query-context similarity.
+- Applied noise control on augmented item embeddings. Noise filtering was selective:
+  85 kept / 87 total items, 2 blended.
+
+4. Final diagnostics
+- HR@10: 1.0
+- NDCG@10: 4.5436
+- Recall@200: 1.0
+- UniqueTop1: 5
+- Gini: 0.0
+- Cohen's d: 1.5702
+
+5. Product readiness
+- FastAPI endpoints implemented for for-you, similar, voice rerank, visual rerank,
+  event logging, and health checks.
+- Pipeline tested on Urdu, bilingual, visual, and cold-start scenarios.
