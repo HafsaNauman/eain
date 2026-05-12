@@ -23,11 +23,13 @@ export const generateProductDescription = async (req, res) => {
 
         console.log(`📤 Sending image to AI service: ${file.originalname}`);
 
+        const fileStat = fs.statSync(file.path);
         // Create form data for AI microservice
         const formData = new FormData();
         formData.append('file', fs.createReadStream(file.path), {
-            filename: file.originalname,
-            contentType: file.mimetype
+            filename: file.originalname || 'image.png',
+            contentType: file.mimetype || 'image/png',
+            knownLength: fileStat.size
         });
 
         // Call FastAPI microservice
@@ -140,11 +142,13 @@ export const updateListingWithAI = async (req, res) => {
 
         console.log(`📤 Sending image to AI service for listing ${listing_id}`);
 
+        const fileStat = fs.statSync(file.path);
         // Create form data for AI microservice
         const formData = new FormData();
         formData.append('file', fs.createReadStream(file.path), {
-            filename: file.originalname,
-            contentType: file.mimetype
+            filename: file.originalname || 'image.png',
+            contentType: file.mimetype || 'image/png',
+            knownLength: fileStat.size
         });
 
         // Call FastAPI microservice
