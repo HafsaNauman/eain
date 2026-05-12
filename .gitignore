@@ -35,7 +35,6 @@ recommender_system/checkpoints/
 recommender_system/cache/
 recommender_system/__pycache__/
 recommender_system/*.pyc
-recommender_system/data/*.npy
 recommender_system/data/*.index
 recommender_system/data/*.faiss
 recommender_system/data/*.parquet
@@ -51,3 +50,6 @@ recommender_system/scripts
 *.parquet
 __pycache__/
 *.pyc
+# Allow the two small pre-computed inference embeddings (needed at runtime)
+!recommender_system/data/item_embeddings_filtered.npy
+!recommender_system/data/user_profile_embeddings.npy

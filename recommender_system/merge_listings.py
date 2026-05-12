@@ -292,13 +292,15 @@ if __name__ == "__main__":
     print(f"  Usable real items:    {len(processed_real)}")
 
     # Step 5: Merge — real data wins on ID conflicts
+    # all_real_ids includes filtered placeholders so synthetic items cannot reuse their IDs
+    all_real_ids = {str(r.get("listing_id", "")) for r in real_rows}
     real_ids = {r["listing_id"] for r in processed_real}
     merged = []
 
-    # Add synthetic items (only if no ID conflict)
+    # Add synthetic items (only if no ID conflict with ANY real item, including filtered ones)
     kept_synthetic = 0
     for row in synthetic_rows:
-        if row["listing_id"] not in real_ids:
+        if row["listing_id"] not in all_real_ids:
             merged.append(row)
             kept_synthetic += 1
 

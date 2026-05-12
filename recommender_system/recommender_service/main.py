@@ -2,6 +2,7 @@
 recommender_service/main.py
 EAIN Recommender — Sitting 20
 FastAPI service exposing the final recommender pipeline.
+Embedding model: sentence-transformers/all-MiniLM-L6-v2 (384-dim, ~90MB)
 
 Endpoints:
 - GET  /health
@@ -95,7 +96,7 @@ def _load_assets():
 
     cfg = PipelineConfig(
         top_k=10,
-        embedding_model="sentence-transformers/all-roberta-large-v1",
+        embedding_model="sentence-transformers/all-MiniLM-L6-v2",
         weights=EnsembleWeights(w_emb=0.50, w_pop=0.15, w_ce=0.20, w_ctx=0.15),
         diversity_lambda=0.0,
     )
@@ -122,10 +123,10 @@ def _background_load():
         recommender = _load_assets()
         STARTUP_OK = True
         STARTUP_ERROR = None
-        print("✅ Recommender ready")
+        print("[OK] Recommender ready")
     except Exception as e:
         STARTUP_ERROR = str(e)
-        print(f"❌ Load failed: {e}")
+        print(f"[ERR] Load failed: {e}")
 
 threading.Thread(target=_background_load, daemon=True).start()
 

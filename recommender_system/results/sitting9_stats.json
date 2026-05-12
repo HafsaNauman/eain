@@ -2,13 +2,9 @@
   "total_labels": 200,
   "errors": 0,
   "success_rate": 1.0,
-  "confidence_mean": 0.8372,
-  "high_conf_rate": 1.0,
-  "low_conf_rate": 0.0,
-  "preferred_A_pct": 0.685,
-  "preferred_B_pct": 0.315,
-  "balanced_split": true,
-  "category_coherence": 0.935,
-  "reason_quality": 1.0,
-  "pass_80pct_check": true
-}
+  "confidence_mean": 0.659,
+  "high_conf_rate": 0.505,
+  "low_conf_rate": 0.19,
+  "preferred_A_pct": 0.76,
+  "preferred_B_pct": 0.24,
+  "balanced_split": 

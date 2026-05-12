@@ -690,7 +690,7 @@ import { useDispatch } from 'react-redux';                          // ✅ ADDED
 import { useAppSelector } from '../../redux/hooks';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ ADDED
 import axios from 'axios';                                           // ✅ ADDED
-import { addToCart } from '../../redux/slices/cartSlice';
+import { addItem } from '../../redux/slices/cartSlice';
 import { getListingDetails } from '../../api/catalogService';
 import CustomButton from '../../components/common/CustomButton';
 import StockIndicator from '../../components/StockIndicator';
@@ -699,7 +699,7 @@ import { getFirstImage, getAllImages } from '../../utils/imageHelper';
 
 const { width } = Dimensions.get('window');
 const TEAL = '#036c5f';
-const BACKEND_URL = 'https://a5a2-39-50-209-222.ngrok-free.app'; // ← your Express backend IP
+const BACKEND_URL = 'https://2b02-149-40-194-235.ngrok-free.app'; // ← your Express backend IP
 
 // ─── Recommender helpers ─────────────────────────────────────────────────────
 const logEvent = async (userId, listingId, eventType) => {
@@ -748,8 +748,29 @@ const CustomerProductScreen = ({ route, navigation }) => {
                     { params: { top_k: 8 } }
                 );
                 if (data?.results?.length > 0) {
-                    setSimilarItems(data.results);
-                    console.log(`✅ Similar items: ${data.results.length}`);
+                    // Enrich each result with real catalog data — catalog title/price win over recommender metadata
+                    const enriched = await Promise.all(
+                        data.results.map(async (item) => {
+                            try {
+                                const res = await axios.get(
+                                    `${BACKEND_URL}/api/catalog/listings/${item.item_id}`,
+                                    { timeout: 5000 }
+                                );
+                                const catalog = res.data?.data?.listing || res.data?.data || null;
+                                return {
+                                    ...item,
+                                    _media: catalog?.media || null,
+                                    title: catalog?.title_en || catalog?.title || item.title,
+                                    category: catalog?.category || item.category,
+                                    price: catalog?.price ?? item.price,
+                                };
+                            } catch (_) {
+                                return item;
+                            }
+                        })
+                    );
+                    setSimilarItems(enriched);
+                    console.log(`✅ Similar items: ${enriched.length}`);
                 }
             } catch (_) {
                 console.warn('Similar items unavailable');
@@ -1006,11 +1027,11 @@ const CustomerProductScreen = ({ route, navigation }) => {
                     )}
                 </View>
 
-                {/* ── ✨ Similar Items ─────────────────────────────────────── */}
+                {/* ──  Similar Items ─────────────────────────────────────── */}
                 {/* ✅ ADDED: entire section below */}
                 <View style={styles.similarSection}>
                     <View style={styles.similarHeader}>
-                        <Text style={styles.sectionTitle}>✨ Similar Items</Text>
+                        <Text style={styles.sectionTitle}> Similar Items</Text>
                         {similarLoading && (
                             <ActivityIndicator size="small" color={TEAL} style={{ marginLeft: 8 }} />
                         )}
@@ -1031,17 +1052,14 @@ const CustomerProductScreen = ({ route, navigation }) => {
                                     navigation.push('CustomerProduct', { listingId: item.item_id });
                                 }}
                             >
-                                <Image
-                                    source={{
-                                        uri: `https://via.placeholder.com/140?text=${encodeURIComponent(item.title)}`
-                                    }}
-                                    style={styles.similarImage}
-                                />
-                                {item.signals?.ctx_sim > 0 && (
-                                    <View style={styles.simBadge}>
-                                        <Text style={styles.simBadgeText}>
-                                            {(item.signals.ctx_sim * 100).toFixed(0)}% match
-                                        </Text>
+                                {getFirstImage(item._media) ? (
+                                    <Image
+                                        source={{ uri: getFirstImage(item._media) }}
+                                        style={styles.similarImage}
+                                    />
+                                ) : (
+                                    <View style={[styles.similarImage, { backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' }]}>
+                                        <Ionicons name="image-outline" size={28} color="#8CBFC5" />
                                     </View>
                                 )}
                                 <View style={{ padding: 8 }}>
@@ -1067,10 +1085,16 @@ const CustomerProductScreen = ({ route, navigation }) => {
                     title={`Add to Cart (${quantity})`}
                     onPress={() => {
                         // ✅ FIXED: dispatch now declared above
-                        dispatch(addToCart({
-                            ...product,
-                            quantity,
-                            image_url: getFirstImage(product.media)
+                        dispatch(addItem({
+                            product: {
+                                id: product.listing_id,
+                                title: title,
+                                price: product.price,
+                                image_url: getFirstImage(product.media),
+                                vendor_id: product.Vendor?.vendor_id,
+                                ...product
+                            },
+                            quantity
                         }));
                         // ✅ ADDED: log add_to_cart event
                         if (currentUserId) logEvent(currentUserId, listingId, 'add_to_cart');
