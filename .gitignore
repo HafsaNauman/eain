@@ -16,6 +16,9 @@ ai_descriptions/venv/
 ai_descriptions/.env
 ai_descriptions/uploads/
 ai_descriptions/__pycache__/
+ai_descriptions/myenv/
+ai_descriptions/test
+ai_descriptions/.claude/
 visualSearch/.venv/
 visualSearch/__pycache__
 visualSearch/venv/
