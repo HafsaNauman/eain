@@ -138,8 +138,8 @@ const SignUpScreen = ({ route, navigation }) => {
           userRole: 'vendor',
         });
       } else if (formData.role === 'service_provider') {
-        // Service Provider goes to Business Registration (service type)
-        navigation.navigate('BusinessRegistration', {
+        // Service Provider goes to Service Profile setup
+        navigation.navigate('ServiceProfile', {
           userId: user.user_id,
           userRole: 'service_provider',
         });

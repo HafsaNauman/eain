@@ -2,7 +2,7 @@
  * Vendor Service - Business Registration & Profile Management
  */
 
-import apiClient from './authService';
+import apiClient from './client';
 import { getAccessToken } from '../utils/storage';
 
 /**
@@ -67,7 +67,7 @@ export const createVendorProfile = async (profileData) => {
       data: response.data,
     };
   } catch (error) {
-    console.error('Create Vendor Profile Error:', error);
+    console.warn('Create Vendor Profile Error:', error.message);
     return {
       success: false,
       error: error.response?.data?.message || 'Failed to create vendor profile',
@@ -95,7 +95,7 @@ export const getVendorProfile = async () => {
       data: response.data,
     };
   } catch (error) {
-    console.error('Get Vendor Profile Error:', error);
+    console.warn('Get Vendor Profile Error:', error.message);
     return {
       success: false,
       error: error.response?.data?.message || 'Failed to get vendor profile',
@@ -122,7 +122,7 @@ export const updateVendorProfile = async (updates) => {
       data: response.data,
     };
   } catch (error) {
-    console.error('Update Vendor Profile Error:', error);
+    console.warn('Update Vendor Profile Error:', error.message);
     return {
       success: false,
       error: error.response?.data?.message || 'Failed to update vendor profile',
@@ -149,7 +149,7 @@ export const createListing = async (listingData) => {
       data: response.data,
     };
   } catch (error) {
-    console.error('Create Listing Error:', error);
+    console.warn('Create Listing Error:', error.message);
     return {
       success: false,
       error: error.response?.data?.message || 'Failed to create listing',
@@ -175,7 +175,7 @@ export const updateListing = async (listingId, updates) => {
       data: response.data,
     };
   } catch (error) {
-    console.error('Update Listing Error:', error);
+    console.warn('Update Listing Error:', error.message);
     return {
       success: false,
       error: error.response?.data?.message || 'Failed to update listing',
@@ -197,7 +197,7 @@ export const deleteListing = async (listingId) => {
       data: response.data,
     };
   } catch (error) {
-    console.error('Delete Listing Error:', error);
+    console.warn('Delete Listing Error:', error.message);
     return {
       success: false,
       error: error.response?.data?.message || 'Failed to delete listing',
@@ -225,7 +225,7 @@ export const getVendorListings = async () => {
       data: response.data,
     };
   } catch (error) {
-    console.error('Get Vendor Listings Error:', error);
+    console.warn('Get Vendor Listings Error:', error.message);
     return {
       success: false,
       error: error.response?.data?.message || 'Failed to get listings',

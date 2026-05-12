@@ -71,18 +71,27 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
   ];
 
 
-  // ✅ CANCEL/LOGOUT HANDLER
-  const handleCancel = async () => {
-    console.log('🚪 [BusinessRegistration] User cancelled, logging out...');
-    try {
-      await logout();
-      console.log('✅ [BusinessRegistration] Logout successful');
-      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
-    } catch (error) {
-      console.error('❌ [BusinessRegistration] Logout error:', error);
-      // Force navigate even if logout fails
-      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
-    }
+  const handleCancel = () => {
+    Alert.alert(
+      'Cancel Registration',
+      'Are you sure? Your account will be removed and you\'ll need to sign up again.',
+      [
+        { text: 'No, Continue', style: 'cancel' },
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: async () => {
+            console.log('🚪 [BusinessRegistration] User cancelled, logging out...');
+            try {
+              await logout();
+              navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+            } catch (error) {
+              navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+            }
+          },
+        },
+      ]
+    );
   };
 
 
@@ -421,19 +430,25 @@ const BusinessRegistrationScreen = ({ route, navigation }) => {
                 style={styles.cancelButton}
                 disabled={loading}
               >
-                <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
+                <Ionicons name="close" size={24} color={COLORS.primary} />
               </TouchableOpacity>
 
               <Text style={styles.appName}>{t('businessReg.appName')}</Text>
 
-              <LanguageSwitcher />
+              <TouchableOpacity onPress={handleCancel}>
+                <Text style={{ color: COLORS.primary, fontSize: 13, fontWeight: '600' }}>Skip</Text>
+              </TouchableOpacity>
             </View>
             <Text style={styles.title}>{t('businessReg.title')}</Text>
-            <Text style={styles.subtitle}>
-              {userRole === 'vendor' ? t('businessReg.subtitle') : t('businessReg.serviceProviderInfo')}
-            </Text>
           </View>
 
+          {/* Welcome banner */}
+          <View style={{ backgroundColor: '#ECFDF5', borderRadius: 12, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#A7F3D0' }}>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#065F46', marginBottom: 4 }}>👋 Welcome!</Text>
+            <Text style={{ fontSize: 13, color: '#047857', lineHeight: 19 }}>
+              Please fill in your business details below to set up your vendor profile. You can update these later.
+            </Text>
+          </View>
 
           {generalError ? <ErrorAlert message={generalError} /> : null}
 

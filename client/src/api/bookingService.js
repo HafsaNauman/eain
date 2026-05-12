@@ -9,7 +9,7 @@
  *   GET  /api/bookings/:id                  → booking detail
  *   PUT  /api/bookings/:id/cancel           → cancel booking
  */
-import apiClient from './authService';
+import apiClient from './client';
 
 // Browse service listings — GET /api/catalog/listings?listing_type=service&...
 export const getServiceListings = async (params = {}) => {

@@ -210,8 +210,8 @@ export const generateProductDescription = async (imageFile, vendorId = null, sav
             };
         }
     } catch (error) {
-        console.error('❌ AI Description Service Error:', error);
-        console.error('Error details:', {
+        console.warn('❌ AI Description Service Error:', error.message);
+        console.warn('Error details:', {
             message: error.message,
             response: error.response?.data,
             status: error.response?.status,
@@ -293,7 +293,7 @@ export const updateListingWithAI = async (listingId, imageFile) => {
             };
         }
     } catch (error) {
-        console.error('❌ Update Listing Error:', error);
+        console.warn('❌ Update Listing Error:', error.message);
         return {
             success: false,
             error: error.response?.data?.error || error.message || 'Failed to update listing',

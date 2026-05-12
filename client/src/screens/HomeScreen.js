@@ -29,7 +29,7 @@ const cities = ['All Cities', 'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'F
 
 function HomeScreen() {
   const { i18n, t } = useTranslation();
-  const { isAdmin } = useAuth();
+  const { isAdmin, isAuthenticated } = useAuth();
   const isUrdu = i18n.language === 'ur';
   const navigation = useNavigation();
   const [selectedStockFilter, setSelectedStockFilter] = useState('all');
@@ -224,7 +224,16 @@ function HomeScreen() {
           <Ionicons name={menuOpen ? 'close' : 'menu'} size={28} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.logo}>EAIN</Text>
-        <TouchableOpacity onPress={() => Alert.alert(t('homeScreen.home'), t('homeScreen.cartFeature'))}>
+        <TouchableOpacity onPress={() => {
+          if (isAuthenticated) {
+            navigation.navigate('Cart');
+          } else {
+            Alert.alert('Login Required', 'Please log in to view your cart.', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Log In', onPress: () => navigation.navigate('Login') },
+            ]);
+          }
+        }}>
           <Ionicons name="cart-outline" size={28} color="#fff" />
           {cartCount > 0 && (
             <View style={styles.cartBadge}>
@@ -574,10 +583,7 @@ function HomeScreen() {
           <Text style={{ color: '#666', fontSize: 12 }}>{t('homeScreen.orders')}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => { }} style={styles.navBtn}>
-          <Ionicons name="heart-outline" size={24} color="#666" />
-          <Text style={{ color: '#666', fontSize: 12 }}>{t('homeScreen.wishlist')}</Text>
-        </TouchableOpacity>
+
 
         <TouchableOpacity onPress={() => navigation.navigate(isAdmin ? 'AdminDashboard' : 'Profile')} style={styles.navBtn}>
           <Ionicons name="person-outline" size={24} color="#666" />

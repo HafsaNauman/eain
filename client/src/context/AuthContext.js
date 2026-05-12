@@ -217,21 +217,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (accessToken, refreshToken, userData) => {
+    console.log('🔐 AuthContext.login called');
+    console.log('   accessToken:', accessToken ? `${accessToken.substring(0, 20)}...` : 'MISSING');
+    console.log('   refreshToken:', refreshToken ? 'exists' : 'MISSING');
+    console.log('   user:', userData);
+
     await saveTokens(accessToken, refreshToken);
     await saveUserData(userData);
     setUser(userData);
     setIsAuthenticated(true);
-    const login = async (accessToken, refreshToken, userData) => {
-      console.log('🔐 AuthContext.login called');
-      console.log('   accessToken:', accessToken ? `${accessToken.substring(0, 20)}...` : 'MISSING');
-      console.log('   refreshToken:', refreshToken ? 'exists' : 'MISSING');
-      console.log('   user:', userData);
-
-      await saveTokens(accessToken, refreshToken);
-      await saveUserData(userData);
-      setUser(userData);
-      setIsAuthenticated(true);
-    };
   };
 
   const logout = async () => {

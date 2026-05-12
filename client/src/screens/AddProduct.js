@@ -208,11 +208,11 @@ const AddProductScreen = ({ route, navigation }) => {
           setGeneralError(aiResult.error || t('addProduct.errors.addFailed'));
         }
       } catch (uploadError) {
-        console.error('❌ [AI] Upload or generation error:', uploadError);
+        console.warn('❌ [AI] Upload or generation error:', uploadError.message);
         Alert.alert(t('common.error'), t('addProduct.errors.addFailed'));
       }
     } catch (error) {
-      console.error('❌ AI Generation Error:', error);
+        console.warn('❌ AI Generation Error:', error.message);
       setGeneralError(t('addProduct.errors.addFailed'));
     } finally {
       setAiLoading(false);
@@ -296,7 +296,7 @@ const AddProductScreen = ({ route, navigation }) => {
         setGeneralError(result.error || t('addProduct.errors.addFailed'));
       }
     } catch (err) {
-      console.error('❌ Add product error:', err);
+      console.warn('❌ Add product error:', err.message);
       setGeneralError(t('addProduct.errors.addFailed'));
     } finally {
       setLoading(false);
