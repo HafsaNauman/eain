@@ -686,12 +686,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';                          // ✅ ADDED
+import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../redux/hooks';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ ADDED
-import axios from 'axios';                                           // ✅ ADDED
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { addItem } from '../../redux/slices/cartSlice';
 import { getListingDetails } from '../../api/catalogService';
+import { getSimilarItems, logEvent } from '../../api/recommendService';
 import CustomButton from '../../components/common/CustomButton';
 import StockIndicator from '../../components/StockIndicator';
 import QuantityPicker from '../../components/common/QuantityPicker';
@@ -699,19 +699,6 @@ import { getFirstImage, getAllImages } from '../../utils/imageHelper';
 
 const { width } = Dimensions.get('window');
 const TEAL = '#036c5f';
-const BACKEND_URL = 'https://2b02-149-40-194-235.ngrok-free.app'; // ← your Express backend IP
-
-// ─── Recommender helpers ─────────────────────────────────────────────────────
-const logEvent = async (userId, listingId, eventType) => {
-    try {
-        await axios.post(`${BACKEND_URL}/api/recommend/events`, {
-            user_id: userId,
-            listing_id: String(listingId),
-            event_type: eventType,
-        });
-    } catch (_) { } // fire-and-forget
-};
-// ─────────────────────────────────────────────────────────────────────────────
 
 const CustomerProductScreen = ({ route, navigation }) => {
     const { listingId } = route.params;
@@ -743,24 +730,18 @@ const CustomerProductScreen = ({ route, navigation }) => {
             if (uid) logEvent(uid, listingId, 'view');
             setSimilarLoading(true);
             try {
-                const { data } = await axios.get(
-                    `${BACKEND_URL}/api/recommend/similar/${listingId}`,
-                    { params: { top_k: 8 } }
-                );
-                if (data?.results?.length > 0) {
-                    // Enrich each result with real catalog data — catalog title/price win over recommender metadata
+                const rec = await getSimilarItems(listingId, 8);
+                if (rec.success && rec.data?.results?.length > 0) {
+                    // Enrich each result with real catalog data
                     const enriched = await Promise.all(
-                        data.results.map(async (item) => {
+                        rec.data.results.map(async (item) => {
                             try {
-                                const res = await axios.get(
-                                    `${BACKEND_URL}/api/catalog/listings/${item.item_id}`,
-                                    { timeout: 5000 }
-                                );
-                                const catalog = res.data?.data?.listing || res.data?.data || null;
+                                const detail = await getListingDetails(item.item_id);
+                                const catalog = detail.success ? detail.data : null;
                                 return {
                                     ...item,
                                     _media: catalog?.media || null,
-                                    title: catalog?.title_en || catalog?.title || item.title,
+                                    title: catalog?.title_en || item.title,
                                     category: catalog?.category || item.category,
                                     price: catalog?.price ?? item.price,
                                 };

@@ -112,6 +112,14 @@ const API_CONFIG = {
       UPDATE_LISTING_WITH_AI: '/api/ai/update-listing-with-ai/:listing_id',
       DESCRIPTION: '/api/ai/description',
     },
+
+    RECOMMEND: {
+      FOR_YOU:      '/api/recommend/for-you',
+      SIMILAR:      '/api/recommend/similar',
+      VOICE_RERANK: '/api/recommend/voice-rerank',
+      VISUAL_RERANK:'/api/recommend/visual-rerank',
+      LOG_EVENT:    '/api/recommend/events',
+    },
   },
 };
 

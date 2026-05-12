@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addItem } from '../redux/slices/cartSlice';
 import {
   View,
   Text,
@@ -101,9 +103,11 @@ function HomeScreen() {
   const isUrdu = i18n.language === 'ur';
   const navigation = useNavigation();
 
+  const dispatch = useDispatch();
+  const cartItems = useSelector(state => state.cart.items);
+
   const [selectedStockFilter, setSelectedStockFilter] = useState('all');
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -405,7 +409,7 @@ function HomeScreen() {
     navigation.navigate('CustomerProduct', { listingId: String(listingId) });
   };
 
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 
   const addToCart = (product) => {
     if (product.track_inventory && product.stock_quantity <= (product.reserved_quantity || 0)) {
@@ -415,7 +419,7 @@ function HomeScreen() {
 
     const available = product.stock_quantity - (product.reserved_quantity || 0);
     const maxQuantity = available || 999;
-    const existing = cart.find((item) => item.listing_id === product.listing_id);
+    const existing = cartItems.find((i) => i.product.id === product.listing_id);
     const newQuantity = existing ? existing.quantity + 1 : 1;
 
     if (newQuantity > maxQuantity) {
@@ -423,17 +427,23 @@ function HomeScreen() {
       return;
     }
 
-    if (existing) {
-      setCart(
-        cart.map((item) =>
-          item.listing_id === product.listing_id
-            ? { ...item, quantity: newQuantity }
-            : item
-        )
-      );
-    } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
-    }
+    dispatch(addItem({
+      product: {
+        id: product.listing_id,
+        listing_id: product.listing_id,
+        title: product.title_en,
+        title_ur: product.title_ur,
+        price: product.price,
+        currency: product.currency,
+        image_url: product.primaryImage,
+        category: product.category,
+        track_inventory: product.track_inventory,
+        stock_quantity: product.stock_quantity,
+        reserved_quantity: product.reserved_quantity,
+        vendor_id: product.Vendor?.vendor_id,
+      },
+      quantity: 1,
+    }));
 
     if (currentUserId) logEvent(currentUserId, product.listing_id, 'add_to_cart');
 
@@ -442,7 +452,7 @@ function HomeScreen() {
   };
 
   const toggleWishlist = (product) => {
-    const inWishlist = wishlist.find((item) => item.listing_id === product.listing_id);
+    const inWishlist = wishlist.some((item) => item.listing_id === product.listing_id);
 
     if (inWishlist) {
       setWishlist(wishlist.filter((item) => item.listing_id !== product.listing_id));

@@ -57,7 +57,7 @@ export const voiceRerank = async (transcript, userId = null) => {
 export const visualRerank = async (payload) => {
     try {
         const { data } = await axios.post(
-            joinUrl(BASE, APICONFIG.ENDPOINTS.RECOMMEND.VISUAL_RERANK),
+            joinUrl(APICONFIG.BASE_URL, APICONFIG.ENDPOINTS.RECOMMEND.VISUAL_RERANK),
             payload,
             { timeout: APICONFIG.TIMEOUT || 30000 }
         );
@@ -73,7 +73,7 @@ export const visualRerank = async (payload) => {
 export const logEvent = async (userId, listingId, eventType) => {
     try {
         await axios.post(
-            joinUrl(BASE, APICONFIG.ENDPOINTS.RECOMMEND.LOG_EVENT),
+            joinUrl(APICONFIG.BASE_URL, APICONFIG.ENDPOINTS.RECOMMEND.LOG_EVENT),
             {
                 user_id: userId,
                 listing_id: String(listingId),
