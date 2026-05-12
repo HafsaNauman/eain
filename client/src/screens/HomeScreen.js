@@ -717,6 +717,13 @@ function HomeScreen() {
               )}
             </View>
 
+            {/* AI method badge — shows e.g. "For You · log_pop" or "For You · profile_emb + log_pop" */}
+            {feedLabel ? (
+              <Text style={[styles.feedBadge, { marginBottom: 8, alignSelf: 'flex-start' }]}>
+                {feedLabel}
+              </Text>
+            ) : null}
+
             {products.length === 0 && (
               <View style={{ padding: 20, alignItems: 'center' }}>
                 <Ionicons name="basket-outline" size={48} color="#8CBFC5" />

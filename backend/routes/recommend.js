@@ -5,15 +5,20 @@ import axios from 'axios';
 const router = express.Router();
 
 const REC_URL = process.env.RECOMMENDER_URL || 'http://localhost:8001';
+// Give the recommender service enough time to respond (model inference can be slow on CPU).
+// 35 s beats the 30 s frontend timeout so the Express layer never hangs indefinitely.
+const REC_TIMEOUT = 35_000;
 
 // POST /api/recommend/for-you
 router.post('/for-you', async (req, res) => {
     try {
         console.log('HIT /api/recommend/for-you', req.body);
         const { user_id, query, exclude_ids, top_k } = req.body;
-        const { data } = await axios.post(`${REC_URL}/recommend/for-you`, {
-            user_id, query, exclude_ids, top_k
-        });
+        const { data } = await axios.post(
+            `${REC_URL}/recommend/for-you`,
+            { user_id, query, exclude_ids, top_k },
+            { timeout: REC_TIMEOUT }
+        );
         res.json(data);
     } catch (err) {
         res.status(err.response?.status || 500).json({ error: err.message });
@@ -25,7 +30,7 @@ router.get('/similar/:listing_id', async (req, res) => {
     try {
         const { data } = await axios.get(
             `${REC_URL}/recommend/similar/${req.params.listing_id}`,
-            { params: { top_k: req.query.top_k || 10 } }
+            { params: { top_k: req.query.top_k || 10 }, timeout: REC_TIMEOUT }
         );
         res.json(data);
     } catch (err) {
@@ -36,7 +41,11 @@ router.get('/similar/:listing_id', async (req, res) => {
 // POST /api/recommend/voice-rerank
 router.post('/voice-rerank', async (req, res) => {
     try {
-        const { data } = await axios.post(`${REC_URL}/recommend/voice-rerank`, req.body);
+        const { data } = await axios.post(
+            `${REC_URL}/recommend/voice-rerank`,
+            req.body,
+            { timeout: REC_TIMEOUT }
+        );
         res.json(data);
     } catch (err) {
         res.status(err.response?.status || 500).json({ error: err.message });
@@ -46,7 +55,11 @@ router.post('/voice-rerank', async (req, res) => {
 // POST /api/recommend/visual-rerank
 router.post('/visual-rerank', async (req, res) => {
     try {
-        const { data } = await axios.post(`${REC_URL}/recommend/visual-rerank`, req.body);
+        const { data } = await axios.post(
+            `${REC_URL}/recommend/visual-rerank`,
+            req.body,
+            { timeout: REC_TIMEOUT }
+        );
         res.json(data);
     } catch (err) {
         res.status(err.response?.status || 500).json({ error: err.message });
@@ -56,7 +69,11 @@ router.post('/visual-rerank', async (req, res) => {
 // POST /api/events/log
 router.post('/events', async (req, res) => {
     try {
-        const { data } = await axios.post(`${REC_URL}/events/log`, req.body);
+        const { data } = await axios.post(
+            `${REC_URL}/events/log`,
+            req.body,
+            { timeout: REC_TIMEOUT }
+        );
         res.json(data);
     } catch (err) {
         res.status(err.response?.status || 500).json({ error: err.message });

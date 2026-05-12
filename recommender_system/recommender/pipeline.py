@@ -244,11 +244,14 @@ class EAINRecommender:
             ctx_sim = np.zeros(N, dtype=np.float32)
             ctx_ok  = False
             if query or visual_emb is not None:
-                enc = self._get_encoder()
                 if query:
-                    q_emb = enc.encode_text(query)
-                elif visual_emb is not None:
-                    q_emb = enc.encode_visual(visual_emb)
+                    # Text query: needs the SentenceTransformer encoder
+                    q_emb = self._get_encoder().encode_text(query)
+                else:
+                    # visual_emb is already a pre-computed embedding (e.g. item_embs[idx]).
+                    # Just L2-normalise it — no model load needed.
+                    v = np.array(visual_emb, dtype=np.float32).flatten()
+                    q_emb = v / (np.linalg.norm(v) + 1e-9)
                 ctx_sim = (self.item_embs @ q_emb).astype(np.float32)
                 ctx_ok  = True
         except Exception as e:

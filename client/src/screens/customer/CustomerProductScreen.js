@@ -731,6 +731,7 @@ const CustomerProductScreen = ({ route, navigation }) => {
             setSimilarLoading(true);
             try {
                 const rec = await getSimilarItems(listingId, 8);
+                if (!rec.success) console.warn('getSimilarItems failed:', rec.error);
                 if (rec.success && rec.data?.results?.length > 0) {
                     // Enrich each result with real catalog data
                     const enriched = await Promise.all(
@@ -753,8 +754,8 @@ const CustomerProductScreen = ({ route, navigation }) => {
                     setSimilarItems(enriched);
                     console.log(`✅ Similar items: ${enriched.length}`);
                 }
-            } catch (_) {
-                console.warn('Similar items unavailable');
+            } catch (err) {
+                console.warn('Similar items unavailable:', err?.message || err);
             } finally {
                 setSimilarLoading(false);
             }

@@ -98,10 +98,12 @@ def _load_assets():
         top_k=10,
         embedding_model="sentence-transformers/all-MiniLM-L6-v2",
         weights=EnsembleWeights(w_emb=0.50, w_pop=0.15, w_ce=0.20, w_ctx=0.15),
-        diversity_lambda=0.0,
+        # MMR diversity: selects items that are both relevant AND spread across
+        # embedding space, so "For You" looks different from the flat catalog list.
+        diversity_lambda=0.2,
     )
 
-    return EAINRecommender(
+    rec = EAINRecommender(
         item_embeddings=item_embs,
         item_ids=item_ids,
         items_meta=items_meta,
@@ -110,6 +112,14 @@ def _load_assets():
         popularity_scores=pop,
         config=cfg,
     )
+    # Pre-warm the SentenceTransformer encoder so the first voice/text-rerank
+    # request is not delayed by model download (~90 MB MiniLM).
+    # NOTE: similar-items calls no longer trigger this path (visual_emb is
+    #       normalised directly), but voice/visual-text still need it.
+    print("[INFO] Pre-loading SentenceTransformer encoder…")
+    rec._get_encoder()
+    print("[INFO] Encoder ready")
+    return rec
 
 
 recommender = None
