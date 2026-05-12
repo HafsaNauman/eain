@@ -124,9 +124,12 @@ function HomeScreen() {
 
   const [currentUserId, setCurrentUserId] = useState(null);
   const [authReady, setAuthReady] = useState(false);
-  const [feedSource, setFeedSource] = useState('catalog');
-  const [feedLabel, setFeedLabel] = useState('');
-  const [manualCatalogMode, setManualCatalogMode] = useState(false);
+  // ── For You carousel (independent of the catalog grid) ──
+  const [forYouItems, setForYouItems] = useState([]);
+  const [forYouLoading, setForYouLoading] = useState(false);
+  const [forYouLabel, setForYouLabel] = useState('');
+  // voice results label (replaces main grid temporarily)
+  const [voiceLabel, setVoiceLabel] = useState('');
 
   const sortOptions = [
     { label: t('homeScreen.newestFirst'), value: 'created_at' },
@@ -141,80 +144,39 @@ function HomeScreen() {
     selectedSort !== 'created_at' ||
     selectedStockFilter !== 'all';
 
-  const fetchRecommenderFeed = useCallback(async (userId, query = null) => {
-
+  // Loads the "For You" carousel independently — never replaces the catalog grid.
+  const fetchForYou = useCallback(async (userId) => {
+    setForYouLoading(true);
     try {
-      setLoading(true);
-      setError('');
-
-      const rec = await getForYouFeed(userId, query, 20);
+      const rec = await getForYouFeed(userId || null, null, 10);
       const rawResults = rec.data?.results || rec.data?.items || [];
-
-      // AFTER
       if (rec.success && rawResults.length > 0) {
-        // Enrich recommender results with real catalog data.
-        // Catalog title/price/category win over recommender metadata to prevent stale synthetic values.
         const enriched = await Promise.all(
-          rawResults.map(async (r) => {
+          rawResults.slice(0, 10).map(async (r) => {
             try {
               const detail = await getListingDetails(r.item_id);
-              const catalog = detail.success ? detail.data : null;
+              const c = detail.success ? detail.data : null;
               return {
-                item_id: r.item_id,
                 listing_id: r.item_id,
-                title: catalog?.title_en || catalog?.title || r.title,
-                title_ur: catalog?.title_ur || null,
-                category: catalog?.category || r.category,
-                price: catalog?.price ?? r.price,
-                currency: catalog?.currency || r.currency || 'PKR',
-                media: catalog?.media || null,
-                image_url: r.image_url,
-                score: r.score,
-                method: rec.data?.method,
+                title_en: c?.title_en || r.title || '',
+                title_ur: c?.title_ur || null,
+                category: c?.category || r.category || '',
+                price: c?.price ?? r.price ?? 0,
+                currency: c?.currency || r.currency || 'PKR',
+                media: c?.media || null,
               };
             } catch (_) {
-              return {
-                item_id: r.item_id,
-                title: r.title,
-                category: r.category,
-                price: r.price,
-                currency: r.currency || 'PKR',
-                image_url: r.image_url,
-                score: r.score,
-                method: rec.data?.method,
-              };
+              return { listing_id: r.item_id, title_en: r.title || '', price: r.price || 0, currency: 'PKR', media: null };
             }
           })
         );
-
-        setProducts(enriched.map(normalizeProduct));
-        setFeedSource('recommender');
-        setFeedLabel(`For You · ${rec.data?.method?.split('(')[0] || 'AI'}`);
-        return;
+        setForYouItems(enriched.filter(i => i.listing_id));
+        const method = rec.data?.method || '';
+        setForYouLabel(method.includes('diverse') ? 'Curated for you' : (method.split('+')[0]?.trim() || 'AI'));
       }
-
-      const fallback = await getAllListings({ limit: 50, offset: 0 });
-      if (fallback.success) {
-        setProducts((fallback.data?.listings || []).map(normalizeProduct));
-        setFeedSource('catalog');
-        setFeedLabel('');
-      } else {
-        setError(fallback.error || 'Failed to load products');
-      }
-    } catch (err) {
-      const fallback = await getAllListings({ limit: 50, offset: 0 });
-      if (fallback.success) {
-        setProducts((fallback.data?.listings || []).map(normalizeProduct));
-        setFeedSource('catalog');
-        setFeedLabel('');
-      } else {
-        setError(t('errors.networkError'));
-      }
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [t]);
+    } catch (_) { /* silent — carousel is optional */ }
+    finally { setForYouLoading(false); }
+  }, []);
 
   const fetchListings = useCallback(async (isRefresh = false) => {
     try {
@@ -283,40 +245,22 @@ function HomeScreen() {
     })();
   }, []);
 
+  // Catalog grid — reloads whenever search/filters change
   useEffect(() => {
     if (!authReady) return;
-
-    const timer = setTimeout(() => {
-      const hasSearch = !!searchQuery.trim();
-
-      if (hasSearch || hasActiveFilters || manualCatalogMode) {
-        fetchListings();
-      } else {
-        fetchRecommenderFeed(currentUserId || null);
-      }
-    }, 400);
-
+    const timer = setTimeout(() => fetchListings(), 400);
     return () => clearTimeout(timer);
-  }, [
-    authReady,
-    currentUserId,
-    searchQuery,
-    selectedCategory,
-    selectedCity,
-    selectedSort,
-    selectedStockFilter,
-    hasActiveFilters,
-    manualCatalogMode,
-    fetchListings,
-    fetchRecommenderFeed,
-  ]);
+  }, [authReady, searchQuery, selectedCategory, selectedCity, selectedSort, selectedStockFilter, fetchListings]);
+
+  // For You carousel — loads once when the user is known, never re-triggered by filters
+  useEffect(() => {
+    if (!authReady) return;
+    fetchForYou(currentUserId);
+  }, [authReady, currentUserId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRefresh = () => {
-    if (manualCatalogMode || searchQuery.trim() || hasActiveFilters || !currentUserId) {
-      fetchListings(true);
-    } else {
-      fetchRecommenderFeed(currentUserId);
-    }
+    fetchListings(true);
+    fetchForYou(currentUserId);
   };
 
   const clearFilters = () => {
@@ -326,13 +270,7 @@ function HomeScreen() {
     setSelectedSort('created_at');
     setSelectedStockFilter('all');
     setShowFilters(false);
-    setManualCatalogMode(false);
-
-    if (currentUserId) {
-      fetchRecommenderFeed(currentUserId);
-    } else {
-      fetchListings();
-    }
+    setVoiceLabel('');
   };
 
   const handleVoiceSearch = async () => {
@@ -369,15 +307,11 @@ function HomeScreen() {
                   score: r.score,
                 })
               );
-
               setProducts(mapped);
-              setFeedSource('voice');
-              setFeedLabel(`🎤 "${displayText}"`);
+              setVoiceLabel(`🎤 "${displayText}"`);
               setSearchQuery(displayText);
-              setManualCatalogMode(false);
             } else {
               setSearchQuery(normalized.trim());
-              setManualCatalogMode(true);
             }
           } else {
             Alert.alert('No speech detected', 'Please try again and speak clearly.');
@@ -514,19 +448,14 @@ function HomeScreen() {
             value={searchQuery}
             onChangeText={(text) => {
               setSearchQuery(text);
-              if (text.trim()) setManualCatalogMode(true);
-              if (!text.trim()) setManualCatalogMode(false);
+              if (!text.trim()) setVoiceLabel('');
             }}
             returnKeyType="search"
           />
 
           {searchQuery.length > 0 && (
             <TouchableOpacity
-              onPress={() => {
-                setSearchQuery('');
-                setManualCatalogMode(false);
-                if (currentUserId) fetchRecommenderFeed(currentUserId);
-              }}
+              onPress={() => { setSearchQuery(''); setVoiceLabel(''); }}
             >
               <Ionicons name="close-circle" size={20} color="#036c5f" />
             </TouchableOpacity>
@@ -596,13 +525,57 @@ function HomeScreen() {
           </View>
         )}
 
+        {/* ── For You Carousel ─────────────────────────────────────────────── */}
+        {(forYouLoading || forYouItems.length > 0) && (
+          <View style={{ marginBottom: 20 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 }}>
+              <Text style={styles.sectionTitle}>✨ For You</Text>
+              {forYouLoading
+                ? <ActivityIndicator size="small" color="#036c5f" />
+                : forYouLabel ? <Text style={styles.feedBadge}>{forYouLabel}</Text> : null}
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {forYouItems.map((item) => {
+                let parsedMedia = item.media;
+                if (typeof parsedMedia === 'string') { try { parsedMedia = JSON.parse(parsedMedia); } catch (_) { parsedMedia = null; } }
+                let imgUri = null;
+                if (parsedMedia?.images?.length > 0) imgUri = parsedMedia.images[0];
+                else if (Array.isArray(parsedMedia) && parsedMedia[0]?.image_url) imgUri = parsedMedia[0].image_url;
+                return (
+                  <TouchableOpacity
+                    key={item.listing_id}
+                    style={styles.forYouCard}
+                    activeOpacity={0.82}
+                    onPress={() => navigateToProductDetail(item.listing_id)}
+                  >
+                    {imgUri
+                      ? <Image source={{ uri: imgUri }} style={styles.forYouImage} />
+                      : <View style={[styles.forYouImage, styles.imagePlaceholder]}>
+                          <Ionicons name="image-outline" size={28} color="#8CBFC5" />
+                        </View>
+                    }
+                    <View style={{ padding: 8 }}>
+                      <Text style={styles.forYouTitle} numberOfLines={2}>
+                        {isUrdu && item.title_ur ? item.title_ur : item.title_en}
+                      </Text>
+                      <Text style={styles.forYouPrice}>
+                        {item.currency || 'PKR'} {Number(item.price || 0).toLocaleString()}
+                      </Text>
+                      {item.category ? <Text style={styles.forYouCat} numberOfLines={1}>{item.category}</Text> : null}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categories}>
           {categories.map((cat) => (
             <TouchableOpacity
               key={cat}
               onPress={() => {
                 setSelectedCategory(cat);
-                setManualCatalogMode(true);
               }}
               style={[styles.categoryBtn, selectedCategory === cat && styles.categorySelected]}
             >
@@ -669,60 +642,19 @@ function HomeScreen() {
 
         {!loading && (
           <>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 4,
-                flexWrap: 'wrap',
-                gap: 8,
-              }}
-            >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, flexWrap: 'wrap', gap: 8 }}>
               <Text style={styles.sectionTitle}>
-                {feedSource === 'recommender'
-                  ? 'For You'
-                  : feedSource === 'voice'
-                    ? 'Voice Results'
-                    : `${t('homeScreen.products')} (${products.length})`}
+                {voiceLabel ? 'Voice Results' : `${t('homeScreen.products')} (${products.length})`}
               </Text>
-
-              {feedSource === 'recommender' || feedSource === 'voice' ? (
-                <TouchableOpacity
-                  onPress={() => {
-                    setManualCatalogMode(true);
-                    setFeedSource('catalog');
-                    setFeedLabel('');
-                    fetchListings();
-                  }}
-                  style={styles.seeAllBtn}
-                >
-                  <Text style={styles.seeAllText}>All Products</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  onPress={() => {
-                    setManualCatalogMode(false);
-                    setSearchQuery('');
-                    setSelectedCategory('All');
-                    setSelectedCity('All Cities');
-                    setSelectedSort('created_at');
-                    setSelectedStockFilter('all');
-                    fetchRecommenderFeed(currentUserId || null);
-                  }}
-                  style={styles.seeAllBtn}
-                >
-                  <Text style={styles.seeAllText}> For You</Text>
-                </TouchableOpacity>
-              )}
+              {voiceLabel ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={styles.feedBadge}>{voiceLabel}</Text>
+                  <TouchableOpacity onPress={() => { setVoiceLabel(''); setSearchQuery(''); }} style={styles.seeAllBtn}>
+                    <Text style={styles.seeAllText}>Clear</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
             </View>
-
-            {/* AI method badge — shows e.g. "For You · log_pop" or "For You · profile_emb + log_pop" */}
-            {feedLabel ? (
-              <Text style={[styles.feedBadge, { marginBottom: 8, alignSelf: 'flex-start' }]}>
-                {feedLabel}
-              </Text>
-            ) : null}
 
             {products.length === 0 && (
               <View style={{ padding: 20, alignItems: 'center' }}>
@@ -891,7 +823,6 @@ function HomeScreen() {
                     selectedValue={selectedCity}
                     onValueChange={(value) => {
                       setSelectedCity(value);
-                      setManualCatalogMode(true);
                     }}
                     style={styles.picker}
                   >
@@ -907,7 +838,6 @@ function HomeScreen() {
                     selectedValue={selectedCategory}
                     onValueChange={(value) => {
                       setSelectedCategory(value);
-                      setManualCatalogMode(true);
                     }}
                     style={styles.picker}
                   >
@@ -923,7 +853,6 @@ function HomeScreen() {
                     selectedValue={selectedSort}
                     onValueChange={(value) => {
                       setSelectedSort(value);
-                      setManualCatalogMode(true);
                     }}
                     style={styles.picker}
                   >
@@ -939,7 +868,6 @@ function HomeScreen() {
                     selectedValue={selectedStockFilter}
                     onValueChange={(value) => {
                       setSelectedStockFilter(value);
-                      setManualCatalogMode(true);
                     }}
                     style={styles.picker}
                   >
@@ -1168,6 +1096,16 @@ const styles = StyleSheet.create({
   },
   recScoreText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
   noFavorites: { padding: 24, color: '#8CBFC5', textAlign: 'center' },
+  // ── For You carousel ──────────────────────────────────────────────────────
+  forYouCard: {
+    width: 140, marginRight: 12, backgroundColor: '#f0fff9', borderRadius: 14,
+    overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08, shadowRadius: 6, elevation: 3, marginBottom: 4,
+  },
+  forYouImage: { width: 140, height: 110, resizeMode: 'cover' },
+  forYouTitle: { fontSize: 12, fontWeight: '600', color: '#1a1a1a', marginBottom: 2 },
+  forYouPrice: { fontSize: 13, fontWeight: '700', color: '#036c5f', marginBottom: 2 },
+  forYouCat: { fontSize: 11, color: '#888' },
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-around',
